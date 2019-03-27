@@ -716,8 +716,8 @@ def parameter_setting(m_type='', data_path='', train_file='', dev_file='', test_
 
     FLAGS.data_dir = os.path.join(base_dir, data_path)
 
-    if m_type is "stacking":
-        FLAGS.model_output_dir = os.path.join(base_dir, 'output/stacking/bert', str(FLAGS.train_file).split('.')[0])
+    if m_type is "3_stacking":
+        FLAGS.model_output_dir = os.path.join(base_dir, 'output/3_stacking/bert', str(FLAGS.train_file).split('.')[0])
     else:
         FLAGS.model_output_dir = os.path.join(base_dir, 'output/bert', str(FLAGS.train_file).split('.')[0])
 

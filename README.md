@@ -1,9 +1,11 @@
 # Workspace of Nature Language Understanding
 
 ## Target
-+ 复现当前主流的文本分类方法
++ 复现当前主流的文本分类，槽值提取等自然语言理解的主流方法
 + 高效美观的代码实现
-
+    + 算法解耦
+    + 工程解耦
++ 对各个方法进行模型融合
    
 ## File System 
 + data
@@ -37,6 +39,7 @@
     
 ## Next
 + 代码逐行review，优化代码的逻辑性和简洁性
++ 数据自动下载脚本
 + 工程优化
     + 定义命名规范
     + parser 和 flag 使用方式要统一

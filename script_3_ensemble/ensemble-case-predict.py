@@ -55,8 +55,8 @@ parser.add_argument('--seg_ids', type=str, default="segment_ids:0",
 parser.add_argument('--output', type=str, default="loss/Softmax:0",
                     help='the ouput op_name for graph, format： <op_name>:<output_index>')
 parser.add_argument('--vocab_bert', type=str, default=base_dir + '/output/BERT/bert_vocab.txt')
-parser.add_argument('--ensemble_type', type=str, default='stacking',
-                    help='ensemble type: {vote, avg, stacking}')
+parser.add_argument('--ensemble_type', type=str, default='3_stacking',
+                    help='ensemble type: {1_vote, avg, 3_stacking}')
 args_in_use = parser.parse_args()
 
 """
@@ -113,8 +113,8 @@ with graph_bert.as_default():
         graph.ParseFromString(f.read())
         tf.import_graph_def(graph, name="")
 
-if args_in_use.ensemble_type == "stacking":
-    """ stacking meta learner """
+if args_in_use.ensemble_type == "3_stacking":
+    """ 3_stacking meta learner """
     graph_meta = tf.Graph()
     with graph_meta.as_default():
         graph = tf.GraphDef()
@@ -191,7 +191,7 @@ def get_fasttext_result(x_test):
     print("Starting fastText ...")
 
     def fasttext(input_):
-        ft_dir = os.path.join(base_dir, "script_ensemble/fasttext")
+        ft_dir = os.path.join(base_dir, "script_3_ensemble/fasttext")
         if sysstr == "Darwin":
             resdir = os.path.join(ft_dir, "osx")
             print(ft_dir)
@@ -370,7 +370,7 @@ def _voting(pred_probabilities):
 
 
 def _avg(pred_probabilities):
-    print("Starting vote ...")
+    print("Starting 1_vote ...")
     pred_probabilities = np.array(pred_probabilities, np.float32)
     prob = np.mean(pred_probabilities, 0)
     id = np.argmax(prob)
@@ -386,9 +386,9 @@ def run_ensemble(sentence):
     fetch_results_from_models_with_multi_thread(sentence)
     print("\nAll results: {}".format(results_list))
 
-    ensemble_ = {'vote': _voting,
+    ensemble_ = {'1_vote': _voting,
                  'avg': _avg,
-                 'stacking': _stacking}
+                 '3_stacking': _stacking}
 
     print('=' * 200)
     (label_id, label) = ensemble_[args_in_use.ensemble_type](results_list)
