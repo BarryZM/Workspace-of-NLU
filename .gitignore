@@ -1,0 +1,15 @@
+data/
+output/
+others/
+*.txt
+*.tsv
+!*.pb
+.ipynb_checkpoints/
+checkpoint/
+.idea/
+*.pyc
+__pycache__/
+.DS_Store
+*.JD.LOCAL
+*.local
+meta_learner/
