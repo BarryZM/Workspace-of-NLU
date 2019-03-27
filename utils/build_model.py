@@ -11,7 +11,7 @@ import tensorflow as tf
 root path
 """
 abs_path = os.path.abspath(os.path.dirname(__file__))
-base_dir = abs_path[:abs_path.find("NLU-AI-SPEAKER") + len("NLU-AI-SPEAKER")]
+base_dir = abs_path[:abs_path.find("Workspace-of-NLU") + len("Workspace-of-NLU")]
 sys.path.append(base_dir)
 
 from utils.data_helper import *
@@ -157,7 +157,7 @@ def test_with_embedding(model, args):
         if args.save_dir == ckpt.model_checkpoint_path:
             saver.restore(sess=session, save_path=ckpt.model_checkpoint_path)  # 读取保存的模型
         else:
-            project_name = 'NLU-AI-SPEAKER'
+            project_name = 'Workspace-of-NLU'
             print("args.dir is not ckpt path")
             tmp_1 = args.save_dir.split(project_name)[0]
             print(tmp_1)

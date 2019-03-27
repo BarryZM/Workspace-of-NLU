@@ -26,7 +26,7 @@ import numpy as np
 
 
 abs_path = os.path.abspath(os.path.dirname(__file__))
-base_path = abs_path[:abs_path.find("NLU-AI-SPEAKER") + len("NLU-AI-SPEAKER")]
+base_path = abs_path[:abs_path.find("Workspace-of-NLU") + len("Workspace-of-NLU")]
 sys.path.append(base_path)
 
 # out_pb_path = base_path + '/output/BERT/pb_model/bert_L4_FC3_Seq128.pb'

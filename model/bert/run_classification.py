@@ -32,7 +32,7 @@ from sklearn import metrics
 root path
 """
 abs_path = os.path.abspath(os.path.dirname(__file__))
-base_dir = abs_path[:abs_path.find("NLU-AI-SPEAKER") + len("NLU-AI-SPEAKER")]
+base_dir = abs_path[:abs_path.find("Workspace-of-NLU") + len("Workspace-of-NLU")]
 sys.path.append(base_dir)
 
 from model.bert import modeling, optimization, tokenization
