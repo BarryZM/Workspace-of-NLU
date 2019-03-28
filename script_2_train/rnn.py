@@ -96,7 +96,7 @@ def train_or_predict_rnn(m_type='', m_control='', m_model='', data_folder='', tr
         score_dir = os.path.join(save_dir, 'test.log')
         args_in_use.train_file = os.path.join(base_dir, data_folder, train_data)
         args_in_use.test_file = os.path.join(base_dir, data_folder, test_data)
-        args_in_use.save_dir = save_path
+        args_in_use.save_dir = save_dir
         args_in_use.save_path = save_path
         args_in_use.export_dir = export_dir
         args_in_use.score_dir = score_dir
