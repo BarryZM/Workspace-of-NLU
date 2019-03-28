@@ -55,8 +55,8 @@ parser.add_argument('--seg_ids', type=str, default="segment_ids:0",
 parser.add_argument('--output', type=str, default="loss/Softmax:0",
                     help='the ouput op_name for graph, format： <op_name>:<output_index>')
 parser.add_argument('--vocab_bert', type=str, default=base_dir + '/output/BERT/bert_vocab.txt')
-parser.add_argument('--ensemble_type', type=str, default='3_stacking',
-                    help='ensemble type: {1_vote, avg, 3_stacking}')
+parser.add_argument('--ensemble_type', type=str, default='stacking',
+                    help='ensemble type: {vote, avg, stacking}')
 args_in_use = parser.parse_args()
 
 """
@@ -113,8 +113,8 @@ with graph_bert.as_default():
         graph.ParseFromString(f.read())
         tf.import_graph_def(graph, name="")
 
-if args_in_use.ensemble_type == "3_stacking":
-    """ 3_stacking meta learner """
+if args_in_use.ensemble_type == "stacking":
+    """ stacking meta learner """
     graph_meta = tf.Graph()
     with graph_meta.as_default():
         graph = tf.GraphDef()
@@ -386,9 +386,9 @@ def run_ensemble(sentence):
     fetch_results_from_models_with_multi_thread(sentence)
     print("\nAll results: {}".format(results_list))
 
-    ensemble_ = {'1_vote': _voting,
+    ensemble_ = {'vote': _voting,
                  'avg': _avg,
-                 '3_stacking': _stacking}
+                 'stacking': _stacking}
 
     print('=' * 200)
     (label_id, label) = ensemble_[args_in_use.ensemble_type](results_list)

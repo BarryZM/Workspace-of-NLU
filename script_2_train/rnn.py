@@ -16,7 +16,7 @@ from utils.build_model import *
 
 vocab_embedding_file = os.path.join(base_dir, 'data/vocab_and_embedding_new.pkl')
 train_file = os.path.join(base_dir, 'data/THUCnews/test-simple.txt')
-test_file = os.path.join(base_dir, 'data/THUCnews/3_stacking-3/c_test.txt')
+test_file = os.path.join(base_dir, 'data/THUCnews/stacking-3/c_test.txt')
 
 # vocab_dir = os.path.join(base_dir, 'output/vocab.txt')  # unuse
 label_dir = os.path.join(base_dir, 'output/label-THU.txt')
