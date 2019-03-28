@@ -101,11 +101,11 @@ def train_or_predict_rnn(m_type='', m_control='', m_model='', data_folder='', tr
         args_in_use.export_dir = export_dir
         args_in_use.score_dir = score_dir
         if m_control == 'train':
-            model_cnn = TextRNN(args_in_use)
-            train_with_embedding(model_cnn, args_in_use)
+            model_rnn = TextRNN(args_in_use)
+            train_with_embedding(model_rnn, args_in_use)
         elif m_control == 'test':
-            model_cnn = TextRNN(args_in_use)
-            test_result = test_with_embedding(model_cnn, args_in_use)
+            model_rnn = TextRNN(args_in_use)
+            test_result = test_with_embedding(model_rnn, args_in_use)
             write_list_to_file(os.path.join(save_dir, test_data.split('.')[0] + '_probs.tsv'), test_result)
 
 
@@ -114,6 +114,6 @@ if __name__ == '__main__':
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # default: 0
 
     model = TextRNN(args_in_use)
-    # train_with_embedding(model, args_in_use)
+    train_with_embedding(model, args_in_use)
     test_with_embedding(model, args_in_use)
 
