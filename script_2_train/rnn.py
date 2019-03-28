@@ -80,7 +80,7 @@ def train_or_predict_rnn(m_type='', m_control='', m_model='', data_folder='', tr
 
     save_dir = os.path.join(base_dir, 'output', m_type, m_model, str(train_data.split('.')[0]))
 
-    graph_cnn_stacking = tf.Graph()
+    graph_rnn_stacking = tf.Graph()
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -89,14 +89,15 @@ def train_or_predict_rnn(m_type='', m_control='', m_model='', data_folder='', tr
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)
 
-    with graph_cnn_stacking.as_default():
+    with graph_rnn_stacking.as_default():
 
-        # save_path = os.path.join(save_dir, 'model.ckpt')   # 最佳验证结果保存路径
+        save_path = os.path.join(save_dir, 'model.ckpt')   # 最佳验证结果保存路径
         export_dir = os.path.join(save_dir, 'pb-model')
         score_dir = os.path.join(save_dir, 'test.log')
         args_in_use.train_file = os.path.join(base_dir, data_folder, train_data)
         args_in_use.test_file = os.path.join(base_dir, data_folder, test_data)
-        args_in_use.save_dir = save_dir
+        args_in_use.save_dir = save_path
+        args_in_use.save_path = save_path
         args_in_use.export_dir = export_dir
         args_in_use.score_dir = score_dir
         if m_control == 'train':
