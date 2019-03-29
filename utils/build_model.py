@@ -154,7 +154,7 @@ def test_with_embedding(model, args):
     print(args.save_dir)
     ckpt = tf.train.get_checkpoint_state(args.save_dir)
     print('ckpt', ckpt)
-    print('ckpt model path', ckpt.model_checkpoint_path)
+    # print('ckpt model path', ckpt.model_checkpoint_path)
     if ckpt and ckpt.model_checkpoint_path:
         if args.save_dir == ckpt.model_checkpoint_path:
             saver.restore(sess=session, save_path=ckpt.model_checkpoint_path)  # 读取保存的模型
