@@ -958,8 +958,8 @@ def predict_bert(m_type, data_path, train_data_file, test_data_file):
 
     result = estimator.predict(input_fn=predict_input_fn)
 
-    output_predict_file = os.path.join(FLAGS.model_output_dir, FLAGS.test_file.split('.')[0] + "_test_probs.tsv")
-    output_label_file = os.path.join(FLAGS.model_output_dir, FLAGS.test_file.split('.')[0] + "_test_labels.tsv")
+    output_predict_file = os.path.join(FLAGS.model_output_dir, FLAGS.test_file.split('.')[0] + ".tsv")
+    output_label_file = os.path.join(FLAGS.model_output_dir, FLAGS.test_file.split('.')[0] + "_labels.tsv")
 
     f = open(output_label_file, "w")
     s = set()
@@ -982,6 +982,7 @@ def predict_bert(m_type, data_path, train_data_file, test_data_file):
             f.write(label_list[lbl_id] + "\n")
             s.update([label_list[lbl_id]])
 
+    write_list_to_file(os.path.join(base_dir, 'result/stacking/bert', FLAGS.test_file.split('.')[0] + '.tsv'), test_result)
 
 # def main(_):
 #     # run_clf()
