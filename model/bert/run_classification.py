@@ -976,7 +976,7 @@ def predict_bert(m_type, data_path, train_data_file, test_data_file):
                 str(class_probability)
                 for class_probability in probabilities) + "\n"
 
-            result_list.append(output_line)
+            result_list.append(output_line.strip())
 
             writer.write(output_line)
             num_written_lines += 1
