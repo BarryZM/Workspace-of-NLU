@@ -986,7 +986,7 @@ def predict_bert(m_type, data_path, train_data_file, test_data_file):
             f.write(label_list[lbl_id] + "\n")
             s.update([label_list[lbl_id]])
 
-    write_list_to_file(os.path.join(base_dir, 'result/stacking/bert', FLAGS.test_file.split('.')[0] + '.tsv'), result_list)
+    write_list_to_file(os.path.join(base_dir, 'result/stacking/bert', str(FLAGS.train_file.split('.')[0]), FLAGS.test_file.split('.')[0] + '.tsv'), result_list)
 
 # def main(_):
 #     # run_clf()

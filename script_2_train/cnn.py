@@ -126,7 +126,7 @@ def train_or_predict_cnn(m_type='', m_control='', m_model='', data_folder='', tr
             model_cnn = TextCNN(args_in_use)
             test_result = test_with_embedding(model_cnn, args_in_use)
             write_list_to_file(os.path.join(save_dir, test_data.split('.')[0] + '.tsv'), test_result)
-            write_list_to_file(os.path.join(base_dir, 'result/stacking/cnn', test_data.split('.')[0] + '.tsv'), test_result)
+            write_list_to_file(os.path.join(base_dir, 'result/stacking/cnn', str(train_data.split('.')[0]),test_data.split('.')[0] + '.tsv'), test_result)
 
 
 if __name__ == '__main__':
