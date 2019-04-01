@@ -958,11 +958,12 @@ def predict_bert(m_type, data_path, train_data_file, test_data_file):
 
     result = estimator.predict(input_fn=predict_input_fn)
 
-    output_predict_file = os.path.join(FLAGS.model_output_dir, FLAGS.test_file.split('.')[0] + "_test_probs.tsv")
-    output_label_file = os.path.join(FLAGS.model_output_dir, FLAGS.test_file.split('.')[0] + "_test_labels.tsv")
+    output_predict_file = os.path.join(FLAGS.model_output_dir, FLAGS.test_file.split('.')[0] + ".tsv")
+    output_label_file = os.path.join(FLAGS.model_output_dir, FLAGS.test_file.split('.')[0] + "_labels.tsv")
 
     f = open(output_label_file, "w")
     s = set()
+    result_list = []
     with tf.gfile.GFile(output_predict_file, "w") as writer:
         num_written_lines = 0
         tf.logging.info("***** Predict results *****")
@@ -974,6 +975,9 @@ def predict_bert(m_type, data_path, train_data_file, test_data_file):
             output_line = "\t".join(
                 str(class_probability)
                 for class_probability in probabilities) + "\n"
+
+            result_list.append(output_line.strip())
+
             writer.write(output_line)
             num_written_lines += 1
 
@@ -982,6 +986,7 @@ def predict_bert(m_type, data_path, train_data_file, test_data_file):
             f.write(label_list[lbl_id] + "\n")
             s.update([label_list[lbl_id]])
 
+    write_list_to_file(os.path.join(base_dir, 'result/stacking/bert', str(FLAGS.train_file.split('.')[0]), FLAGS.test_file.split('.')[0] + '.tsv'), result_list)
 
 # def main(_):
 #     # run_clf()
