@@ -239,12 +239,12 @@ def test_with_embedding(model, args):
 def train_meta_learner(model, args, train_data, test_data):
     step = 0
     start_time = time.time()
-    cats, id_to_cat, cat_to_id = read_label_from_file(args.label_dir)
+    cats, id_to_cat, cat_to_id = read_label_from_file(args.label_file)
 
     # x_train = read_base_learner_results_from_pickle_file(args.base_learner_result)
-    train_label = get_encoded_labels(os.path.join(base_dir, 'data/stacking_data-5/all.txt'), cat_to_id)
+    train_label = get_encoded_labels(os.path.join(base_dir, 'data/THUCnews/stacking-3/all.txt'), cat_to_id, label_num=args.num_classes)
     print('train label', np.shape(train_label))
-    test_label = get_encoded_labels(os.path.join(base_dir, 'data/test-31k.txt'), cat_to_id)
+    test_label = get_encoded_labels(os.path.join(base_dir, 'data/THUCnews/stacking-3/test.txt'), cat_to_id, label_num=args.num_classes)
     print('train label', np.shape(test_label))
 
     from sklearn.model_selection import train_test_split

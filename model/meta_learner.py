@@ -37,7 +37,7 @@ class MetaLearner(object):
         # fc1 = tf.nn.dropout(fc1, keep_prob=0.5)
         fc2 = tf.layers.dense(fc1, 128, activation='tanh')
         fc2 = tf.nn.dropout(fc2, keep_prob=0.8)
-        fc3 = tf.layers.dense(fc2, 18, activation='sigmoid')
+        fc3 = tf.layers.dense(fc2, 14, activation='sigmoid')
 
         with tf.name_scope("score"):
             output = tf.nn.softmax(fc3, name='my_output')
