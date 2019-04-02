@@ -32,7 +32,6 @@ test_file = os.path.join(base_dir, 'data/THUCnews/test-simple.txt')
 label_dir = os.path.join(base_dir, 'output/label-THU.txt')
 
 save_dir = os.path.join(base_dir, 'output/text-cnn')
-print(save_dir)
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 save_path = os.path.join(save_dir, 'model.ckpt')   # 最佳验证结果保存路径
