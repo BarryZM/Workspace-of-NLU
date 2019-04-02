@@ -162,11 +162,11 @@ def test_with_embedding(model, args):
             project_name = 'Workspace-of-NLU'
             print("args.dir is not ckpt path")
             tmp_1 = args.save_dir.split(project_name)[0]
-            print(tmp_1)
+            print('tmp1', tmp_1)
             tmp_2 = ckpt.model_checkpoint_path.split(project_name)[1].strip('/')
-            print(tmp_2)
+            print('tmp2', tmp_2)
             tmp_path = os.path.join(tmp_1, project_name, tmp_2)
-            print(tmp_path)
+            print('tmp path', tmp_path)
 
             saver.restore(sess=session, save_path=tmp_path)
     else:
