@@ -148,7 +148,6 @@ def test_with_embedding(model, args):
     session = tf.Session(config=gpu_args)
     session.run(tf.global_variables_initializer())
     saver = tf.train.Saver()
-    print(args.save_dir)
     # saver = tf.train.import_meta_graph()
     # model_file = tf.train.latest_checkpoint(checkpoint_dir=args.save_dir)
     print(args.save_dir)
