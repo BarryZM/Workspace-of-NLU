@@ -1,3 +1,5 @@
+model/bert/*
+*.log
 data/
 output/
 others/
