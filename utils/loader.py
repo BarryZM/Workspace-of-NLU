@@ -13,6 +13,7 @@ sys.path.append(base_dir)
 
 from model.bert import tokenization
 from model.bert_cnn import TextConfig
+from utils.data_helper_bert import *
 
 
 class InputExample(object):
@@ -38,21 +39,22 @@ class TextProcessor(object):
     """load train examples"""
     def get_train_examples(self, data_dir):
         return self._create_examples(
-            self._read_file(os.path.join(data_dir, "train.tsv")), "train")
+            self._read_file(os.path.join(data_dir, "train.txt")), "train")
 
     """load dev examples"""
     def get_dev_examples(self, data_dir):
         return self._create_examples(
-            self._read_file(os.path.join(data_dir, "dev.tsv")), "dev")
+            self._read_file(os.path.join(data_dir, "dev.txt")), "dev")
 
     """load test examples"""
     def get_test_examples(self, data_dir):
           return self._create_examples(
-              self._read_file(os.path.join(data_dir, "test.tsv")), "test")
+              self._read_file(os.path.join(data_dir, "test.txt")), "test")
 
     """set labels"""
     def get_labels(self):
-        return ['体育', '财经', '房产', '家居', '教育', '科技', '时尚', '时政', '游戏', '娱乐']
+        return get_bert_labels()
+        # return ['体育', '财经', '房产', '家居', '教育', '科技', '时尚', '时政', '游戏', '娱乐']
 
     """read file"""
     def _read_file(self, input_file):
