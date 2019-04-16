@@ -35,10 +35,10 @@ class TextConfig():
     require_improvement=1000   #stop training if no inporement over 1000 global_step
 
     output_dir='./result'
-    data_dir='./corpus/cnews'  #the path of input_data file
-    vocab_file = './bert_model/chinese_L-12_H-768_A-12/vocab.txt'  #the path of vocab file
-    bert_config_file='./bert_model/chinese_L-12_H-768_A-12/bert_config.json'  #the path of bert_cofig file
-    init_checkpoint ='./bert_model/chinese_L-12_H-768_A-12/bert_model.ckpt'   #the path of bert model
+    data_dir='./data/THUCnews/'  #the path of input_data file
+    vocab_file = './data/chinese_L-12_H-768_A-12/vocab.txt'  #the path of vocab file
+    bert_config_file='./data/chinese_L-12_H-768_A-12/bert_config.json'  #the path of bert_cofig file
+    init_checkpoint ='./data/chinese_L-12_H-768_A-12/bert_model.ckpt'   #the path of bert model
 
 
 class TextCNN(object):
