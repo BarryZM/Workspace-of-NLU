@@ -1,3 +1,4 @@
+nohup.out
 model/bert/*
 *.log
 data/

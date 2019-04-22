@@ -34,11 +34,11 @@ class TextConfig():
     print_per_batch =200   #print result
     require_improvement=1000   #stop training if no inporement over 1000 global_step
 
-    output_dir='./result'
-    data_dir='./data/THUCnews/'  #the path of input_data file
-    vocab_file = './data/chinese_L-12_H-768_A-12/vocab.txt'  #the path of vocab file
-    bert_config_file='./data/chinese_L-12_H-768_A-12/bert_config.json'  #the path of bert_cofig file
-    init_checkpoint ='./data/chinese_L-12_H-768_A-12/bert_model.ckpt'   #the path of bert model
+    output_dir=os.path.join(base_dir, 'data/bert_cnn/result')
+    data_dir=os.path.join(base_dir, 'data/THUCnews/')  #the path of input_data file
+    vocab_file = os.path.join(base_dir, 'data/chinese_L-12_H-768_A-12/vocab.txt')  #the path of vocab file
+    bert_config_file=os.path.join(base_dir, 'data/chinese_L-12_H-768_A-12/bert_config.json')  #the path of bert_cofig file
+    init_checkpoint =os.path.join(base_dir, 'data/chinese_L-12_H-768_A-12/bert_model.ckpt')   #the path of bert model
 
 
 class TextCNN(object):
@@ -47,18 +47,15 @@ class TextCNN(object):
         '''获取超参数以及模型需要的传入的5个变量，input_ids，input_mask，segment_ids，labels，keep_prob'''
         self.config=config
         self.bert_config = modeling.BertConfig.from_json_file(self.config.bert_config_file)
-
         self.input_ids=tf.placeholder(tf.int64,shape=[None,self.config.seq_length],name='input_ids')
         self.input_mask=tf.placeholder(tf.int64,shape=[None,self.config.seq_length],name='input_mask')
         self.segment_ids=tf.placeholder(tf.int64,shape=[None,self.config.seq_length],name='segment_ids')
         self.labels=tf.placeholder(tf.int64,shape=[None,],name='labels')
         self.keep_prob=tf.placeholder(tf.float32,name='dropout')
-
         self.global_step = tf.Variable(0, trainable=False, name='global_step')
-
         self.cnn()
-    def cnn(self):
 
+    def cnn(self):
         '''获取bert模型最后的token-level形式的输出(get_sequence_output)，将此作为embedding_inputs，作为卷积的输入'''
         with tf.name_scope('bert'):
             bert_model = modeling.BertModel(
