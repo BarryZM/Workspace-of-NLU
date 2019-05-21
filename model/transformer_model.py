@@ -1,1 +1,0 @@
-#!/usr/bin/python3# -*- coding: utf-8 -*-# @Time    : 2019-02-14 17:06# @Author  : apollo2mars# @File    : transformer_model.py# @Contact : apollo2mars@gmail.com# @Desc    :
