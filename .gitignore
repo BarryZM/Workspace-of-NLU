@@ -1,3 +1,8 @@
+ner/
+*.tgz
+chinese*/
+temp*/
+15*/
 nohup.out
 model/bert/*
 *.log
