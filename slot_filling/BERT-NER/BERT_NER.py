@@ -149,23 +149,25 @@ class DataProcessor(object):
             lines = []
             words = []
             labels = []
-            for line in f:
-                contends = line.strip()
-                # print(contends)
-                word = line.strip().split('\t')[0]
-                label = line.strip().split('\t')[-1]
-                if contends.startswith("-DOCSTART-"):
-                    words.append('')
-                    continue
-                if len(contends) == 0:
-                    l = ' '.join([label for label in labels if len(label) > 0])
-                    w = ' '.join([word for word in words if len(word) > 0])
-                    lines.append([l, w])
+            for line in f.readlines():
+                line = line.rstrip('\n')
+                cut_list = line.split('\t')
+                if len(cut_list) == 3:
+                    tmp_0 = cut_list[0]
+                    tmp_1 = cut_list[1]
+                    if len(tmp_0) == 0:
+                        words.append(' ')
+                    else:
+                        words.append(tmp_0)
+                    labels.append(tmp_1)
+                elif len(cut_list) == 1:
+                    lines.append([words.copy(), labels.copy()])
                     words = []
                     labels = []
                     continue
-                words.append(word)
-                labels.append(label)
+                else :
+                    print(line)
+                    raise Exception("Raise Exception")
             return lines
 
 
@@ -186,15 +188,16 @@ class NerProcessor(DataProcessor):
 
 
     def get_labels(self):
-        return ["[SEP]", "[CLS]", "B-product", "I-product", "O", "X", "B-cs", "I-cs", "B-logistics", "I-logistics", "B-service", "I-service", "B-general", "I-general"]
+        return ["[SEP]", "[CLS]", "B-product", "I-product", "O", "B-cs", "I-cs", "B-logistics", "I-logistics", "B-service", "I-service", "B-general", "I-general"]
         
     def _create_example(self, lines, set_type):
         examples = []
         for (i, line) in enumerate(lines):
+            #print(line)
             guid = "%s-%s" % (set_type, i)
-            text = tokenization.convert_to_unicode(line[1])
-            label = tokenization.convert_to_unicode(line[0])
-            examples.append(InputExample(guid=guid, text=text, label=label))
+            # text = tokenization.convert_to_unicode(line[1])
+            # label = tokenization.convert_to_unicode(line[0])
+            examples.append(InputExample(guid=guid, text=line[0], label=line[1]))
         return examples
 
 
@@ -213,29 +216,34 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         label_map[label] = i
     with open('./output/label2id.pkl','wb') as w:
         pickle.dump(label_map,w)
-    textlist = example.text.split(' ')
-    labellist = example.label.split(' ')
+    textlist = example.text
+    labellist = example.label
+    
     tokens = []
     labels = []
     for i, word in enumerate(textlist):
+        #print(i)
+        #print(word)
+        #print(labellist[i])
+
         token = tokenizer.tokenize(word)
-        tokens.extend(token)
-        label_1 = labellist[i]
-        for m in range(len(token)):
-            if m == 0:
-                labels.append(label_1)
-            else:
-                labels.append("X")
-    # tokens = tokenizer.tokenize(example.text)
+        tokens.append(token[0]) if len(token) > 0 else tokens.append("<S>")
+        label = labellist[i]
+        labels.append(label)
+
+    #print(tokens)
+    #print(labels)
+
     if len(tokens) >= max_seq_length - 1:
         tokens = tokens[0:(max_seq_length - 2)]
         labels = labels[0:(max_seq_length - 2)]
+
     ntokens = []
     segment_ids = []
     label_ids = []
     ntokens.append("[CLS]")
     segment_ids.append(0)
-    # append("O") or append("[CLS]") not sure!
+
     label_ids.append(label_map["[CLS]"])
     for i, token in enumerate(tokens):
         ntokens.append(token)
@@ -243,8 +251,8 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         label_ids.append(label_map[labels[i]])
     ntokens.append("[SEP]")
     segment_ids.append(0)
-    # append("O") or append("[SEP]") not sure!
     label_ids.append(label_map["[SEP]"])
+
     input_ids = tokenizer.convert_tokens_to_ids(ntokens)
     input_mask = [1] * len(input_ids)
     #label_mask = [1] * len(input_ids)
@@ -254,9 +262,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         segment_ids.append(0)
         # we don't concerned about it!
         label_ids.append(0)
-        ntokens.append("**NULL**")
         #label_mask.append(0)
-    # print(len(input_ids))
     assert len(input_ids) == max_seq_length
     assert len(input_mask) == max_seq_length
     assert len(segment_ids) == max_seq_length, print(str(len(segment_ids)) + "###" + str(max_seq_length))
@@ -281,7 +287,6 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         label_ids=label_ids,
         #label_mask = label_mask
     )
-    write_tokens(ntokens,mode)
     return feature
 
 
@@ -366,7 +371,7 @@ def create_model(bert_config, is_training, input_ids, input_mask,
         output_layer = tf.reshape(output_layer, [-1, hidden_size])
         logits = tf.matmul(output_layer, output_weight, transpose_b=True)
         logits = tf.nn.bias_add(logits, output_bias)
-        logits = tf.reshape(logits, [-1, FLAGS.max_seq_length, 15])
+        logits = tf.reshape(logits, [-1, FLAGS.max_seq_length, 14])
         # mask = tf.cast(input_mask,tf.float32)
         # loss = tf.contrib.seq2seq.sequence_loss(logits,labels,mask)
         # return (loss, logits, predict)
@@ -431,9 +436,9 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
             def metric_fn(per_example_loss, label_ids, logits):
             # def metric_fn(label_ids, logits):
                 predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
-                precision = tf_metrics.precision(label_ids,predictions, 15, average="macro")
-                recall = tf_metrics.recall(label_ids,predictions, 15, average="macro")
-                f = tf_metrics.f1(label_ids,predictions, 15, average="macro")
+                precision = tf_metrics.precision(label_ids,predictions, 14, average="macro")
+                recall = tf_metrics.recall(label_ids,predictions, 14, average="macro")
+                f = tf_metrics.f1(label_ids,predictions, 14, average="macro")
                 #
                 return {
                     "eval_precision":precision,
@@ -469,14 +474,14 @@ def serving_input_fn():
     })()
     return input_fn
 
-def main(_):
+def main_1(_):
     
     tf.logging.set_verbosity(tf.logging.INFO)
     processors = {
         "ner": NerProcessor
     }
-    if not FLAGS.do_train and not FLAGS.do_eval:
-        raise ValueError("At least one of `do_train` or `do_eval` must be True.")
+    # if not FLAGS.do_train and not FLAGS.do_eval:
+    #    raise ValueError("At least one of `do_train` or `do_eval` must be True.")
 
     bert_config = modeling.BertConfig.from_json_file(FLAGS.bert_config_file)
 
@@ -513,6 +518,7 @@ def main(_):
             per_host_input_for_training=is_per_host))
 
     train_examples = processor.get_train_examples(FLAGS.data_dir)
+
     num_train_steps = int(len(train_examples) / FLAGS.train_batch_size * FLAGS.num_train_epochs)
     num_warmup_steps = int(num_train_steps * FLAGS.warmup_proportion)
 
@@ -563,18 +569,18 @@ def main(_):
     
 
     early_stopping = tf.contrib.estimator.stop_if_no_decrease_hook(estimator,metric_name='loss', max_steps_without_decrease=1000, min_steps=100)
-    tf.estimator.train_and_evaluate(estimator,train_spec=tf.estimator.TrainSpec(train_input_fn, hooks=[early_stopping]),eval_spec=tf.estimator.EvalSpec(eval_input_fn)) 
+    tf.estimator.train_and_evaluate(estimator,train_spec=tf.estimator.TrainSpec(train_input_fn),eval_spec=tf.estimator.EvalSpec(eval_input_fn, throttle_secs=10)) 
 
     estimator._export_to_tpu = False
     estimator.export_savedmodel('./', serving_input_fn)
 
-def main_1(_):
+def main(_):
     tf.logging.set_verbosity(tf.logging.INFO)
     processors = {
         "ner": NerProcessor
     }
-    if not FLAGS.do_train and not FLAGS.do_eval:
-        raise ValueError("At least one of `do_train` or `do_eval` must be True.")
+    # if not FLAGS.do_train and not FLAGS.do_eval:
+    #    raise ValueError("At least one of `do_train` or `do_eval` must be True.")
 
     bert_config = modeling.BertConfig.from_json_file(FLAGS.bert_config_file)
 
@@ -616,6 +622,13 @@ def main_1(_):
 
     if FLAGS.do_train:
         train_examples = processor.get_train_examples(FLAGS.data_dir)
+
+        #print('\n\n\n write train example \n\n\n')
+        with open('train_example.txt', encoding='utf-8', mode='w') as f:
+            for line in train_examples:
+                f.write(str(line.text) + '\n')
+                f.write(str(line.label) + '\n')
+
         num_train_steps = int(
             len(train_examples) / FLAGS.train_batch_size * FLAGS.num_train_epochs)
         num_warmup_steps = int(num_train_steps * FLAGS.warmup_proportion)
@@ -652,6 +665,7 @@ def main_1(_):
             is_training=True,
             drop_remainder=True)
         estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
+
     if FLAGS.do_eval:
         eval_examples = processor.get_dev_examples(FLAGS.data_dir)
         eval_file = os.path.join(FLAGS.output_dir, "eval.tf_record")
@@ -689,7 +703,6 @@ def main_1(_):
         if os.path.exists(token_path):
             os.remove(token_path)
         predict_examples = processor.get_test_examples(FLAGS.data_dir)
-
         predict_file = os.path.join(FLAGS.output_dir, "predict.tf_record")
         filed_based_convert_examples_to_features(predict_examples, label_list,
                                                 FLAGS.max_seq_length, tokenizer,
@@ -703,6 +716,7 @@ def main_1(_):
             # experimental feature and hence not supported here
             raise ValueError("Prediction in TPU not supported")
         predict_drop_remainder = True if FLAGS.use_tpu else False
+        
         predict_input_fn = file_based_input_fn_builder(
             input_file=predict_file,
             seq_length=FLAGS.max_seq_length,
@@ -713,7 +727,8 @@ def main_1(_):
         output_predict_file = os.path.join(FLAGS.output_dir, "label_test.txt")
         with open(output_predict_file,'w') as writer:
             for prediction in result:
-                output_line = "\n".join(id2label[id] for id in prediction if id!=0) + "\n"
+                print(prediction)
+                output_line = "\n".join(id2label[id] for id in prediction if id != 0) + "\n"
                 writer.write(output_line)
 
 if __name__ == "__main__":

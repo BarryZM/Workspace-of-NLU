@@ -1,9 +1,10 @@
+/bin/rm -rf output/result_dir/*
 python BERT_NER.py\
     --task_name="NER"  \
     --do_lower_case=False \
     --crf=False \
     --do_train=True   \
-    --do_eval=True   \
+    --do_eval=False   \
     --do_predict=True \
     --data_dir=data   \
     --vocab_file=chinese_L-12_H-768_A-12/vocab.txt  \
@@ -12,5 +13,5 @@ python BERT_NER.py\
     --max_seq_length=128   \
     --train_batch_size=32   \
     --learning_rate=2e-5   \
-    --num_train_epochs=5.0   \
+    --num_train_epochs=1.0   \
     --output_dir=./output/result_dir
