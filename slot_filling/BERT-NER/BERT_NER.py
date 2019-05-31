@@ -138,7 +138,8 @@ class DataProcessor(object):
         """Gets a collection of `InputExample`s for the dev set."""
         raise NotImplementedError()
 
-    def get_labels(self):
+    @staticmethod
+    def get_labels():
         """Gets the list of labels for this data set."""
         raise NotImplementedError()
 
@@ -150,6 +151,7 @@ class DataProcessor(object):
             words = []
             labels = []
             for line in f.readlines():
+                line = line.strip('\t')
                 line = line.rstrip('\n')
                 cut_list = line.split('\t')
                 if len(cut_list) == 3:
@@ -167,6 +169,7 @@ class DataProcessor(object):
                     continue
                 else :
                     print(line)
+                    print(len(cut_list))
                     raise Exception("Raise Exception")
             return lines
 
@@ -186,14 +189,15 @@ class NerProcessor(DataProcessor):
         return self._create_example(
             self._read_data(os.path.join(data_dir, "test.txt")), "test")
 
-
-    def get_labels(self):
+    @staticmethod
+    def get_labels():
+        #return ["[CLS]","[SEP]","0", "B_3", "I_3"]
         return ["[CLS]","[SEP]","O", "B-product", "I-product", "B-cs", "I-cs", "B-logistics", "I-logistics", "B-service", "I-service", "B-general", "I-general"]
         
     def _create_example(self, lines, set_type):
         examples = []
         for (i, line) in enumerate(lines):
-            print(line)
+            #print(line)
             guid = "%s-%s" % (set_type, i)
             # text = tokenization.convert_to_unicode(line[1])
             # label = tokenization.convert_to_unicode(line[0])
@@ -214,6 +218,8 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     label_map = {}
     for (i, label) in enumerate(label_list,1):
         label_map[label] = i
+    
+    print('label_map', label_map)
     with open('./output/label2id.pkl','wb') as w:
         pickle.dump(label_map,w)
     textlist = example.text
@@ -231,8 +237,8 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         label = labellist[i]
         labels.append(label)
 
-    #print(tokens)
-    #print(labels)
+    print(tokens)
+    print(labels)
 
     if len(tokens) >= max_seq_length - 1:
         tokens = tokens[0:(max_seq_length - 2)]
@@ -369,7 +375,7 @@ def create_model(bert_config, is_training, input_ids, input_mask,
         output_layer = tf.reshape(output_layer, [-1, hidden_size])
         logits = tf.matmul(output_layer, output_weight, transpose_b=True)
         logits = tf.nn.bias_add(logits, output_bias)
-        logits = tf.reshape(logits, [-1, FLAGS.max_seq_length, 14])
+        logits = tf.reshape(logits, [-1, FLAGS.max_seq_length, len(NerProcessor.get_labels())+1])
         # mask = tf.cast(input_mask,tf.float32)
         # loss = tf.contrib.seq2seq.sequence_loss(logits,labels,mask)
         # return (loss, logits, predict)
@@ -434,9 +440,9 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
             def metric_fn(per_example_loss, label_ids, logits):
             # def metric_fn(label_ids, logits):
                 predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
-                precision = tf_metrics.precision(label_ids,predictions, 14, average="macro")
-                recall = tf_metrics.recall(label_ids,predictions, 14, average="macro")
-                f = tf_metrics.f1(label_ids,predictions, 14, average="macro")
+                precision = tf_metrics.precision(label_ids,predictions, len(NerProcessor.get_labels())+1, average="macro")
+                recall = tf_metrics.recall(label_ids,predictions, len(NerProcessor.get_labels())+1, average="macro")
+                f = tf_metrics.f1(label_ids,predictions, len(NerProcessor.get_labels())+1, average="macro")
                 #
                 return {
                     "eval_precision":precision,
@@ -600,8 +606,8 @@ def main(_):
             print("id2label", id2label)
         predict_examples = processor.get_test_examples(FLAGS.data_dir)
 
-        print(predict_examples[0].text)
-        print(predict_examples[1].text)
+        #print(predict_examples[0].text)
+        #print(predict_examples[1].text)
         
         predict_file = os.path.join(FLAGS.output_dir, "predict.tf_record")
         filed_based_convert_examples_to_features(predict_examples, label_list,

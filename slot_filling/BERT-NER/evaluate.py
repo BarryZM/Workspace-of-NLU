@@ -85,6 +85,11 @@ def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
     
     """
     entity_predict_list, entity_ground_list = process_boundary(tag_predict_list, char_list), process_boundary(tag_ground_list, char_list)
+    print("###")
+    print(char_list)
+    print(tag_predict_list)
+    print(tag_ground_list)
+    
     print('predict', entity_predict_list)
     print('ground', entity_ground_list)
 
@@ -120,16 +125,19 @@ if __name__  == '__main__':
     with open('./output/label2id.pkl','rb') as rf:
         label2tag = pickle.load(rf)
 
-    with open('./data/text-train-opinion.txt', mode='r', encoding='utf-8') as f:
+    with open('./data/test-text.txt', mode='r', encoding='utf-8') as f:
         text_lines = f.readlines()
+        print(len(text_lines))
 
-    with open('./data/label-train-opinion.txt', mode='r', encoding='utf-8') as f:
-        predict_lines = f.readlines()
-
-    with open('./label_test.txt-1', mode='r', encoding='utf-8') as f:
+    with open('./data/test-label.txt', mode='r', encoding='utf-8') as f:
         ground_lines = f.readlines()
-    
-    assert len(predict_lines) == len(ground_lines) == len(text_lines)
+        print(len(predict_lines))
+
+    with open('./label_test.txt', mode='r', encoding='utf-8') as f:
+        predict_lines = f.readlines()
+        print(len(ground_lines))    
+
+    assert len(predict_lines) == len(ground_lines) == len(text_lines), print('predict is {}, ground is {}, text is {}'.format(len(predict_lines), len(ground_lines), len(text_lines)))
 
     count_predict = 0
     count_ground = 0
