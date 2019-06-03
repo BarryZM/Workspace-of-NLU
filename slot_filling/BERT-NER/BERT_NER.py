@@ -513,8 +513,6 @@ def main(_):
 
     if FLAGS.do_train:
         train_examples = processor.get_train_examples(FLAGS.data_dir)
-
-        #print('\n\n\n write train example \n\n\n')
         with open('train_example.txt', encoding='utf-8', mode='w') as f:
             for line in train_examples:
                 f.write(str(line.text) + '\n')
