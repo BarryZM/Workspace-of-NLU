@@ -19,6 +19,10 @@ from sklearn.metrics import f1_score,precision_score,recall_score
 from tensorflow.python.ops import math_ops
 import tf_metrics
 import pickle
+
+from tensorflow.contrib.layers.python.layers import initializers
+from layer_rnn_crf import BLSTM_CRF
+
 flags = tf.flags
 
 FLAGS = flags.FLAGS
@@ -204,7 +208,6 @@ class NerProcessor(DataProcessor):
             examples.append(InputExample(guid=guid, text=line[0], label=line[1]))
         return examples
 
-
 def write_tokens(tokens,mode):
     if mode=="test":
         path = os.path.join(FLAGS.output_dir, "token_"+mode+".txt")
@@ -219,7 +222,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     for (i, label) in enumerate(label_list,1):
         label_map[label] = i
     
-    print('label_map', label_map)
+    # print('label_map', label_map)
     with open('./output/label2id.pkl','wb') as w:
         pickle.dump(label_map,w)
     textlist = example.text
@@ -237,8 +240,8 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         label = labellist[i]
         labels.append(label)
 
-    print(tokens)
-    print(labels)
+    # print(tokens)
+    # print(labels)
 
     if len(tokens) >= max_seq_length - 1:
         tokens = tokens[0:(max_seq_length - 2)]
@@ -357,37 +360,20 @@ def create_model(bert_config, is_training, input_ids, input_mask,
         token_type_ids=segment_ids,
         use_one_hot_embeddings=use_one_hot_embeddings
     )
+    ### initializer
+    # initializer = tf.truncated_normal_initializer(stddev=0.02)
+    ### get batch encoder from bert pretrained embedding
+    embedding = model.get_sequence_output() # the shape of output_layer is (batch_size, sequence_length, hidden_size)
+    max_seq_length, hidden_size = embedding.shape[-2].value, embedding.shape[-1].value
+    used = tf.sign(tf.abs(input_ids))
+    lengths = tf.reduce_sum(used, reduction_indices=1)  # [batch_size] 大小的向量，包含了当前batch中的序列长度
 
-    output_layer = model.get_sequence_output()
+    blstm_crf = BLSTM_CRF(embedded_chars=embedding, hidden_unit=hidden_size, cell_type='gru', num_layers=4,
+                          droupout_rate=1.0, initializers=initializers, num_labels=num_labels,
+                          seq_length=max_seq_length, labels=labels, lengths=lengths, is_training=is_training)
+    rst = blstm_crf.add_blstm_crf_layer()
 
-    hidden_size = output_layer.shape[-1].value
-
-    output_weight = tf.get_variable(
-        "output_weights", [num_labels, hidden_size],
-        initializer=tf.truncated_normal_initializer(stddev=0.02)
-    )
-    output_bias = tf.get_variable(
-        "output_bias", [num_labels], initializer=tf.zeros_initializer()
-    )
-    with tf.variable_scope("loss"):
-        if is_training:
-            output_layer = tf.nn.dropout(output_layer, keep_prob=0.9)
-        output_layer = tf.reshape(output_layer, [-1, hidden_size])
-        logits = tf.matmul(output_layer, output_weight, transpose_b=True)
-        logits = tf.nn.bias_add(logits, output_bias)
-        logits = tf.reshape(logits, [-1, FLAGS.max_seq_length, len(NerProcessor.get_labels())+1])
-        # mask = tf.cast(input_mask,tf.float32)
-        # loss = tf.contrib.seq2seq.sequence_loss(logits,labels,mask)
-        # return (loss, logits, predict)
-        ##########################################################################
-        log_probs = tf.nn.log_softmax(logits, axis=-1)
-        one_hot_labels = tf.one_hot(labels, depth=num_labels, dtype=tf.float32)
-        per_example_loss = -tf.reduce_sum(one_hot_labels * log_probs, axis=-1)
-        loss = tf.reduce_sum(per_example_loss)
-        probabilities = tf.nn.softmax(logits, axis=-1)
-        predict = tf.argmax(probabilities,axis=-1)
-        return (loss, per_example_loss, logits,predict)
-        ##########################################################################
+    return rst
         
 def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
                      num_train_steps, num_warmup_steps, use_tpu,
