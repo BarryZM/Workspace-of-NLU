@@ -131,11 +131,11 @@ if __name__  == '__main__':
 
     with open('./data/test-label.txt', mode='r', encoding='utf-8') as f:
         ground_lines = f.readlines()
-        print(len(predict_lines))
+        print(len(ground_lines))
 
-    with open('./label_test.txt', mode='r', encoding='utf-8') as f:
+    with open('./label_test.txt-epoch-10-hidden-layer-4', mode='r', encoding='utf-8') as f:
         predict_lines = f.readlines()
-        print(len(ground_lines))    
+        print(len(predict_lines))    
 
     assert len(predict_lines) == len(ground_lines) == len(text_lines), print('predict is {}, ground is {}, text is {}'.format(len(predict_lines), len(ground_lines), len(text_lines)))
 

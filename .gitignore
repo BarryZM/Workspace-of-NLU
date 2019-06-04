@@ -1,3 +1,6 @@
+label_test.*
+log.txt
+sentiment_analysis/
 ner/
 *.tgz
 chinese*/
