@@ -7,14 +7,6 @@
 # Target
 
 + Repreducing algorithms of **N**ature **L**anguage **U**nderstanding
-    + Text classification
-        + short-text
-        + long-text
-    + Slot Filling 
-    + Sentiment Analusis
-        + Aspect Based Sentiment Analysis
-            + Aspect Extraction
-            + Aspect-Based Sentiment Anslysis 
 + Efficient and beautiful code
 + Framework for model ensemble
 
@@ -202,8 +194,13 @@
 | Lattice-LSTM CRF | SOTA                 |
 
 
+# Sentiment Analysis
 
+### Sentence Level
 
+### Aspect Level
+##### ATAE
+##### MGAN
 
 # Next
 
@@ -232,5 +229,5 @@
 
 + <https://github.com/jiangxinyang227/textClassifier>
 + <https://github.com/brightmart/text_classification>
-
++ https://github.com/songyouwei/ABSA-PyTorch
 
