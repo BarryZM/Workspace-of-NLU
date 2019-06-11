@@ -93,12 +93,27 @@ def check_data(text_list, slot_list):
     text_list_check = []
     slot_list_check = []
 
-    for text, slots in zip(text_list, slot_list):
-        for slot in slots:
-            if slot['domain'] == 'sentiment' and slot['slotname'] is not in ['sentiment-positive', 'sentiment-negative', 'sentive-moderate']:
-            
-            if slot['domain'] in 
+    sentiment_slot_list = ['sentiment-positibve', 'sentiment-negative', 'sentiment-moderate']
 
+    for text, slots in zip(text_list, slot_list):
+
+        if type(slots) is not str:
+            continue
+        if len(slots) == 2:
+            continue
+
+        slots = str2slotlist(slots)
+        for slot in slots:
+            if slot['domain'] == 'sentiment' and slot['slotname'] not in sentiment_slot_list:
+                print("##1", slot)
+                break 
+            if slot['domain'] != 'sentiment' and slot['slotname'] in sentiment_slot_list:
+                print("##2", slot)
+                break
+        else:
+            text_list_check.append(text)
+            slot_list_check.append(slots.copy())
+    
     return text_list_check, slot_list_check
     
 
@@ -114,53 +129,57 @@ def match_aspect_sentiment(aspect_slot_list, sentiment_slot_list):
             sentiment_index = round(1/2 * (int(sentiment_slot['start']) + int(sentiment_slot['end'])))
             if abs(aspect_index - sentiment_index) < min_gap:
                 min_gap = abs(aspect_index - sentiment_index) 
-                print(sentiment_slot['slotname'])
-                best_match_polarity = sentiment_slot['slotname'].split('-')[1]
-        aspect_polarity.append(1 if best_match_polarity is "positive" else 0)
+                # print(sentiment_slot['slotname'])
+                try:
+                    best_match_polarity = sentiment_slot['slotname'].split('-')[1]
+                except IndexError:
+                    print("#4", sentiment_slot)
+
+        print('best match polarity', best_match_polarity)
+        if best_match_polarity == 'positibve':
+            best_match_polarity = 1
+        elif best_match_polarity == 'negative':
+            best_match_polarity = -1
+        elif best_match_polarity == 'moderate':
+            best_match_polarity = 0
+        else:
+            raise Exception()
+        aspect_polarity.append(best_match_polarity)
 
     return aspect_polarity 
 
-def write_data(line, aspect_slot_list, aspect_polarity, mode):
-    
-    output_dir = "clf"
+def write_data(output_dir, line, aspect_slot_list, aspect_polarity, mode):
+    print(line)
+    print(aspect_slot_list)
+    print(aspect_polarity)
+    print(mode) 
 
-    if os.path.exists(output_dir) is False:
-        os.mkdir(output_dir)
-    else:
-        shutil.rmtree(output_dir)
-        os.mkdir(output_dir)
 
-    with open(os.path.join(output_dir, str(mode) + '-category.txt'), encoding='utf-8', mode='a+') as f:
+    with open(os.path.join(output_dir, str(mode) + '-category.txt'), encoding='utf-8', mode='a') as f:
         for slot, polarity in zip(aspect_slot_list, aspect_polarity):
             f.write(line + '\n')
             f.write(slot['slotname'] + '\n')
+            print("slotname", slot['slotname'])
             f.write(str(polarity) + '\n') 
     
-    with open(os.path.join(output_dir, str(mode) + '-term.txt'), encoding='utf-8', mode='a+') as f:
+    print("Done:1") 
+    with open(os.path.join(output_dir, str(mode) + '-term.txt'), encoding='utf-8', mode='a') as f:
         for slot, polarity in zip(aspect_slot_list, aspect_polarity):
-            term = line[int(slot['start']):int(slot['end'])]
-
+            term = line[int(slot['start']):int(slot['end'])+1]
             replace_line = line.replace(term, "$T$", 1)
             f.write(replace_line + '\n')
             f.write(term + '\n')
+            print("term", term)
             f.write(str(polarity) + '\n') 
+    print("Done:2")
     
 def get_clf_data(text_list, slot_list, mode):
+
+    assert len(text_list) == len(slot_list)
     for line, slots in zip(text_list, slot_list):
-        #print('input line is', line)
-        #print(slots)
-        #print(type(slots))
-    
-        if type(slots) is not str:
-            continue
-        if len(slots) == 2:
-            continue
-        
         if line is 'nan':
             continue
     
-        slots = str2slotlist(slots)
-
         aspect_slot_list = []
         sentiment_slot_list = []
 
@@ -175,7 +194,15 @@ def get_clf_data(text_list, slot_list, mode):
         else: # A^{m} S^{n} m>0 n>0
             # 当前规则，选取最近的sentiment 作为 aspect 对应的情感词，并表明该aspect 的极性
             aspect_polarity = match_aspect_sentiment(aspect_slot_list, sentiment_slot_list)             
-            write_data(line, aspect_slot_list, aspect_polarity, mode) 
+            write_data(output_dir, line, aspect_slot_list, aspect_polarity, mode) 
+
+output_dir = "clf"
+
+if os.path.exists(output_dir) is False:
+    os.mkdir(output_dir)
+else:
+    shutil.rmtree(output_dir)
+    os.mkdir(output_dir)
 
 
 train_text_list, train_slot_list = read_train_data()
@@ -184,7 +211,6 @@ test_text_list, test_slot_list = read_test_data()
 train_text_list, train_slot_list = check_data(train_text_list, train_slot_list)
 test_text_list, test_slot_list = check_data(test_text_list, test_slot_list)
 
-
-train_label_data = get_clf_data(train_text_list, train_slot_list, mode='train')
-test_label_data = get_clf_data(test_text_list, test_slot_list, mode='train')
+get_clf_data(train_text_list, train_slot_list, mode='train')
+get_clf_data(test_text_list, test_slot_list, mode='test')
 
