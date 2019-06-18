@@ -11,9 +11,14 @@ from __future__ import print_function
 
 import collections
 import os
-from bert import modeling
-from bert import optimization
-from bert import tokenization
+import sys
+print(os.getcwd())
+print(os.path.dirname(os.getcwd()))
+sys.path.append(os.getcwd())
+
+from bert  import modeling
+from bert import optimization  
+from bert  import tokenization 
 import tensorflow as tf
 from sklearn.metrics import f1_score,precision_score,recall_score
 from tensorflow.python.ops import math_ops
@@ -33,7 +38,7 @@ flags.DEFINE_string(
 )
 
 flags.DEFINE_string(
-   "type", None, 
+   "type_name", None, 
     "entity or emotion"
 )
 
@@ -240,7 +245,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         label_map[label] = i
     
     # print('label_map', label_map)
-    with open('./output/label2id_'+str(FLAGS.type)+'.pkl','wb') as w:
+    with open('./outputs/label2id_'+str(FLAGS.type_name)+'.pkl','wb') as w:
         pickle.dump(label_map,w)
     textlist = example.text
     labellist = example.label
@@ -605,7 +610,7 @@ def main(_):
     estimator.export_savedmodel('./outputs', serving_input_fn)
 
     if FLAGS.do_predict:
-        with open('./output/label2id_entity.pkl','rb') as rf:
+        with open('./outputs/label2id_'+str(FLAGS.type_name)+'.pkl','rb') as rf:
             label2id = pickle.load(rf)
             id2label = {value:key for key,value in label2id.items()}
             print("id2label", id2label)
@@ -654,7 +659,6 @@ def main(_):
 
 if __name__ == "__main__":
     os.environ['CUDA_VISIBLE_DEVICES'] = FLAGS.gpu
-    flags.mark_flag_as_required("data_dir")
     flags.mark_flag_as_required("task_name")
     flags.mark_flag_as_required("vocab_file")
     flags.mark_flag_as_required("bert_config_file")
