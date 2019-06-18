@@ -3,7 +3,7 @@ type_name="entity"
 epoch=20.0
 max_seq_len=128
 hidden_layer=4
-target_folder="./output/"${task_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len} 
+target_folder="./outputs/"${task_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len} 
 #label_list = ["O", "[CLS]","[SEP]","B-positibve", "I-positibve", "B-negative", "I-negative", "B-moderate", "I-moderate"]
 label_list="O,[CLS],[SEP],B-3,I-3"
 echo ${target_folder}
@@ -12,7 +12,7 @@ echo ${target_folder}
 mkdir $target_folder
 
 
-python BERT_NER.py\
+python models/BERT_NER.py\
     --task_name="NER"  \
     --label_list=${label_list} \
     --gpu='1' \
@@ -35,7 +35,7 @@ python BERT_NER.py\
 # 将[SEP] 变空行 
 
 
-python evaluate.py \
+python evals/evaluate.py \
     --label2id_path=./output/label2id_entity.pkl \
     --true_text_path=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/label/test_text.txt\
     --true_label_path=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/label/test_label.txt\
