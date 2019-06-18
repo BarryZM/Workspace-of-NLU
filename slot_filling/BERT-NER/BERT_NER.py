@@ -602,7 +602,7 @@ def main(_):
                 writer.write("%s = %s\n" % (key, str(result[key])))
 
     estimator._export_to_tpu = False
-    estimator.export_savedmodel('./', serving_input_fn)
+    estimator.export_savedmodel('./outputs', serving_input_fn)
 
     if FLAGS.do_predict:
         with open('./output/label2id_entity.pkl','rb') as rf:
