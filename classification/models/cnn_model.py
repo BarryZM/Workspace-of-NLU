@@ -1,5 +1,6 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+# !/usr/bin/python
+#  -*- coding: utf-8 -*-
+# author : Apollo2Mars@gmail.com
 
 import os, sys
 import tensorflow as tf
@@ -195,104 +196,4 @@ class TextCNN(object):
     def cnn_multi_label(self):
         pass
 
-    def cnn_self_att(self):
-        pass
-        #
-        # with tf.device('/cpu:0'):
-        #     self.embedding = tf.Variable(
-        #         tf.constant(0.0, shape=[self.vocab_size, self.embedding_dim]), trainable=True,
-        #         name="embedding")
-        #     self.embedding_placeholder = tf.placeholder(tf.float32,
-        #                                                 [self.vocab_size, self.embedding_dim])
-        #     self.embedding_init = self.embedding.assign(self.embedding_placeholder)
-        #     self.embedding_inputs = tf.nn.embedding_lookup(self.embedding, self.input_x)
-        #     """ position encoder """
-        #     # pos_encoder = position_encoder(input_x=self.input_x, PE_dims=50, period=1000, scale=False)
-        #     # self.embedding_inputs = tf.concat([self.embedding_inputs, pos_encoder], -1)
-        #     # self.embedding_inputs = tf.layers.dense(self.embedding_inputs, self.embedding_dim)
-        #     # print(self.embedding_inputs)
-        #
-        # pooled_outputs = []
-        #
-        # with tf.name_scope('conv-maxpool-%s' % self.filter_sizes[0]):
-        #     conv1 = tf.layers.conv1d(self.embedding_inputs, self.num_filters, self.filter_sizes[0], padding='SAME')
-        #     pooled_outputs.append(conv1)
-        #
-        # with tf.name_scope('conv-maxpool-%s' % self.filter_sizes[1]):
-        #     conv2 = tf.layers.conv1d(self.embedding_inputs, self.num_filters, self.filter_sizes[1], padding='SAME')
-        #     pooled_outputs.append(conv2)
-        #
-        # with tf.name_scope('conv-maxpool-%s' % self.filter_sizes[2]):
-        #     conv3 = tf.layers.conv1d(self.embedding_inputs, self.num_filters, self.filter_sizes[2], padding='SAME')
-        #     pooled_outputs.append(conv3)
-        #
-        # # Combine all the pooled features
-        # # num_filters_total = self.num_filters * len(self.filter_sizes)
-        # # attention_weight, pool_hidden_state = self.self_attention(pooled_outputs, 128)
-        # # pool_hidden_state_flat = tf.reshape(pool_hidden_state, [-1, num_filters_total])
-        #
-        # sw = tf.concat(pooled_outputs, -1)  # (?, 30, 768)
-        # print(sw)
-        # gmp = tf.reduce_max(sw, reduction_indices=[1], name='gmp')  # (?, 768)
-        # print(gmp)
-        #
-        # # current_result = pool_hidden_state_flat
-        # current_result = gmp
-        #
-        # with tf.name_scope("score"):
-        #     # fully connection layer 1, dropout relu
-        #     fc = tf.layers.dense(current_result, self.hidden_dim)
-        #     fc = tf.nn.dropout(fc, self.keep_prob)
-        #     result_fc_1 = tf.nn.relu(fc)
-        #
-        #     # fully connection layer 2, sigmoid
-        #     result_dense = tf.layers.dense(result_fc_1, self.num_classes)
-        #     self.result_sigmoid = tf.nn.sigmoid(result_dense, name="my_output")
-        #
-        #     # self.soft_round = tf.round(self.soft)
-        #     # y_pred_soft = tf.reduce_max(self.result_softmax, 1, name='max_value')  # 最大domain的概率值
-        #     self.y_pred_cls = tf.argmax(self.result_sigmoid, 1, name='predict')  # 最大domain的类别
-        #
-        # with tf.name_scope("optimize"):
-        #     # A_T = tf.transpose(attention_weight, perm=[0, 2, 1])
-        #     # AA_T = tf.matmul(attention_weight, A_T)
-        #     # print('attention_weight', attention_weight)
-        #     # tile_eye = tf.eye(int(AA_T.shape[1]))
-        #     # tile_eye = tf.tile(tile_eye, [self.batch_size, 1])
-        #     # tile_eye = tf.reshape(tile_eye, [-1, int(AA_T.shape[1]), int(AA_T.shape[1])])
-        #     # AA_T_sub_I = AA_T - tile_eye
-        #     # penalized_term = tf.square(tf.norm(AA_T_sub_I, axis=[-2, -1]))
-        #     # print(penalized_term)
-        #     # cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(logits=result_dense, labels=self.input_y)
-        #     # print(cross_entropy)
-        #     # self.loss = tf.reduce_mean(cross_entropy, 1) + penalized_term * self.penal_parms
-        #     # self.loss = tf.reduce_mean(self.loss)
-        #     #
-        #     # self.learning_rate = tf.train.exponential_decay(learning_rate=self.learning_rate,
-        #     #                                                 global_step=self.global_step,
-        #     #                                                 decay_steps=2,
-        #     #                                                 decay_rate=0.95,
-        #     #                                                 staircase=True)
-        #     # # decayed_learning_rate = learning_rate * decay_rate ^ (global_step / decay_steps)
-        #     # optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
-        #     # self.trainer = optimizer.minimize(self.loss)
-        #
-        #     # cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(logits=result_dense, labels=self.input_y)
-        #     # self.loss = tf.reduce_mean(cross_entropy, 1)
-        #     # self.loss = tf.reduce_mean(self.loss)
-        #
-        #     self.loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=result_dense, labels=self.input_y)
-        #
-        #     self.learning_rate = tf.train.exponential_decay(learning_rate=self.learning_rate,
-        #                                                     global_step=self.global_step,
-        #                                                     decay_steps=2,
-        #                                                     decay_rate=0.95,
-        #                                                     staircase=True)
-        #     # decayed_learning_rate = learning_rate * decay_rate ^ (global_step / decay_steps)
-        #     optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
-        #     self.trainer = optimizer.minimize(self.loss)
-        #
-        #     tf.summary.scalar('loss', self.loss)
-        #
-        # with tf.name_scope("accuracy"):
-        #     self.acc = self.metric_acc(self.input_y, self.result_sigmoid, self.num_classes)
+    def cnn_self_att(self)

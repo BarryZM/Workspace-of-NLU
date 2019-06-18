@@ -180,7 +180,10 @@ class DataProcessor(object):
                 cut_list = line.split('\t')
                 if len(cut_list) == 3:
                     tmp_0 = cut_list[0]
-                    tmp_1 = cut_list[1]
+                    if FLAGS.type_name == 'entity':
+                        tmp_1 = cut_list[1]
+                    elif FLAGS.type_name == 'emotion':
+                        tmp_1 = cut_list[2]
                     if len(tmp_0) == 0:
                         words.append(' ')
                     else:
@@ -647,9 +650,9 @@ def main(_):
                 output_line = ""
                 for item in prediction:
                     try:
-                        if item != 0 and item != 2:
+                        if item != 0 and item != 3:
                             output_line = output_line + str(id2label[item]) + '\n'
-                        if item == 2:
+                        if item == 3:
                             output_line = output_line + str(id2label[item]) + '\n\n'
                             break
                     except KeyError:
