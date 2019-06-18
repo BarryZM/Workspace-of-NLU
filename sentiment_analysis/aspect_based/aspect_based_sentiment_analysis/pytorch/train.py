@@ -13,6 +13,7 @@ import numpy
 
 from pytorch_pretrained_bert import BertModel
 from sklearn import metrics
+from sklearn.metrics import classification_report
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
@@ -116,8 +117,8 @@ class Instructor:
                     train_loss = loss_total / n_total
                     logger.info('loss: {:.4f}, acc: {:.4f}'.format(train_loss, train_acc))
 
-            val_acc, val_f1 = self._evaluate_acc_f1(val_data_loader)
-            logger.info('> val_acc: {:.4f}, val_f1: {:.4f}'.format(val_acc, val_f1))
+            val_acc, val_p, val_r, val_f1 = self._evaluate_acc_f1(val_data_loader)
+            logger.info('> val_acc: {:.4f}, val_p:{:.4f}, val_r:{:.4f}, val_f1: {:.4f}'.format(val_acc, val_p, val_r, val_f1))
             if val_acc > max_val_acc:
                 max_val_acc = val_acc
                 if not os.path.exists('state_dict'):
@@ -152,8 +153,11 @@ class Instructor:
                     t_outputs_all = torch.cat((t_outputs_all, t_outputs), dim=0)
 
         acc = n_correct / n_total
-        f1 = metrics.f1_score(t_targets_all.cpu(), torch.argmax(t_outputs_all, -1).cpu(), labels=[0, 1, 2], average='macro')
-        return acc, f1
+        p = metrics.precision_score(t_targets_all.cpu(), torch.argmax(t_outputs_all, -1).cpu(), labels=[0, 1, 2], average='micro')
+        r = metrics.recall_score(t_targets_all.cpu(), torch.argmax(t_outputs_all, -1).cpu(), labels=[0, 1, 2], average='micro')
+        f1 = metrics.f1_score(t_targets_all.cpu(), torch.argmax(t_outputs_all, -1).cpu(), labels=[0, 1, 2], average='micro')
+        print(classification_report(t_targets_all.cpu(), torch.argmax(t_outputs_all, -1).cpu(), labels=[0,1,2]))
+        return acc, p, r, f1
 
     def run(self):
         # Loss and Optimizer
@@ -169,15 +173,14 @@ class Instructor:
         best_model_path = self._train(criterion, optimizer, train_data_loader, val_data_loader)
         self.model.load_state_dict(torch.load(best_model_path))
         self.model.eval()
-        test_acc, test_f1 = self._evaluate_acc_f1(test_data_loader)
-        logger.info('>> test_acc: {:.4f}, test_f1: {:.4f}'.format(test_acc, test_f1))
-
+        test_acc, test_p, test_r, test_f1 = self._evaluate_acc_f1(test_data_loader)
+        logger.info('>> test_acc: {:.4f}, test_p: {:.4f}, test_r: {:.4f}, test_f1: {:.4f}'.format(test_acc, test_p, test_r, test_f1))
 
 def main():
     # Hyper Parameters
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_name', default='aen_bert', type=str)
-    parser.add_argument('--dataset', default='comment', type=str, help='twitter, restaurant, laptop')
+    parser.add_argument('--dataset', default='refrigerator', type=str, help='twitter, restaurant, laptop')
     parser.add_argument('--optimizer', default='adam', type=str)
     parser.add_argument('--initializer', default='xavier_uniform_', type=str)
     parser.add_argument('--learning_rate', default=5e-5, type=float, help='try 5e-5, 2e-5 for BERT, 1e-3 for others')
@@ -233,9 +236,9 @@ def main():
             'train': './datasets/semeval14/Laptops_Train.xml.seg',
             'test': './datasets/semeval14/Laptops_Test_Gold.xml.seg'
         },
-        'comment':{
-            'train':'./datasets/comment/train-term.txt',
-            'test':'./datasets/comment/test-term.txt'
+        'refrigerator':{
+            'train':'./datasets/comment/refrigerator/train-term.txt',
+            'test':'./datasets/comment/refrigerator/test-term.txt'
         }
     }
     input_colses = {

@@ -21,11 +21,21 @@ import tf_metrics
 import pickle
 
 from tensorflow.contrib.layers.python.layers import initializers
-from layer_rnn_crf import BLSTM_CRF
+from layers.layer_rnn_crf import BLSTM_CRF
 
 flags = tf.flags
 
 FLAGS = flags.FLAGS
+
+flags.DEFINE_string(
+    "label_list", None,
+    "input_label_list"
+)
+
+flags.DEFINE_string(
+   "type", None, 
+    "entity or emotion"
+)
 
 flags.DEFINE_string(
     "data_dir", None,
@@ -200,8 +210,10 @@ class NerProcessor(DataProcessor):
 
     @staticmethod
     def get_labels():
-        #return ["[CLS]","[SEP]","0", "B_3", "I_3"]
-        return ["[CLS]","[SEP]","O", "B-product", "I-product", "B-cs", "I-cs", "B-logistics", "I-logistics", "B-service", "I-service", "B-general", "I-general"]
+        print(FLAGS.label_list.split(','))
+        return FLAGS.label_list.split(',')
+        #return ["[CLS]","[SEP]","O", "B-3", "I-3"]
+        #return ["[CLS]","[SEP]","O", "B-product", "I-product", "B-cs", "I-cs", "B-logistics", "I-logistics", "B-service", "I-service", "B-general", "I-general"]
         
     def _create_example(self, lines, set_type):
         examples = []
@@ -228,7 +240,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         label_map[label] = i
     
     # print('label_map', label_map)
-    with open('./output/label2id.pkl','wb') as w:
+    with open('./output/label2id_'+str(FLAGS.type)+'.pkl','wb') as w:
         pickle.dump(label_map,w)
     textlist = example.text
     labellist = example.label
@@ -518,10 +530,10 @@ def main(_):
 
     if FLAGS.do_train:
         train_examples = processor.get_train_examples(FLAGS.data_dir)
-        with open('train_example.txt', encoding='utf-8', mode='w') as f:
-            for line in train_examples:
-                f.write(str(line.text) + '\n')
-                f.write(str(line.label) + '\n')
+        #with open('train_example.txt', encoding='utf-8', mode='w') as f:
+        #    for line in train_examples:
+        #        f.write(str(line.text) + '\n')
+        #        f.write(str(line.label) + '\n')
 
         num_train_steps = int(
             len(train_examples) / FLAGS.train_batch_size * FLAGS.num_train_epochs)
@@ -593,7 +605,7 @@ def main(_):
     estimator.export_savedmodel('./', serving_input_fn)
 
     if FLAGS.do_predict:
-        with open('./output/label2id.pkl','rb') as rf:
+        with open('./output/label2id_entity.pkl','rb') as rf:
             label2id = pickle.load(rf)
             id2label = {value:key for key,value in label2id.items()}
             print("id2label", id2label)
@@ -623,7 +635,7 @@ def main(_):
             drop_remainder=predict_drop_remainder)
 
         result = estimator.predict(input_fn=predict_input_fn)
-        output_predict_file = os.path.join(FLAGS.output_dir, "label_test.txt")
+        output_predict_file = os.path.join(FLAGS.output_dir, "entity_test_results.txt")
         with open(output_predict_file,'w') as writer:
             for prediction in result:
                 #print(prediction)

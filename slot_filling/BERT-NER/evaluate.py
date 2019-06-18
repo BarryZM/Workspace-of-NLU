@@ -7,8 +7,16 @@ from tensorflow.contrib.crf import viterbi_decode
 from tensorflow.python.framework.graph_util import convert_variables_to_constants
 from copy import deepcopy
 from tqdm import tqdm
-import logging
 import pickle
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('label2id_path', type='str')
+parser.add_argument('true_text_path', type='str')
+parser.add_argument('true_label_path', type='str')
+parser.add_argument('predict_label_path', type='str')
+
+args = parser.parse_args()
 
 from metric  import calc_partial_match_evaluation_per_line, calc_overall_evaluation
 
@@ -98,42 +106,20 @@ def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
     calc_partial_match_evaluation_per_line(entity_predict_list, entity_ground_list, text, "NER")
 
 
-    #domain_name = "domain"
-
-
-    #for label_, (sent, tag) in zip(label_list, data):
-    #    """
-    #    label_ : label list
-    #    sent : char list
-    #    tag : tag list
-    #    """
-
-    #    tag_ = [label2tag[label__] for label__ in label_]
-    #    if len(label_) != len(sent):
-    #        continue
-    #    prediction_list, golden_list = process_boundary(tag_, sent), process_boundary(tag, sent)
-    #    text = "".join(sent)
-    #    calc_partial_match_evaluation_per_line(prediction_list, golden_list, text, domain_name)
-
-    #cnt_dict = {domain_name: len(data)}
-    #overall_res = calc_overall_evaluation(cnt_dict, self.logger)
-    #f1 = overall_res['domain']['strict']['f1_score']
-    #return f1
-
 if __name__  == '__main__':
     label2tag = {}
-    with open('./output/label2id.pkl','rb') as rf:
+    with open(args.label2id_path,'rb') as rf:
         label2tag = pickle.load(rf)
 
-    with open('./data/test-text.txt', mode='r', encoding='utf-8') as f:
+    with open(args.true_text_path, mode='r', encoding='utf-8') as f:
         text_lines = f.readlines()
         print(len(text_lines))
 
-    with open('./data/test-label.txt', mode='r', encoding='utf-8') as f:
+    with open(args.true_label_path, mode='r', encoding='utf-8') as f:
         ground_lines = f.readlines()
         print(len(ground_lines))
 
-    with open('./label_test.txt-epoch-10-hidden-layer-4', mode='r', encoding='utf-8') as f:
+    with open(args.predict_label_path, mode='r', encoding='utf-8') as f:
         predict_lines = f.readlines()
         print(len(predict_lines))    
 

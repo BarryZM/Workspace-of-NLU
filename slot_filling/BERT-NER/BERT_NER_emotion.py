@@ -27,6 +27,8 @@ flags = tf.flags
 
 FLAGS = flags.FLAGS
 
+
+
 flags.DEFINE_string(
     "data_dir", None,
     "The input datadir.",
@@ -229,7 +231,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         label_map[label] = i
     
     # print('label_map', label_map)
-    with open('./output/label2id.pkl','wb') as w:
+    with open('./output/label2id_emotion.pkl','wb') as w:
         pickle.dump(label_map,w)
     textlist = example.text
     labellist = example.label
