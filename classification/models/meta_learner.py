@@ -1,5 +1,5 @@
 # coding:utf-8
-# @author : sunhongchaochao1@jd.com
+
 
 import tensorflow as tf
 import sys, os
