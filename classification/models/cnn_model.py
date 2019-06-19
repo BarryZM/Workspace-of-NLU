@@ -5,43 +5,34 @@
 import os, sys
 import tensorflow as tf
 
-"""
-root path
-"""
-abs_path = os.path.abspath(os.path.dirname(__file__))
-base_dir = abs_path[:abs_path.find("Workspace-of-NLU") + len("Workspace-of-NLU")]
-sys.path.append(base_dir)
-
+from sklearn import metrics
+import os
+import numpy as np
+import tqdm
+import time
+from datetime import timedelta
+from tensorflow.python.framework.graph_util import convert_variables_to_constants
+import tensorflow as tf
+import sys
+from tqdm._tqdm import tqdm
+import argparse
 from utils.build_model import *
-
 
 class TextCNN(object):
     def __init__(self, args):
         self.args = args
-        self.seq_length = args.seq_length
-        self.num_classes = args.num_classes
-        self.vocab_size = 22752
-        self.embedding_dim = 200
+        self.seq_length = args.max_seq_len
 
         self.hidden_dim = args.hidden_dim
         self.batch_size = args.batch_size
-        self.num_filters = args.num_filters
+        self.num_filters = args.filters
         self.filter_sizes = args.filter_sizes
         self.learning_rate = args.learning_rate
-        self.embedding_file = args.vocab_embedding_file
-        self.embedding_inputs = None
-        self.loss = None
-        self.trainer = None
-        self.result_softmax = None
-        # self.y_pred_cls = None
-        self.acc = 0
-        self.step = args.epoch
 
         self.input_x = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_length], name='input_x')
         self.input_y = tf.placeholder(dtype=tf.float32, shape=[None, self.num_classes], name='input_y')
         self.global_step = tf.placeholder(shape=(), dtype=tf.int32, name='global_step')
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
-        # self.input_keep = tf.placeholder(tf.float32, name='input_keep')
 
         self.cnn()
 
@@ -193,7 +184,3 @@ class TextCNN(object):
         with tf.name_scope("accuracy"):
             self.acc = self.metric_acc(self.input_y, self.result_softmax, self.num_classes)
 
-    def cnn_multi_label(self):
-        pass
-
-    def cnn_self_att(self)

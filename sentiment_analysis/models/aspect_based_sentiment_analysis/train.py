@@ -90,7 +90,7 @@ class Instructor:
         max_val_f1 = 0
         global_step = 0
         path = None
-        for epoch in range(self.opt.num_epoch):
+        for epoch in range(self.opt.epochs):
             logger.info('>' * 100)
             logger.info('epoch: {}'.format(epoch))
             n_correct, n_total, loss_total = 0, 0, 0
@@ -157,6 +157,8 @@ class Instructor:
         r = metrics.recall_score(t_targets_all.cpu(), torch.argmax(t_outputs_all, -1).cpu(), labels=[0, 1, 2], average='micro')
         f1 = metrics.f1_score(t_targets_all.cpu(), torch.argmax(t_outputs_all, -1).cpu(), labels=[0, 1, 2], average='micro')
         print(classification_report(t_targets_all.cpu(), torch.argmax(t_outputs_all, -1).cpu(), labels=[0,1,2]))
+        logger.info(classification_report(t_targets_all.cpu(), torch.argmax(t_outputs_all, -1).cpu(), labels=[0,1,2]))
+
         return acc, p, r, f1
 
     def run(self):
@@ -180,13 +182,13 @@ def main():
     # Hyper Parameters
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_name', default='aen_bert', type=str)
-    parser.add_argument('--dataset', default='refrigerator', type=str, help='twitter, restaurant, laptop')
+    parser.add_argument('--dataset', default='air-purifier', type=str, help='twitter, restaurant, laptop')
     parser.add_argument('--optimizer', default='adam', type=str)
     parser.add_argument('--initializer', default='xavier_uniform_', type=str)
     parser.add_argument('--learning_rate', default=5e-5, type=float, help='try 5e-5, 2e-5 for BERT, 1e-3 for others')
     parser.add_argument('--dropout', default=0.1, type=float)
     parser.add_argument('--l2reg', default=0.01, type=float)
-    parser.add_argument('--num_epoch', default=10, type=int, help='try larger number for non-BERT models')
+    parser.add_argument('--epochs', default=10, type=int, help='try larger number for non-BERT models')
     parser.add_argument('--batch_size', default=32, type=int, help='try 16, 32, 64 for BERT models')
     parser.add_argument('--log_step', default=5, type=int)
     parser.add_argument('--embed_dim', default=300, type=int)
@@ -239,6 +241,10 @@ def main():
         'refrigerator':{
             'train':'./datasets/comment/refrigerator/train-term.txt',
             'test':'./datasets/comment/refrigerator/test-term.txt'
+        },
+        'air-purifier':{
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/clf/train-term.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/clf/test-term.txt'
         }
     }
     input_colses = {

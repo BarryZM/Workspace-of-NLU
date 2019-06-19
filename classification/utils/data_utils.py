@@ -53,33 +53,6 @@ def build_embedding_matrix(word2idx, embed_dim, dat_fname):
         fname = './glove.twitter.27B/glove.twitter.27B.' + str(embed_dim) + 'd.txt' \
             if embed_dim != 300 else './glove.42B.300d.txt'
         word_vec = _load_word_vec(fname, word2idx=word2idx)
-    os.environ['CUDA_VISIBLE_DEVICES'] = FLAGS.gpu
-        print('building embedding_matrix:', dat_fname)
-        for word, i in word2idx.items():
-            vec = word_vec.get(word)
-            if vec is not None:
-                # words not found in embedding index will be all-zeros.
-                embedding_matrix[i] = vec
-        pickle.dump(embedding_matrix, open(dat_fname, 'wb'))
-    return embedding_matrix
-
-
-def build_embedding_matrix(word2idx, embed_dim, dat_fname):
-    if os.path.exists(dat_fname):
-        print('loading embedding_matrix:', dat_fname)
-        embedding_matrix = pickle.load(open(dat_fname, 'rb'))
-    else:
-        from gensim.models.keyedvectors import KeyedVectors
-        file = 'Tencent_AILab_ChineseEmbedding.txt'
-        wv_from_text = KeyedVectors.load_word2vec_format(file, binary=False)
-
-
-
-        print('loading word vectors...')
-        embedding_matrix = np.zeros((len(word2idx) + 2, embed_dim))  # idx 0 and len(word2idx)+1 are all-zeros
-        fname = './glove.twitter.27B/glove.twitter.27B.' + str(embed_dim) + 'd.txt' \
-            if embed_dim != 300 else './glove.42B.300d.txt'
-        word_vec = _load_word_vec(fname, word2idx=word2idx)
         print('building embedding_matrix:', dat_fname)
         for word, i in word2idx.items():
             vec = word_vec.get(word)
@@ -148,7 +121,7 @@ class Tokenizer4Bert:
         return pad_and_truncate(sequence, self.max_seq_len, padding=padding, truncating=truncating)
 
 
-class ABSADataset(Dataset):
+class CLFDataset(Dataset):
     def __init__(self, fname, tokenizer):
         fin = open(fname, 'r', encoding='utf-8', newline='\n', errors='ignore')
         lines = fin.readlines()
