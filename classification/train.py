@@ -57,132 +57,78 @@ class Instructor:
         pass
         # smooth for parameters
 
-    def process(self):
-        categories, id_to_cat, cat_to_id = read_label_from_file(args.label_dir)
-        word_to_id, embedding_matrix = read_vocab_and_embedding_from_pickle_file(args.vocab_embedding_file)
-
     def _train(self, criterion, optimizer, train_data_loader, val_data_loader):
+        session = tf.Session(config=args.gpu_settings)
+        session.run(tf.global_variables_initializer())
+        session.run(model.embedding_init, feed_dict={model.embedding_placeholder: embedding_matrix})
+        saver = tf.train.Saver(max_to_keep=1)
+
         max_val_acc = 0
         max_val_f1 = 0
-        global_step = 0
         path = None
         for epoch in range(self.opt.epochs):
             logger.info('>' * 100)
             logger.info('epoch: {}'.format(epoch))
             n_correct, n_total, loss_total = 0, 0, 0
-            # switch model to training mode
-            self.model.train()
             for i_batch, sample_batched in enumerate(train_data_loader):
-                global_step += 1
-                # clear gradient accumulators
-                optimizer.zero_grad()
+                inputs = [sample_batched[col] for col in self.opt.inputs_cols]
+                targets = sample_batched['polarity']
 
-                inputs = [sample_batched[col].to(self.opt.device) for col in self.opt.inputs_cols]
-                outputs = self.model(inputs)
-                targets = sample_batched['polarity'].to(self.opt.device)
+                outputs, loss = session.run([model.outputs, model.loss], feed_dict = {model.input_x : inputs, model.input_y : targets, model.global_step : epoch, model.keep_prob : 1.0}
 
-                loss = criterion(outputs, targets)
-                loss.backward()
-                optimizer.step()
-
-                n_correct += (torch.argmax(outputs, -1) == targets).sum().item()
-                n_total += len(outputs)
-                loss_total += loss.item() * len(outputs)
-                if global_step % self.opt.log_step == 0:
-                    train_acc = n_correct / n_total
-                    train_loss = loss_total / n_total
-                    logger.info('loss: {:.4f}, acc: {:.4f}'.format(train_loss, train_acc))
+                # outputs 
+                #n_correct += (torch.argmax(outputs, -1) == targets).sum().item()
+                #n_total += len(outputs)
+                #loss_total += loss.item() * len(outputs)
+                
+            # train_acc = n_correct / n_total
+            # train_loss = loss_total / n_total
+            # logger.info('loss: {:.4f}, acc: {:.4f}'.format(train_loss, train_acc))
 
             val_acc, val_f1 = self._evaluate_acc_f1(val_data_loader)
             logger.info('> val_acc: {:.4f}, val_f1: {:.4f}'.format(val_acc, val_f1))
+            
             if val_acc > max_val_acc:
                 max_val_acc = val_acc
-                if not os.path.exists('state_dict'):
-                    os.mkdir('state_dict')
-                path = 'state_dict/{0}_{1}_val_acc{2}'.format(self.opt.model_name, self.opt.dataset, round(val_acc, 4))
-                torch.save(self.model.state_dict(), path)
+                if not os.path.exists(self.opt.outputs_dir):
+                    os.mkdir(self.opt.outputs_dir)
+                path = os.path.join(self.opt.outputs_dir, '{0}_{1}_val_acc{2}'.format(self.opt.model_name, self.opt.dataset, round(val_acc, 4)))
+
+                last_improved = epoch
+                saver.save(sess=session, save_path=args.save_path, global_step=step)
+                # proto
+                convert_variables_to_constants(session, session.graph_def, output_node_names=[os.path.join(self.opt.output_dir, 'model')])
+
                 logger.info('>> saved: {}'.format(path))
             if val_f1 > max_val_f1:
                 max_val_f1 = val_f1
 
         return path
-    #------------------------
-
-    #x_train, y_train = get_encoded_texts_and_labels(args.train_file, word_to_id, cat_to_id, args.seq_length, label_num=args.num_classes)
-
-    session = tf.Session(config=args.gpu_settings)
-    session.run(tf.global_variables_initializer())
-    session.run(model.embedding_init, feed_dict={model.embedding_placeholder: embedding_matrix})
-
-    writer = tf.summary.FileWriter(args.save_dir)
-    writer.add_graph(session.graph)
-
-    logger.info('Training and evaluating...')
-    max_acc = 0
-    last_improved = 0  # record lat improved epoch
-
-    saver = tf.train.Saver(max_to_keep=1)
-
-    for epoch in range(args.num_epochs):
-        print('\nEpoch:', epoch + 1)
-        args.epoch = epoch
-
-        batch_train = batch_iter_x_y(x_train, y_train, args.batch_size)
-
-        """ batch data input"""
-        for x_batch, y_batch in batch_train:
-            feed_dict = feed_data(model, x_batch, y_batch, step, args.dropout_keep_prob)
-            # print(x_batch[0])
-            # print(y_batch[0])
-            _, loss_train = session.run([model.trainer, model.loss], feed_dict=feed_dict)
-            # print("loss is :", loss_train)
-
-        acc_val = evaluate(session, model, x_val, y_val, args.batch_size, step, 1.0)
-        print('current accuracy on validation : ', acc_val)
-        print('max accuracy on validation : ', max_acc)
-
-        if acc_val > max_acc:
-            step += 1
-            max_acc = acc_val
-            print("current max acc is " + str(max_acc))
-            last_improved = epoch
-            saver.save(sess=session, save_path=args.save_path, global_step=step)
-            # proto
-            output_graph_def = convert_variables_to_constants(session, session.graph_def, output_node_names=['score/my_output'])
-            tf.train.write_graph(output_graph_def, args.export_dir, args.model_name, as_text=False)
-
-            print("Learning_rate", session.run(model.learning_rate, feed_dict={model.global_step: epoch}))
-
-        if epoch - last_improved > args.early_stopping_epoch:
-            print("No optimization for a long time, auto-stopping...")
-            break
-
-
-
 
     def _evaluate_acc_f1(self, data_loader):
         n_correct, n_total = 0, 0
         t_targets_all, t_outputs_all = None, None
-        # switch model to evaluation mode
-        self.model.eval()
-        with torch.no_grad():
-            for t_batch, t_sample_batched in enumerate(data_loader):
-                t_inputs = [t_sample_batched[col].to(self.opt.device) for col in self.opt.inputs_cols]
-                t_targets = t_sample_batched['polarity'].to(self.opt.device)
-                t_outputs = self.model(t_inputs)
+        
+        for t_batch, t_sample_batched in enumerate(data_loader):
+            t_inputs = [t_sample_batched[col] for col in self.opt.inputs_cols]
+            t_targets = t_sample_batched['polarity']
+            
+            #t_outputs = self.model(t_inputs)
+             
+            outputs, loss = session.run([model.outputs, model.loss], feed_dict = {model.input_x : inputs, model.input_y : targets, model.global_step : epoch, model.keep_prob : 1.0}
 
-                n_correct += (torch.argmax(t_outputs, -1) == t_targets).sum().item()
-                n_total += len(t_outputs)
+            n_correct += (torch.argmax(t_outputs, -1) == t_targets).sum().item()
+            n_total += len(t_outputs)
 
-                if t_targets_all is None:
-                    t_targets_all = t_targets
-                    t_outputs_all = t_outputs
-                else:
-                    t_targets_all = torch.cat((t_targets_all, t_targets), dim=0)
-                    t_outputs_all = torch.cat((t_outputs_all, t_outputs), dim=0)
+            #if t_targets_all is None:
+            #    t_targets_all = t_targets
+            #    t_outputs_all = t_outputs
+            #else:
+            #    t_targets_all = torch.cat((t_targets_all, t_targets), dim=0)
+            #    t_outputs_all = torch.cat((t_outputs_all, t_outputs), dim=0)
 
         acc = n_correct / n_total
-        f1 = metrics.f1_score(t_targets_all.cpu(), torch.argmax(t_outputs_all, -1).cpu(), labels=[0, 1, 2], average='macro')
+        f1 = metrics.f1_score(t_targets_all, torch.argmax(t_outputs_all, -1), labels=[0, 1, 2], average='macro')
         return acc, f1
 
     def run(self):

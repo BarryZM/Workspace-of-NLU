@@ -34,6 +34,8 @@ class TextCNN(object):
         self.global_step = tf.placeholder(shape=(), dtype=tf.int32, name='global_step')
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
+        self.outputs = None
+
         self.cnn()
 
     @staticmethod
@@ -163,10 +165,10 @@ class TextCNN(object):
             fc = tf.nn.relu(fc)
             fc_1 = tf.nn.dropout(fc, self.keep_prob)
             """ dense layer 2 """
-            result_dense = tf.layers.dense(fc_1, self.num_classes, name='fc2')
-            self.result_softmax = tf.nn.softmax(result_dense, name="my_output")
+            dense = tf.layers.dense(fc_1, self.num_classes, name='fc2')
+            self.softmax = tf.nn.softmax(dense, name="my_output")
 
-            self.y_pred_cls = tf.argmax(self.result_softmax, 1, name='predict')  # 最大domain的类别
+            self.outputs = tf.argmax(self.softmax, 1, name='predict')  # 最大domain的类别
 
         with tf.name_scope("optimize"):
             self.loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=result_dense, labels=self.input_y)
