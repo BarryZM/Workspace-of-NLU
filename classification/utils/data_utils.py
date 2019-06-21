@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 # file: data_utils.py
-# author: songyouwei <youwei0314@gmail.com>
+# author: songyouwei <youwei0314@gmail.com> apollo2mars <apollo2mars@gmail.com>
 # Copyright (C) 2018. All Rights Reserved.
 
 import os
 import pickle
 import numpy as np
-#import torch
-#from torch.utils.data import Dataset
-#from pytorch_pretrained_bert import BertTokenizer
-
+import tensorflow as tf
 
 def build_tokenizer(fnames, max_seq_len, dat_fname):
     if os.path.exists(dat_fname):
@@ -22,9 +19,7 @@ def build_tokenizer(fnames, max_seq_len, dat_fname):
             lines = fin.readlines()
             fin.close()
             for i in range(0, len(lines), 3):
-                text_left, _, text_right = [s.lower().strip() for s in lines[i].partition("$T$")]
-                aspect = lines[i + 1].lower().strip()
-                text_raw = text_left + " " + aspect + " " + text_right
+                text_raw = lines[i].lower().strip()
                 text += text_raw + " "
 
         tokenizer = Tokenizer(max_seq_len)
@@ -49,7 +44,7 @@ def build_embedding_matrix(word2idx, embed_dim, dat_fname):
         embedding_matrix = pickle.load(open(dat_fname, 'rb'))
     else:
         print('loading word vectors...')
-        embedding_matrix = np.zeros((len(word2idx), embed_dim))  # idx 0 and len(word2idx)+1 are all-zeros
+        embedding_matrix = np.zeros((len(word2idx) + 2, embed_dim))  # idx 0 and len(word2idx)+1 are all-zeros
         #embedding_matrix = np.zeros((len(word2idx) + 2, embed_dim))  # idx 0 and len(word2idx)+1 are all-zeros
         fname = './glove.twitter.27B/glove.twitter.27B.' + str(embed_dim) + 'd.txt' \
             if embed_dim != 300 else '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/glove.42B.300d.txt'
@@ -84,72 +79,93 @@ class Tokenizer(object):
         self.max_seq_len = max_seq_len
         self.word2idx = {}
         self.idx2word = {}
-        self.idx = 1
 
     def fit_on_text(self, text):
         if self.lower:
             text = text.lower()
-        words = text.split()
-        for word in words:
-            if word not in self.word2idx:
-                self.word2idx[word] = self.idx
-                self.idx2word[self.idx] = word
-                self.idx += 1
+
+        from collections import Counter
+        count = Counter(text)
+
+        for idx, item in enumerate(count):
+            self.word2idx[item] = idx + 1 # must + 1
+            self.idx2word[idx + 1] = item
 
     def text_to_sequence(self, text, reverse=False, padding='post', truncating='post'):
-        #print("$$$$$$", text)
         if self.lower:
             text = text.lower()
-        words = text.split()
+        words = list(text)
         unknownidx = len(self.word2idx)+1
         sequence = [self.word2idx[w] if w in self.word2idx else unknownidx for w in words]
+        
         if len(sequence) == 0:
             sequence = [0]
         if reverse:
             sequence = sequence[::-1]
+        
         return pad_and_truncate(sequence, self.max_seq_len, padding=padding, truncating=truncating)
 
 
-#class Tokenizer4Bert:
-#    def __init__(self, max_seq_len, pretrained_bert_name):
-#        self.tokenizer = BertTokenizer.from_pretrained(pretrained_bert_name)
-#        self.max_seq_len = max_seq_len
-#
-#    def text_to_sequence(self, text, reverse=False, padding='post', truncating='post'):
-#        sequence = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(text))
-#        if len(sequence) == 0:
-#            sequence = [0]
-#        if reverse:
-#            sequence = sequence[::-1]
-#        return pad_and_truncate(sequence, self.max_seq_len, padding=padding, truncating=truncating)
-
-
 class CLFDataset():
-    def __init__(self, fname, tokenizer, aspect2id):
+    def __init__(self, fname, tokenizer, label_str):
+        self.label_str = label_str
+        self.label_list = self.set_label_list()
+        self.aspect2id = self.set_aspect2id()
+        self.aspect2onehot = self.set_aspect2onehot()
+
+        print(self.label_list)
+        print(self.aspect2id)
+        print(self.aspect2onehot)
+
         fin = open(fname, 'r', encoding='utf-8', newline='\n', errors='ignore')
         lines = fin.readlines()
         fin.close()
 
-        all_data = []
+        text_list = []
+        aspect_list = []
+        aspect_onehot_list=[]
+        data_list = []
+
         for i in range(0, len(lines), 3):
             text  = lines[i].lower().strip()
             aspect = lines[i + 1].lower().strip()
             polarity = lines[i + 2].strip()
             assert polarity in ['-1', '0', '1'], print("polarity", polarity)
-            #print(aspect)            
             text_idx = tokenizer.text_to_sequence(text)
-            aspect_idx = aspect2id[aspect] 
+            aspect_idx = self.aspect2id[aspect]
+            aspect_onehot_idx = self.aspect2onehot[aspect] 
 
-            data = {
-                'text':text_idx,
-                'aspect':aspect_idx
-            }
+            text_list.append(text_idx)
+            aspect_list.append(aspect_idx)
+            aspect_onehot_list.append(aspect_onehot_idx)
 
-            all_data.append(data)
-        self.data = all_data
+        self.text_list = np.asarray(text_list)
+        self.aspect_list = np.asarray(aspect_list)
+        self.aspect_onehot_list = np.asarray(aspect_onehot_list)
 
     def __getitem__(self, index):
-        return self.data[index]
+        return self.text_list[index]
 
     def __len__(self):
-        return len(self.data)
+        return len(self.text_list)
+    
+    def set_label_list(self):
+        return [ item.strip().strip("'") for item in self.label_str.split(',')]
+
+    def set_aspect2id(self):
+        label_dict = {}
+        for idx, item in enumerate(self.label_list):   
+            label_dict[item] = idx
+        return label_dict
+ 
+    def set_aspect2onehot(self):
+        label_list = self.label_list
+        from sklearn.preprocessing import LabelEncoder,OneHotEncoder 
+        onehot_encoder = OneHotEncoder(sparse=False)
+        one_hot_df = onehot_encoder.fit_transform( np.asarray(list(range(len(label_list)))).reshape(-1,1))
+
+        label_dict = {}
+        for aspect, vector in zip(label_list, one_hot_df):
+            label_dict[aspect] = vector
+        return label_dict
+

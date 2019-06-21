@@ -38,10 +38,12 @@ class Instructor:
         session.run(model.embedding_init, feed_dict={model.embedding_placeholder: embedding_matrix})
         saver = tf.train.Saver(max_to_keep=1)
 
+        self.model = model
+        self.session = session
 
         print("data beging")
-        self.trainset = CLFDataset(opt.dataset_file['train'], tokenizer, self.get_aspect2id())
-        self.testset = CLFDataset(opt.dataset_file['test'], tokenizer, self.get_aspect2id())
+        self.trainset = CLFDataset(opt.dataset_file['train'], tokenizer, self.opt.label_list)
+        self.testset = CLFDataset(opt.dataset_file['test'], tokenizer, self.opt.label_list)
         print("data done")
         
 
@@ -63,69 +65,82 @@ class Instructor:
             logger.info('>' * 100)
             logger.info('epoch: {}'.format(epoch))
             n_correct, n_total, loss_total = 0, 0, 0
-            for i_batch, sample_batched in enumerate(train_data_loader):
-                inputs = [sample_batched[col] for col in self.opt.inputs_cols]
-                targets = sample_batched['aspect']
-                print("inputs", inputs)
-                print("targets", targets)
-                outputs, loss = session.run([model.outputs, model.loss], feed_dict = {model.input_x : inputs, model.input_y : targets, model.global_step : epoch, model.keep_prob : 1.0})
 
-            val_acc, val_f1 = self._evaluate_acc_f1(val_data_loader)
-            logger.info('> val_acc: {:.4f}, val_f1: {:.4f}'.format(val_acc, val_f1))
-            
-            if val_acc > max_val_acc:
-                max_val_acc = val_acc
-                if not os.path.exists(self.opt.outputs_dir):
-                    os.mkdir(self.opt.outputs_dir)
-                path = os.path.join(self.opt.outputs_dir, '{0}_{1}_val_acc{2}'.format(self.opt.model_name, self.opt.dataset, round(val_acc, 4)))
+            iterator = train_data_loader.make_one_shot_iterator()
+            one_element = iterator.get_next()
 
-                last_improved = epoch
-                saver.save(sess=session, save_path=args.save_path, global_step=step)
-                # proto
-                convert_variables_to_constants(session, session.graph_def, output_node_names=[os.path.join(self.opt.output_dir, 'model')])
+            while True:
+                try:
+                    sample_batched = self.session.run(iterator.get_next())    
+                    #inputs = [sample_batched[col] for col in self.opt.inputs_cols]
+                    #inputs_list = [sample_batched[col] for col in self.opt.inputs_cols]
+                    inputs = sample_batched['text'] 
+                    targets_onehot = sample_batched['aspect_onehot']
+                    
+                    model = self.model
+                    outputs, loss = self.session.run([model.outputs, model.loss], feed_dict = {model.input_x : inputs, model.input_y : targets_onehot, model.global_step : epoch, model.keep_prob : 1.0})
+                except tf.errors.OutOfRangeError:
+                    break
 
-                logger.info('>> saved: {}'.format(path))
-            if val_f1 > max_val_f1:
-                max_val_f1 = val_f1
-
+                val_acc, val_f1 = self._evaluate_acc_f1(val_data_loader)
+                logger.info('> val_acc: {:.4f}, val_f1: {:.4f}'.format(val_acc, val_f1))
+                #
+                #if val_acc > max_val_acc:
+                #    max_val_acc = val_acc
+                #    if not os.path.exists(self.opt.outputs_dir):
+                #        os.mkdir(self.opt.outputs_dir)
+                #    path = os.path.join(self.opt.outputs_dir, '{0}_{1}_val_acc{2}'.format(self.opt.model_name, self.opt.dataset, round(val_acc, 4)))
+    
+                #    last_improved = epoch
+                #    saver.save(sess=session, save_path=args.save_path, global_step=step)
+                #    # proto
+                #    convert_variables_to_constants(session, session.graph_def, output_node_names=[os.path.join(self.opt.output_dir, 'model')])
+    
+                #    logger.info('>> saved: {}'.format(path))
+                #if val_f1 > max_val_f1:
+                #    max_val_f1 = val_f1
+    
         return path
 
     def _evaluate_acc_f1(self, data_loader):
-        n_correct, n_total = 0, 0
+
         t_targets_all, t_outputs_all = [], []
-        
-        for t_batch, t_sample_batched in enumerate(data_loader):
-            t_inputs = [t_sample_batched[col] for col in self.opt.inputs_cols]
-            t_targets = t_sample_batched['clf']
-            
-            outputs, loss = session.run([model.outputs, model.loss], feed_dict = {model.input_x : inputs, model.input_y : targets, model.global_step : epoch, model.keep_prob : 1.0})
-           
-            t_targets_all.expand(t_targets)
-            t_outputs_all.expand(outputs)
-            
-        acc = n_correct / n_total
-        f1 = metrics.f1_score(t_targets_all, t_outputs_all, labels=self.get_label_list(), average='macro')
+
+        iterator = data_loader.make_one_shot_iterator()
+        one_element = iterator.get_next()
+
+        while True:
+            try:
+                sample_batched = self.session.run(iterator.get_next())    
+                #inputs = [sample_batched[col] for col in self.opt.inputs_cols]
+                #inputs_list = [sample_batched[col] for col in self.opt.inputs_cols]
+                inputs = sample_batched['text'] 
+                targets = sample_batched['aspect']
+                targets_onehot = sample_batched['aspect_onehot']
+                print('target', targets)
+                model = self.model
+                outputs, loss = self.session.run([model.outputs, model.loss], feed_dict = {model.input_x : inputs, model.input_y : targets_onehot, model.global_step : 1, model.keep_prob : 1.0})
+                print('outpus', outputs)
+                t_targets_all.extend(targets)
+                t_outputs_all.extend(outputs)
+
+            except tf.errors.OutOfRangeError:
+                break
+        acc = 0
+        f1 = metrics.f1_score(t_targets_all, t_outputs_all, labels=self.trainset.label_list, average='macro')
         return acc, f1
 
     def run(self):
         optimizer = tf.train.AdamOptimizer(learning_rate=self.opt.learning_rate)
         # tf.contrib.data.Dataset
-        print(self.trainset.data[:3])
+        print(self.trainset.text_list[:3])
+        print(self.trainset.label_list[:3])
 
-        text_list = []
-        label_list = []
-        for item in self.trainset.data:
-            text_list.append(item['text'])
-            label_list.append(item['aspect'])
         
-        train_data_loader = tf.data.Dataset.from_tensor_slices({'text':label_list, 'label':label_list})
-        test_data_loader = train_data_loader
-        #train_data_loader = tf.data.Dataset.from_tensor_slices(self.trainset.data).batch(self.opt.batch_size)
-        print("load train done")
-        #test_data_loader = tf.data.Dataset.from_tensor_slices(self.testset.data).batch(self.opt.batch_size)
-        print("load test done")
+        train_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.trainset.text_list, 'aspect':self.trainset.aspect_list, 'aspect_onehot':self.trainset.aspect_onehot_list}).batch(self.opt.batch_size)
+        test_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.testset.text_list, 'aspect':self.testset.aspect_list, 'aspect_onehot':self.testset.aspect_onehot_list}).batch(self.opt.batch_size)
         #val_data_loader = tf.data.Dataset.from_tensor_slices(self.testset.data).batch(self.opt.batch_size)
-        print("load val done")
+        print("load data done")
 
         #self._reset_params()
         # train and find best model path
@@ -133,22 +148,9 @@ class Instructor:
 
         # load best model and prdict
         # ???
-        test_acc, test_f1 = self._evaluate_acc_f1(test_data_loader)
-        logger.info('>> test_acc: {:.4f}, test_f1: {:.4f}'.format(test_acc, test_f1))
+        #test_acc, test_f1 = self._evaluate_acc_f1(test_data_loader)
+        #logger.info('>> test_acc: {:.4f}, test_f1: {:.4f}'.format(test_acc, test_f1))
 
-    def get_label_list(self):
-        label_str = str(self.opt.label_list)
-        #print("label_str", label_str)
-        return [ item.strip().strip("'") for item in label_str.split(',')]
-    
-    def get_aspect2id(self):
-        label_list = self.get_label_list()
-        label_dict = {}
-        for idx, item in enumerate(label_list):
-            label_dict[item] = idx
-        #print('label_dict', label_dict)
-
-        return label_dict
 
 def main():
     print(os.getcwd())
