@@ -41,11 +41,8 @@ class Instructor:
         self.model = model
         self.session = session
 
-        print("data beging")
         self.trainset = CLFDataset(opt.dataset_file['train'], tokenizer, self.opt.label_list)
         self.testset = CLFDataset(opt.dataset_file['test'], tokenizer, self.opt.label_list)
-        print("data done")
-        
 
     def _print_args(self):
         pass
@@ -71,14 +68,16 @@ class Instructor:
 
             while True:
                 try:
-                    sample_batched = self.session.run(iterator.get_next())    
+                    sample_batched = self.session.run(one_element)    
                     #inputs = [sample_batched[col] for col in self.opt.inputs_cols]
                     #inputs_list = [sample_batched[col] for col in self.opt.inputs_cols]
                     inputs = sample_batched['text'] 
                     targets_onehot = sample_batched['aspect_onehot']
                     
                     model = self.model
-                    outputs, loss = self.session.run([model.outputs, model.loss], feed_dict = {model.input_x : inputs, model.input_y : targets_onehot, model.global_step : epoch, model.keep_prob : 1.0})
+                    _, outputs, loss = self.session.run([model.trainer, model.outputs, model.loss], feed_dict = {model.input_x : inputs, model.input_y : targets_onehot, model.global_step : epoch, model.keep_prob : 1.0})
+                    self.model = model
+                    print('loss', loss)
                 except tf.errors.OutOfRangeError:
                     break
 
@@ -111,23 +110,26 @@ class Instructor:
 
         while True:
             try:
-                sample_batched = self.session.run(iterator.get_next())    
+                sample_batched = self.session.run(one_element)    
                 #inputs = [sample_batched[col] for col in self.opt.inputs_cols]
                 #inputs_list = [sample_batched[col] for col in self.opt.inputs_cols]
                 inputs = sample_batched['text'] 
                 targets = sample_batched['aspect']
                 targets_onehot = sample_batched['aspect_onehot']
-                print('target', targets)
                 model = self.model
-                outputs, loss = self.session.run([model.outputs, model.loss], feed_dict = {model.input_x : inputs, model.input_y : targets_onehot, model.global_step : 1, model.keep_prob : 1.0})
-                print('outpus', outputs)
+                _, outputs, loss = self.session.run([model.trainer, model.outputs, model.loss], feed_dict = {model.input_x : inputs, model.input_y : targets_onehot, model.global_step : 1, model.keep_prob : 1.0})
                 t_targets_all.extend(targets)
                 t_outputs_all.extend(outputs)
 
             except tf.errors.OutOfRangeError:
                 break
         acc = 0
-        f1 = metrics.f1_score(t_targets_all, t_outputs_all, labels=self.trainset.label_list, average='macro')
+
+        print("##", t_targets_all[:100])
+        print("##", t_outputs_all[:100])
+        print("##", self.trainset.label_list[:100])
+        f1 = metrics.f1_score(t_targets_all, t_outputs_all,  average='macro')
+        #f1 = metrics.f1_score(t_targets_all, t_outputs_all, labels=self.trainset.label_list, average='macro')
         return acc, f1
 
     def run(self):
@@ -178,7 +180,7 @@ def main():
     parser.add_argument('--initializer', type=str, default='???')
     parser.add_argument('--optimizer', type=str, default='adam')
 
-    parser.add_argument('--learning_rate', type=float, default=1e-3)
+    parser.add_argument('--learning_rate', type=float, default=1e-2)
     parser.add_argument('--epochs', type=int, default=10)
      
     args = parser.parse_args()

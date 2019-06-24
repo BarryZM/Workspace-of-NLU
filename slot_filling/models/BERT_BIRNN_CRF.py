@@ -92,7 +92,7 @@ flags.DEFINE_bool("do_eval", False, "Whether to run eval on the dev set.")
 
 flags.DEFINE_bool("do_predict", False,"Whether to run the model in inference mode on the test set.")
 
-flags.DEFINE_integer("train_batch_size", 32, "Total batch size for training.")
+flags.DEFINE_integer("train_batch_size", 8, "Total batch size for training.")
 
 flags.DEFINE_integer("eval_batch_size", 8, "Total batch size for eval.")
 
@@ -623,9 +623,8 @@ def main(_):
         #print(predict_examples[1].text)
         
         predict_file = os.path.join(FLAGS.output_dir, "predict.tf_record")
-        filed_based_convert_examples_to_features(predict_examples, label_list,
-                                                FLAGS.max_seq_length, tokenizer,
-                                                predict_file,mode="test")
+        # filed_based_convert_examples_to_features(predict_examples, label_list, 512 , tokenizer,predict_file,mode="test")
+        filed_based_convert_examples_to_features(predict_examples, label_list,FLAGS.max_seq_length, tokenizer,predict_file,mode="test")
                             
         tf.logging.info("***** Running prediction*****")
         tf.logging.info("  Num examples = %d", len(predict_examples))
@@ -657,7 +656,7 @@ def main(_):
                             break
                     except KeyError:
                         print("item is ", item)
-                        continue
+                        break
                 writer.write(output_line)
 
 if __name__ == "__main__":

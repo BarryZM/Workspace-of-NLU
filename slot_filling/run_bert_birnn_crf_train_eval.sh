@@ -2,7 +2,7 @@ dataset_name="air-purifier"
 type_name='entity'
 gpu='3'
 epoch=20.0
-max_seq_len=128
+max_seq_len=512
 hidden_layer=4
 target_folder="./outputs/"${dataset_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len} 
 train_flag=True
@@ -11,13 +11,13 @@ predict_flag=True
 
 
 if [ "$type_name" == 'emotion' ] ;then
-echo 'bbb'
 label_list="O,[CLS],[SEP],B-positibve,I-positibve,B-negative,I-negative,B-moderate,I-moderate"
+echo $label_list
 fi
 
 if [ "$type_name" == 'entity' ] ;then
-echo 'aaa'
 label_list="O,[CLS],[SEP],B-3,I-3"
+echo $label_list
 fi
 
 echo ${target_folder}
@@ -41,15 +41,12 @@ python models/BERT_BIRNN_CRF.py \
     --bert_config_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_config.json \
     --init_checkpoint=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_model.ckpt   \
     --max_seq_length=$max_seq_len   \
-    --train_batch_size=32   \
+    --train_batch_size=16   \
     --learning_rate=2e-5   \
     --num_train_epochs=$epoch   \
     --output_dir=$target_folder
 
-# predict 之后的问题处理
-# 删除 [CLS]
-# 将[SEP] 变空行 
-
+# delete lines which contain [CLS], [SEP]  
 
 #python evals/evaluate.py \
 #    --label2id_path=./output/label2id_entity.pkl \

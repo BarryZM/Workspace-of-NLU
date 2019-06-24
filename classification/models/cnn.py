@@ -84,7 +84,8 @@ class TextCNN(object):
             self.outputs = tf.argmax(self.softmax, 1, name='predict')  # 最大domain的类别
 
         with tf.name_scope("optimize"):
-            self.loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=dense, labels=self.input_y)
+            loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=dense, labels=self.input_y)
+            self.loss = tf.reduce_mean(loss)
             self.learning_rate = tf.train.exponential_decay(learning_rate=self.learning_rate,
                                                             global_step=self.global_step,
                                                             decay_steps=2,
