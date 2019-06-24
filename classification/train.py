@@ -77,34 +77,33 @@ class Instructor:
                     model = self.model
                     _, outputs, loss = self.session.run([model.trainer, model.outputs, model.loss], feed_dict = {model.input_x : inputs, model.input_y : targets_onehot, model.global_step : epoch, model.keep_prob : 1.0})
                     self.model = model
-                    print('loss', loss)
+
                 except tf.errors.OutOfRangeError:
                     break
 
-                val_acc, val_f1 = self._evaluate_acc_f1(val_data_loader)
-                logger.info('> val_acc: {:.4f}, val_f1: {:.4f}'.format(val_acc, val_f1))
-                #
-                #if val_acc > max_val_acc:
-                #    max_val_acc = val_acc
-                #    if not os.path.exists(self.opt.outputs_dir):
-                #        os.mkdir(self.opt.outputs_dir)
-                #    path = os.path.join(self.opt.outputs_dir, '{0}_{1}_val_acc{2}'.format(self.opt.model_name, self.opt.dataset, round(val_acc, 4)))
+            val_acc, val_f1 = self._evaluate_acc_f1(val_data_loader)
+            logger.info('>>>>>> val_acc: {:.4f}, val_f1: {:.4f}'.format(val_acc, val_f1))
+            #
+            #if val_acc > max_val_acc:
+            #    max_val_acc = val_acc
+            #    if not os.path.exists(self.opt.outputs_dir):
+            #        os.mkdir(self.opt.outputs_dir)
+            #    path = os.path.join(self.opt.outputs_dir, '{0}_{1}_val_acc{2}'.format(self.opt.model_name, self.opt.dataset, round(val_acc, 4)))
     
-                #    last_improved = epoch
-                #    saver.save(sess=session, save_path=args.save_path, global_step=step)
-                #    # proto
-                #    convert_variables_to_constants(session, session.graph_def, output_node_names=[os.path.join(self.opt.output_dir, 'model')])
+            #    last_improved = epoch
+            #    saver.save(sess=session, save_path=args.save_path, global_step=step)
+            #    # proto
+            #    convert_variables_to_constants(session, session.graph_def, output_node_names=[os.path.join(self.opt.output_dir, 'model')])
     
-                #    logger.info('>> saved: {}'.format(path))
-                #if val_f1 > max_val_f1:
-                #    max_val_f1 = val_f1
+            #    logger.info('>> saved: {}'.format(path))
+            #if val_f1 > max_val_f1:
+            #    max_val_f1 = val_f1
     
+
         return path
 
     def _evaluate_acc_f1(self, data_loader):
-
         t_targets_all, t_outputs_all = [], []
-
         iterator = data_loader.make_one_shot_iterator()
         one_element = iterator.get_next()
 
@@ -118,6 +117,7 @@ class Instructor:
                 targets_onehot = sample_batched['aspect_onehot']
                 model = self.model
                 _, outputs, loss = self.session.run([model.trainer, model.outputs, model.loss], feed_dict = {model.input_x : inputs, model.input_y : targets_onehot, model.global_step : 1, model.keep_prob : 1.0})
+
                 t_targets_all.extend(targets)
                 t_outputs_all.extend(outputs)
 
@@ -128,7 +128,7 @@ class Instructor:
         print("##", t_targets_all[:100])
         print("##", t_outputs_all[:100])
         print("##", self.trainset.label_list[:100])
-        f1 = metrics.f1_score(t_targets_all, t_outputs_all,  average='macro')
+        f1 = metrics.f1_score(t_targets_all, t_outputs_all,  average='micro')
         #f1 = metrics.f1_score(t_targets_all, t_outputs_all, labels=self.trainset.label_list, average='macro')
         return acc, f1
 
@@ -139,8 +139,8 @@ class Instructor:
         print(self.trainset.label_list[:3])
 
         
-        train_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.trainset.text_list, 'aspect':self.trainset.aspect_list, 'aspect_onehot':self.trainset.aspect_onehot_list}).batch(self.opt.batch_size)
-        test_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.testset.text_list, 'aspect':self.testset.aspect_list, 'aspect_onehot':self.testset.aspect_onehot_list}).batch(self.opt.batch_size)
+        train_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.trainset.text_list, 'aspect':self.trainset.aspect_list, 'aspect_onehot':self.trainset.aspect_onehot_list}).batch(self.opt.batch_size).shuffle(10000)
+        test_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.testset.text_list, 'aspect':self.testset.aspect_list, 'aspect_onehot':self.testset.aspect_onehot_list}).batch(self.opt.batch_size).shuffle(10000)
         #val_data_loader = tf.data.Dataset.from_tensor_slices(self.testset.data).batch(self.opt.batch_size)
         print("load data done")
 
@@ -180,8 +180,8 @@ def main():
     parser.add_argument('--initializer', type=str, default='???')
     parser.add_argument('--optimizer', type=str, default='adam')
 
-    parser.add_argument('--learning_rate', type=float, default=1e-2)
-    parser.add_argument('--epochs', type=int, default=10)
+    parser.add_argument('--learning_rate', type=float, default=1e-4)
+    parser.add_argument('--epochs', type=int, default=100)
      
     args = parser.parse_args()
     
