@@ -10,8 +10,6 @@
 + Efficient and beautiful code
 + Framework for model ensemble
 
-
-
 # Dataset
 
 + THUnews
@@ -227,14 +225,30 @@
     + 外层代码全部转化为 jupyter notebook
 + 多卡，多线程训练;提速方法
 + Unsupervised Learning/Semi-supervised Learning
-+ Context-based NLU
-    + corpus
-    + projects
-    + papers
 + Joint/Multi-task Learning
     + 基于domain，intent，slot和其他信息（知识库，缠绕词表，热度）的re-rank策略  https://arxiv.org/pdf/1804.08064.pdf
     + Joint-learning或multi-task策略，辅助未达标的分类领域  https://arxiv.org/pdf/1801.05149.pdf
     + 利用Bert embedding 进行再训练，如Bert embedding + Bi-LSTM-CRF https://github.com/BrikerMan/Kashgar
+
+
+
+# Code Structure
+
++ Main level
+  + classification
+  + slot filling
+  + sentiment analysis
+  + relation extraction
+  + natural language inference
+  + READMD.md
++ Sub level
+  + models
+  + layers
+  + evals
+    + metric
+  + outpus
+  + run scripts
+  + README.MD
 
 # Reference
 
