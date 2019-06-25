@@ -28,6 +28,7 @@ class Instructor:
             word2idx=tokenizer.word2idx,
             embed_dim=opt.emb_dim,
             dat_fname='{0}_{1}_embedding_matrix.dat'.format(str(opt.emb_dim), opt.dataset_name))
+        logger.info("embedding check", embedding_matrix[:100])
 
         model = TextCNN(self.opt, tokenizer) 
         
@@ -77,7 +78,7 @@ class Instructor:
                     targets_onehot = sample_batched['aspect_onehot']
                     
                     model = self.model
-                    _, outputs, loss = self.session.run([model.trainer, model.outputs, model.loss], feed_dict = {model.input_x : inputs, model.input_term: terms,  model.input_y : targets_onehot, model.global_step : epoch, model.keep_prob : 1.0})
+                    _ = self.session.run(model.trainer, feed_dict = {model.input_x : inputs, model.input_term : terms , model.input_y : targets_onehot, model.global_step : epoch, model.keep_prob : 1.0})
                     self.model = model
 
                 except tf.errors.OutOfRangeError:
@@ -116,33 +117,31 @@ class Instructor:
                 targets = sample_batched['aspect']
                 targets_onehot = sample_batched['aspect_onehot']
                 model = self.model
-                outputs, loss = self.session.run([model.outputs, model.loss], feed_dict = {model.input_x : inputs, model.input_term:terms, model.input_y : targets_onehot, model.global_step : 1, model.keep_prob : 1.0})
+                outputs = self.session.run(model.outputs, feed_dict = {model.input_x : inputs, model.input_term:terms, model.input_y : targets_onehot, model.global_step : 1, model.keep_prob : 1.0})
 
                 t_targets_all.extend(targets)
                 t_outputs_all.extend(outputs)
 
             except tf.errors.OutOfRangeError:
                 break
-        acc = 0
 
         print("##", t_targets_all[:100])
         print("##", t_outputs_all[:100])
         print("##", self.trainset.label_list[:100])
-        flag = 'micro'
+        flag = 'weighted'
         p = metrics.precision_score(t_targets_all, t_outputs_all,  average=flag)
         r = metrics.recall_score(t_targets_all, t_outputs_all,  average=flag)
         f1 = metrics.f1_score(t_targets_all, t_outputs_all,  average=flag)
-        print(metrics.classification_report(t_targets_all, t_outputs_all))        
-        print(metrics.confusion_matrix(t_targets_all, t_outputs_all))        
+        logger.info(metrics.classification_report(t_targets_all, t_outputs_all))        
+        logger.info(metrics.confusion_matrix(t_targets_all, t_outputs_all))        
         
         return p, r, f1
 
     def run(self):
         optimizer = tf.train.AdamOptimizer(learning_rate=self.opt.learning_rate)
         # tf.contrib.data.Dataset
-        print(self.trainset.text_list[:3])
-        print(self.trainset.label_list[:3])
-
+        logger.info("text 3", self.trainset.text_list[:3])
+        logger.info("label 3", self.trainset.label_list[:3])
         
         train_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.trainset.text_list, 'term':self.trainset.term_list, 'aspect':self.trainset.aspect_list, 'aspect_onehot':self.trainset.aspect_onehot_list}).batch(self.opt.batch_size).shuffle(10000)
         test_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.testset.text_list, 'term':self.testset.term_list, 'aspect':self.testset.aspect_list, 'aspect_onehot':self.testset.aspect_onehot_list}).batch(self.opt.batch_size)
@@ -170,7 +169,7 @@ def main():
     parser.add_argument('--outputs_folder', type=str, default='./outputs')
     parser.add_argument('--gpu', type=str, default='0')
     parser.add_argument('--max_seq_len', type=str, default=80)
-    parser.add_argument('--batch_size', type=str, default=128)
+    parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--hidden_dim', type=int, default=512, help='hidden dim of dense')
     parser.add_argument('--filters_num', type=int, default=256, help='number of filters')
     parser.add_argument('--filters_size', type=int, default=[4,3,2], help='size of filters')

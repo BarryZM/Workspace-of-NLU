@@ -32,8 +32,11 @@ def _load_word_vec(path, word2idx=None):
     fin = open(path, 'r', encoding='utf-8', newline='\n', errors='ignore')
     word_vec = {}
     for line in fin:
-        tokens = line.rstrip().split(" ")
+        tokens = line.rstrip().split(' ')
+        #tokens = line.rstrip().split()
         if word2idx is None or tokens[0] in word2idx.keys():
+            print(tokens[0])
+            print(tokens[1:])
             word_vec[tokens[0]] = np.asarray(tokens[1:], dtype='float32')
     return word_vec
 
@@ -52,12 +55,9 @@ def build_embedding_matrix(word2idx, embed_dim, dat_fname):
                 embedding_matrix[i] = vec
         pickle.dump(embedding_matrix, open(dat_fname, 'wb'))  
     #else:
-    #        ielf.embedding = tf.Variable(tf.constant(0.0, shape=[self.vocab_size, self.emb_dim]), trainable=True, name="embedding")
-    #        self.embedding_placeholder = tf.placeholder(tf.float32, [self.vocab_size, self.emb_dim])
-    #        self.embedding_init = self.embedding.assign(self.embedding_placeholder)
-    #        self.embedding_inputs = tf.nn.embedding_lookup(self.embedding, self.input_x)
     #    print('loading word vectors...')
     #    embedding_matrix = np.zeros((len(word2idx) + 2, embed_dim))  # idx 0 and len(word2idx)+1 are all-zeros
+    #    #embedding_matrix = np.zeros((len(word2idx) + 2, embed_dim))  # idx 0 and len(word2idx)+1 are all-zeros
     #    fname = './glove.twitter.27B/glove.twitter.27B.' + str(embed_dim) + 'd.txt' \
     #        if embed_dim != 300 else '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/glove.42B.300d.txt'
     #    word_vec = _load_word_vec(fname, word2idx=word2idx)

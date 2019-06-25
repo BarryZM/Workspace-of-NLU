@@ -21,7 +21,7 @@ class TextCNN(object):
         self.filters_num = args.filters_num
         self.filters_size = args.filters_size
         self.class_num = len(str(args.label_list).split(','))
-        self.learning_rate = 1e-5
+        self.learning_rate = args.learning_rate
 
         self.input_x = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_length], name='input_x')
         self.input_term = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_length], name='input_term')
@@ -29,21 +29,7 @@ class TextCNN(object):
         self.global_step = tf.placeholder(shape=(), dtype=tf.int32, name='global_step')
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
-        self.outputs = None
         self.cnn()
-
-    @staticmethod
-    def metric_acc(truth, prob, depth):
-        """
-        :param truth:
-        :param prob:
-        :param depth:
-        :return:
-        """
-        pred = tf.one_hot(tf.argmax(prob, -1), depth=depth)   # (?,18) -> (?,18) 概率值转化为 one hot 编码
-        tp = tf.logical_and(tf.cast(pred, tf.bool), tf.cast(truth, tf.bool))  # 对比onehot编码和prob, 单条完全相同为1， 不同为0， 得到 shape为（？，1）的tensor
-        acc = tf.truediv(tf.reduce_sum(tf.cast(tp, tf.int32)), tf.shape(pred)[0])  # 当前batch中有多少个计算正确的，除以batzh_size得到accuracy
-        return acc
 
     def cnn(self):
         with tf.device('/cpu:0'):
@@ -58,7 +44,6 @@ class TextCNN(object):
             terms = tf.nn.embedding_lookup(emb_term, self.input_term)
 
         inputs_with_terms = tf.concat([inputs, terms], -1)
-
 
         pooled_outputs = []
 
@@ -84,24 +69,10 @@ class TextCNN(object):
             fc_1 = tf.nn.dropout(fc, self.keep_prob)
             """ dense layer 2 """
             dense = tf.layers.dense(fc_1, self.class_num, name='fc2')
-            self.softmax = tf.nn.softmax(dense, name="my_output")
-
-            self.outputs = tf.argmax(self.softmax, 1, name='predict')  # 最大domain的类别
-
-        with tf.name_scope("optimize"):
+            softmax = tf.nn.softmax(dense, name="my_output")
+            self.outputs = tf.argmax(softmax, 1, name='predict')  # 最大domain的类别
             loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=dense, labels=self.input_y)
-            self.loss = tf.reduce_mean(loss)
-            self.learning_rate = tf.train.exponential_decay(learning_rate=self.learning_rate,
-                                                            global_step=self.global_step,
-                                                            decay_steps=2,
-                                                            decay_rate=0.95,
-                                                            staircase=True)
-            # decayed_learning_rate = learning_rate * decay_rate ^ (global_step / decay_steps)
-            optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
-            self.trainer = optimizer.minimize(self.loss)
+            loss = tf.reduce_mean(loss)
+            self.trainer = tf.train.AdamOptimizer(learning_rate = self.learning_rate).minimize(loss)
 
-            tf.summary.scalar('loss', self.loss)
-
-        with tf.name_scope("accuracy"):
-            self.acc = self.metric_acc(self.input_y, self.softmax, self.class_num)
-
+            tf.summary.scalar('loss', loss)
