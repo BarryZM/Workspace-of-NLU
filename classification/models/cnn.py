@@ -24,49 +24,54 @@ class TextCNN(object):
         self.learning_rate = 1e-5
 
         self.input_x = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_length], name='input_x')
+        self.input_term = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_length], name='input_term')
         self.input_y = tf.placeholder(dtype=tf.float32, shape=[None, self.class_num], name='input_y')
         self.global_step = tf.placeholder(shape=(), dtype=tf.int32, name='global_step')
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
         self.outputs = None
-
         self.cnn()
 
     @staticmethod
     def metric_acc(truth, prob, depth):
         """
-
         :param truth:
         :param prob:
         :param depth:
         :return:
         """
-
         pred = tf.one_hot(tf.argmax(prob, -1), depth=depth)   # (?,18) -> (?,18) 概率值转化为 one hot 编码
         tp = tf.logical_and(tf.cast(pred, tf.bool), tf.cast(truth, tf.bool))  # 对比onehot编码和prob, 单条完全相同为1， 不同为0， 得到 shape为（？，1）的tensor
         acc = tf.truediv(tf.reduce_sum(tf.cast(tp, tf.int32)), tf.shape(pred)[0])  # 当前batch中有多少个计算正确的，除以batzh_size得到accuracy
-
         return acc
 
     def cnn(self):
         with tf.device('/cpu:0'):
-            self.embedding = tf.Variable(tf.constant(0.0, shape=[self.vocab_size, self.emb_dim]), trainable=True, name="embedding")
-            self.embedding_placeholder = tf.placeholder(tf.float32, [self.vocab_size, self.emb_dim])
-            self.embedding_init = self.embedding.assign(self.embedding_placeholder)
-            self.embedding_inputs = tf.nn.embedding_lookup(self.embedding, self.input_x)
+            emb_input = tf.Variable(tf.constant(0.0, shape=[self.vocab_size, self.emb_dim]), trainable=True, name="embedding_input")
+            self.ph_input = tf.placeholder(tf.float32, [self.vocab_size, self.emb_dim])
+            self.input_init = emb_input.assign(self.ph_input)
+            inputs = tf.nn.embedding_lookup(emb_input, self.input_x)
+
+            emb_term = tf.Variable(tf.constant(0.0, shape=[self.vocab_size, self.emb_dim]), trainable=True, name="embedding_term")
+            self.ph_term = tf.placeholder(tf.float32, [self.vocab_size, self.emb_dim])
+            self.term_init = emb_term.assign(self.ph_term)
+            terms = tf.nn.embedding_lookup(emb_term, self.input_term)
+
+        inputs_with_terms = tf.concat([inputs, terms], -1)
+
 
         pooled_outputs = []
 
         with tf.name_scope('conv-maxpool-%s' % self.filters_size[0]):
-            conv1 = tf.layers.conv1d(self.embedding_inputs, self.filters_num, self.filters_size[0], padding='SAME')
+            conv1 = tf.layers.conv1d(inputs_with_terms, self.filters_num, self.filters_size[0], padding='SAME')
             pooled_outputs.append(conv1)
 
         with tf.name_scope('conv-maxpool-%s' % self.filters_size[1]):
-            conv2 = tf.layers.conv1d(self.embedding_inputs, self.filters_num, self.filters_size[1], padding='SAME')
+            conv2 = tf.layers.conv1d(inputs_with_terms, self.filters_num, self.filters_size[1], padding='SAME')
             pooled_outputs.append(conv2)
 
         with tf.name_scope('conv-maxpool-%s' % self.filters_size[2]):
-            conv3 = tf.layers.conv1d(self.embedding_inputs, self.filters_num, self.filters_size[2], padding='SAME')
+            conv3 = tf.layers.conv1d(inputs_with_terms, self.filters_num, self.filters_size[2], padding='SAME')
             pooled_outputs.append(conv3)
 
         sw = tf.concat(pooled_outputs, -1)  # (?, 30, 768)

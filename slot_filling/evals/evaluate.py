@@ -11,10 +11,10 @@ import pickle
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('label2id_path', type='str')
-parser.add_argument('true_text_path', type='str')
-parser.add_argument('true_label_path', type='str')
-parser.add_argument('predict_label_path', type='str')
+#parser.add_argument('label2id_path', type='str')
+parser.add_argument('--true_text_path', type=str)
+parser.add_argument('--true_label_path', type=str)
+parser.add_argument('--predict_label_path', type=str)
 
 args = parser.parse_args()
 
@@ -107,9 +107,11 @@ def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
 
 
 if __name__  == '__main__':
-    label2tag = {}
-    with open(args.label2id_path,'rb') as rf:
-        label2tag = pickle.load(rf)
+    #label2tag = {}
+    #ith open(args.label2id_path,'rb') as rf:
+    #   label2tag = pickle.load(rf)
+
+    print("current path", os.getcwd())
 
     with open(args.true_text_path, mode='r', encoding='utf-8') as f:
         text_lines = f.readlines()

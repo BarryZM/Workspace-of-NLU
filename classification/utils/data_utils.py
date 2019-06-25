@@ -32,7 +32,7 @@ def _load_word_vec(path, word2idx=None):
     fin = open(path, 'r', encoding='utf-8', newline='\n', errors='ignore')
     word_vec = {}
     for line in fin:
-        tokens = line.rstrip().split()
+        tokens = line.rstrip().split(" ")
         if word2idx is None or tokens[0] in word2idx.keys():
             word_vec[tokens[0]] = np.asarray(tokens[1:], dtype='float32')
     return word_vec
@@ -45,17 +45,29 @@ def build_embedding_matrix(word2idx, embed_dim, dat_fname):
     else:
         print('loading word vectors...')
         embedding_matrix = np.zeros((len(word2idx) + 2, embed_dim))  # idx 0 and len(word2idx)+1 are all-zeros
-        #embedding_matrix = np.zeros((len(word2idx) + 2, embed_dim))  # idx 0 and len(word2idx)+1 are all-zeros
-        fname = './glove.twitter.27B/glove.twitter.27B.' + str(embed_dim) + 'd.txt' \
-            if embed_dim != 300 else '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/glove.42B.300d.txt'
+        fname = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/Tencent_AILab_ChineseEmbedding.txt'
         word_vec = _load_word_vec(fname, word2idx=word2idx)
         print('building embedding_matrix:', dat_fname)
         for word, i in word2idx.items():
-            vec = word_vec.get(word)
-            if vec is not None:
-                # words not found in embedding index will be all-zeros.
                 embedding_matrix[i] = vec
-        pickle.dump(embedding_matrix, open(dat_fname, 'wb'))
+        pickle.dump(embedding_matrix, open(dat_fname, 'wb'))  
+    #else:
+    #        ielf.embedding = tf.Variable(tf.constant(0.0, shape=[self.vocab_size, self.emb_dim]), trainable=True, name="embedding")
+    #        self.embedding_placeholder = tf.placeholder(tf.float32, [self.vocab_size, self.emb_dim])
+    #        self.embedding_init = self.embedding.assign(self.embedding_placeholder)
+    #        self.embedding_inputs = tf.nn.embedding_lookup(self.embedding, self.input_x)
+    #    print('loading word vectors...')
+    #    embedding_matrix = np.zeros((len(word2idx) + 2, embed_dim))  # idx 0 and len(word2idx)+1 are all-zeros
+    #    fname = './glove.twitter.27B/glove.twitter.27B.' + str(embed_dim) + 'd.txt' \
+    #        if embed_dim != 300 else '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/glove.42B.300d.txt'
+    #    word_vec = _load_word_vec(fname, word2idx=word2idx)
+    #    print('building embedding_matrix:', dat_fname)
+    #    for word, i in word2idx.items():
+    #        vec = word_vec.get(word)
+    #        if vec is not None:
+    #            # words not found in embedding index will be all-zeros.
+    #            embedding_matrix[i] = vec
+    #    pickle.dump(embedding_matrix, open(dat_fname, 'wb'))
     return embedding_matrix
 
 
@@ -122,24 +134,30 @@ class CLFDataset():
         fin.close()
 
         text_list = []
+        term_list = []
         aspect_list = []
         aspect_onehot_list=[]
         data_list = []
 
-        for i in range(0, len(lines), 3):
+        for i in range(0, len(lines), 4):
             text  = lines[i].lower().strip()
-            aspect = lines[i + 1].lower().strip()
-            polarity = lines[i + 2].strip()
+            term  = lines[i+1].lower().strip() 
+            aspect = lines[i + 2].lower().strip()
+            polarity = lines[i + 3].strip()
+
             assert polarity in ['-1', '0', '1'], print("polarity", polarity)
             text_idx = tokenizer.text_to_sequence(text)
+            term_idx = tokenizer.text_to_sequence(term)
             aspect_idx = self.aspect2id[aspect]
             aspect_onehot_idx = self.aspect2onehot[aspect] 
 
             text_list.append(text_idx)
+            term_list.append(term_idx)
             aspect_list.append(aspect_idx)
             aspect_onehot_list.append(aspect_onehot_idx)
 
         self.text_list = np.asarray(text_list)
+        self.term_list = np.asarray(term_list)
         self.aspect_list = np.asarray(aspect_list)
         self.aspect_onehot_list = np.asarray(aspect_onehot_list)
 

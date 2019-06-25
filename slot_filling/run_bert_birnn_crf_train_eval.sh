@@ -1,7 +1,7 @@
 dataset_name="air-purifier"
 type_name='entity'
 gpu='3'
-epoch=20.0
+epoch=10
 max_seq_len=512
 hidden_layer=4
 target_folder="./outputs/"${dataset_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len} 
@@ -25,7 +25,6 @@ echo ${target_folder}
 if [ $train_flag == True ] ;then
 /bin/rm -rf $target_folder
 mkdir $target_folder
-fi
 
 python models/BERT_BIRNN_CRF.py \
     --task_name="NER"  \
@@ -45,11 +44,16 @@ python models/BERT_BIRNN_CRF.py \
     --learning_rate=2e-5   \
     --num_train_epochs=$epoch   \
     --output_dir=$target_folder
+fi
 
+if [ $predict_flag == True ] ;then
 # delete lines which contain [CLS], [SEP]  
+cp ${target_folder}/entity_test_results.txt ${target_folder}/entity_test_results.txt-1
+sed -i '/SEP/d' ${target_folder}/entity_test_results.txt
+sed -i '/CLS/d' ${target_folder}/entity_test_results.txt
 
-#python evals/evaluate.py \
-#    --label2id_path=./output/label2id_entity.pkl \
-#    --true_text_path=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/label/test_text.txt\
-#    --true_label_path=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/label/test_label.txt\
-#    --true_predict_path=${target_folder}/   
+python evals/evaluate.py \
+    --true_text_path=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/label/test-text.txt \
+    --true_label_path=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/label/test-label.txt \
+    --predict_label_path=${target_folder}/entity_test_results.txt 
+fi
