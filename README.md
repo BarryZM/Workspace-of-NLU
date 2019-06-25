@@ -16,9 +16,9 @@
 
 + THUnews
 
-## Domain Classification
+# Classification
 
-##### [Text CNN](https://arxiv.org/abs/1408.5882)
+## [Text CNN](https://arxiv.org/abs/1408.5882)
 
 ![](https://ws4.sinaimg.cn/large/006tNbRwly1fwv4l4e186j30qd0cjmxx.jpg)
 
@@ -45,7 +45,7 @@
 + Varients
   + CNN 的变体
 
-##### Text RNN
+## Text RNN
 
 ![](https://ws3.sinaimg.cn/large/006tKfTcly1g1hi3f0gbvj30r80f6adv.jpg)
 
@@ -57,7 +57,7 @@
   + Results
     + 同CNN
 
-##### [Fasttext](https://fasttext.cc/)
+## [Fasttext](https://fasttext.cc/)
 
 + Tips
 
@@ -78,7 +78,7 @@
   + 原始的是Word Bog， 没有词序信息， 因此加入了N-Gram
   + 为了提高效率，低频的N-Gram 特征要去掉
 
-##### Capsule
+## Capsule
 
 + Tips
 
@@ -113,7 +113,7 @@
       - 迭代次数
         - 一般三次，太多的话会导致过拟合
 
-##### BERT
+## BERT
 
 + Tips
 
@@ -138,7 +138,7 @@
       + CNN
       + LSTM
 
-### Summary of Classification
+## Summary of Classification
 
 | Model         | Tips                          |
 | ------------- | ----------------------------- |
@@ -160,16 +160,14 @@
 
 # Slot Filling
 
-### Metric
+## Metric
 
 + Type
 + Span
 + Overlap
 + Extract
 
-### Model
-
-##### [Bi-LSTM-CRF](https://arxiv.org/pdf/1508.01991.pdf)
+## [Bi-LSTM-CRF](https://arxiv.org/pdf/1508.01991.pdf)
 
 ![](https://ws4.sinaimg.cn/large/006tKfTcly1g1hi3yezuuj30an07i3yu.jpg)
 
@@ -183,7 +181,7 @@
 + Results
   + pass
 
-### Summary of Slot Filling
+## Summary of Slot Filling
 
 | Model            | Tips                 |
 | ---------------- | -------------------- |
@@ -196,15 +194,28 @@
 
 # Sentiment Analysis
 
-### Sentence Level
+## Sentence Level
 
-### Aspect Level
-##### ATAE
-##### MGAN
+## Aspect Level
+
+### ATAE
+
+### MGAN
+
+
+
+# Relation Extraction
+
+
+
+# Natural Language Inference
+
+
+
+# Joint Learning for NLU
 
 # Next
 
-+ code review
 + downlaod.sh
 + 工程优化
     + 定义命名规范
