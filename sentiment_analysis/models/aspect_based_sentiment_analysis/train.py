@@ -57,6 +57,9 @@ class Instructor:
         else:
             self.valset = self.testset
 
+        # tmp setting
+        self.testset = self.valset
+
         if opt.device.type == 'cuda':
             logger.info('cuda memory allocated: {}'.format(torch.cuda.memory_allocated(device=opt.device.index)))
         self._print_args()

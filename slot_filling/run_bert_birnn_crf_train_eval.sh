@@ -1,7 +1,7 @@
 dataset_name="air-purifier"
 type_name='entity'
 gpu='3'
-epoch=20
+epoch=10
 max_seq_len=512
 hidden_layer=4
 target_folder="./outputs/"${dataset_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len} 
