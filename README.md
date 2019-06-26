@@ -250,6 +250,11 @@
   + run scripts
   + README.MD
 
+# Training setting
++ paramenters
++ sample number, data max/average length
+
+
 # Reference
 
 + <https://github.com/jiangxinyang227/textClassifier>

@@ -11,7 +11,7 @@ predict_flag=True
 
 
 if [ "$type_name" == 'emotion' ] ;then
-label_list="O,[CLS],[SEP],B-positibve,I-positibve,B-negative,I-negative,B-moderate,I-moderate"
+label_list="O,[CLS],[SEP],B-positive,I-positive,B-negative,I-negative,B-moderate,I-moderate"
 echo $label_list
 fi
 
