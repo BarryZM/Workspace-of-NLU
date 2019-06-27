@@ -5,7 +5,7 @@ epoch=10
 max_seq_len=512
 hidden_layer=4
 target_folder="./outputs/"${dataset_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len} 
-train_flag=True
+train_flag=False
 eval_flag=False
 predict_flag=True
 

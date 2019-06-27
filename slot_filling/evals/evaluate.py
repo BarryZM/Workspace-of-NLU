@@ -69,10 +69,15 @@ def cut_resulst_2_sentence(text_list, ground_list, predict_list):
     tmp_t = []
     tmp_g = []
     tmp_p = []
+
+    idx = 0
+
     for item_t, item_g, item_p in zip(text_list, ground_list, predict_list):
         if len(item_g.strip()) == 0 and len(item_p.strip()) != 0:
+            print('index', idx)
             raise Exception("Error")
         elif len(item_g.strip()) != 0 and len(item_p.strip()) == 0:
+            print('index', idx)
             raise Exception("Error")
         elif len(item_g.strip()) == 0 and len(item_p.strip()) == 0:
             text_sentence_list.append(tmp_t.copy())
@@ -85,6 +90,7 @@ def cut_resulst_2_sentence(text_list, ground_list, predict_list):
             tmp_t.append(item_t.strip())
             tmp_g.append(item_g.strip())
             tmp_p.append(item_p.strip())
+        idx += 1 
 
     return text_sentence_list, ground_sentence_list, predict_sentence_list
 
@@ -125,7 +131,7 @@ if __name__  == '__main__':
         predict_lines = f.readlines()
         print(len(predict_lines))    
 
-    assert len(predict_lines) == len(ground_lines) == len(text_lines), print('predict is {}, ground is {}, text is {}'.format(len(predict_lines), len(ground_lines), len(text_lines)))
+#    assert len(predict_lines) == len(ground_lines) == len(text_lines), print('predict is {}, ground is {}, text is {}'.format(len(predict_lines), len(ground_lines), len(text_lines)))
 
     count_predict = 0
     count_ground = 0
