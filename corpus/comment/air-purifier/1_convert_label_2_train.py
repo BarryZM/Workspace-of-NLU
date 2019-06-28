@@ -7,6 +7,7 @@ from utils import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--input_excel', type=str)
+parser.add_argument('--output_dir', type=str, default = 'label')
 args = parser.parse_args()
 
 def str2slotlist(input_str:str):
@@ -33,8 +34,6 @@ def str2slotlist(input_str:str):
             return_list.append(new_dict)
 
     return return_list
-
-
 
 def get_label_data(text_list, slot_list):
     
@@ -103,9 +102,9 @@ def get_label_data(text_list, slot_list):
     return total_label_data
 
 def write_data(total_label_data, mode=''):    
-    if os.path.exists("label") is False:
-        os.mkdir("label")
-    with open(os.path.join('label', mode+'.txt'), encoding='utf-8', mode='w') as f:
+    if os.path.exists(args.output_dir) is False:
+        os.mkdir(args.output_dir)
+    with open(os.path.join(args.output_dir, mode+'.txt'), encoding='utf-8', mode='w') as f:
         for item in total_label_data:
             for text, aspect, sentiment in zip(item[0], item[1], item[2]):
                 f.write(text + '\t')
@@ -113,24 +112,28 @@ def write_data(total_label_data, mode=''):
                 f.write(sentiment + '\n')
             f.write('\n')
     
-    with open(os.path.join('label', mode+'-opinion.txt'), encoding='utf-8', mode='w') as f:
+    with open(os.path.join(args.output_dir, mode+'-opinion.txt'), encoding='utf-8', mode='w') as f:
         for item in total_label_data:
             for text, aspect in zip(item[0], item[1]):
                 f.write(text + '\t')
                 f.write(aspect + '\n')
             f.write('\n')
     
-    with open(os.path.join('label', mode+'-text.txt'), encoding='utf-8', mode='w') as f:
+    with open(os.path.join(args.output_dir, mode+'-text.txt'), encoding='utf-8', mode='w') as f:
         for item in total_label_data:
             for text, aspect in zip(item[0], item[1]):
                 f.write(text + '\n')
-                #f.write(aspect + '\n')
             f.write('\n')
     
-    with open(os.path.join('label', mode+'-label.txt'), encoding='utf-8', mode='w') as f:
+    with open(os.path.join(args.output_dir, mode+'-entity-label.txt'), encoding='utf-8', mode='w') as f:
         for item in total_label_data:
             for text, aspect in zip(item[0], item[1]):
-                #f.write(text + '\t')
+                f.write(aspect + '\n')
+            f.write('\n')
+
+    with open(os.path.join(args.output_dir, mode+'-emotion-label.txt'), encoding='utf-8', mode='w') as f:
+        for item in total_label_data:
+            for text, aspect in zip(item[0], item[2]):
                 f.write(aspect + '\n')
             f.write('\n')
     

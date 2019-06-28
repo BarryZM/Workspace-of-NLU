@@ -1,6 +1,6 @@
 dataset_name="air-purifier"
-type_name='entity'
-gpu='3'
+type_name='emotion'
+gpu='2'
 epoch=10
 max_seq_len=128
 max_seq_len_predict=512
@@ -49,12 +49,12 @@ fi
 
 if [ $predict_flag == True ] ;then
 # delete lines which contain [CLS], [SEP]  
-cp ${target_folder}/entity_test_results.txt ${target_folder}/entity_test_results.txt-1
-sed -i '/SEP/d' ${target_folder}/entity_test_results.txt
-sed -i '/CLS/d' ${target_folder}/entity_test_results.txt
+cp ${target_folder}/${type_name}_test_results.txt ${target_folder}/{type_name}_test_results.txt-backup
+sed -i '/SEP/d' ${target_folder}/${type_name}_test_results.txt
+sed -i '/CLS/d' ${target_folder}/${type_name}_test_results.txt
 
 python evals/evaluate.py \
     --true_text_path=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/label/test-text.txt \
-    --true_label_path=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/label/test-label.txt \
-    --predict_label_path=${target_folder}/entity_test_results.txt 
+    --true_label_path=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/label/test-${type_name}-label.txt \
+    --predict_label_path=${target_folder}/${type_name}_test_results.txt 
 fi

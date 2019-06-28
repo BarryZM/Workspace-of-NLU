@@ -568,7 +568,7 @@ def main(_):
             drop_remainder=predict_drop_remainder)
 
         result = estimator.predict(input_fn=predict_input_fn)
-        output_predict_file = os.path.join(FLAGS.output_dir, "entity_test_results.txt")
+        output_predict_file = os.path.join(FLAGS.output_dir, FLAGS.type_name + "_test_results.txt")
         with open(output_predict_file,'w') as writer:
             for prediction in result:
                 #print(prediction)
