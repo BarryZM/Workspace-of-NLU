@@ -28,7 +28,7 @@ class Instructor:
             word2idx=tokenizer.word2idx,
             embed_dim=opt.emb_dim,
             dat_fname='{0}_{1}_embedding_matrix.dat'.format(str(opt.emb_dim), opt.dataset_name))
-        logger.info("embedding check", embedding_matrix[:100])
+        logger.info("embedding check {}".format(embedding_matrix[:100]))
 
         model = TextCNN(self.opt, tokenizer) 
         
@@ -62,7 +62,6 @@ class Instructor:
         for epoch in range(self.opt.epochs):
             logger.info('>' * 100)
             logger.info('epoch: {}'.format(epoch))
-            n_correct, n_total, loss_total = 0, 0, 0
 
             iterator = train_data_loader.make_one_shot_iterator()
             one_element = iterator.get_next()
@@ -118,7 +117,6 @@ class Instructor:
                 targets_onehot = sample_batched['aspect_onehot']
                 model = self.model
                 outputs = self.session.run(model.outputs, feed_dict = {model.input_x : inputs, model.input_term:terms, model.input_y : targets_onehot, model.global_step : 1, model.keep_prob : 1.0})
-
                 t_targets_all.extend(targets)
                 t_outputs_all.extend(outputs)
 
@@ -132,7 +130,7 @@ class Instructor:
         p = metrics.precision_score(t_targets_all, t_outputs_all,  average=flag)
         r = metrics.recall_score(t_targets_all, t_outputs_all,  average=flag)
         f1 = metrics.f1_score(t_targets_all, t_outputs_all,  average=flag)
-        logger.info(metrics.classification_report(t_targets_all, t_outputs_all))        
+        logger.info(metrics.classification_report(t_targets_all, t_outputs_all, labels=range(len(self.trainset.label_list)), target_names=self.trainset.label_list))        
         logger.info(metrics.confusion_matrix(t_targets_all, t_outputs_all))        
         
         return p, r, f1
@@ -140,8 +138,8 @@ class Instructor:
     def run(self):
         optimizer = tf.train.AdamOptimizer(learning_rate=self.opt.learning_rate)
         # tf.contrib.data.Dataset
-        logger.info("text 3", self.trainset.text_list[:3])
-        logger.info("label 3", self.trainset.label_list[:3])
+        logger.info("text 3 {}".format(self.trainset.text_list[:3]))
+        logger.info("label 3 {}".format(self.trainset.label_list[:3]))
         
         train_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.trainset.text_list, 'term':self.trainset.term_list, 'aspect':self.trainset.aspect_list, 'aspect_onehot':self.trainset.aspect_onehot_list}).batch(self.opt.batch_size).shuffle(10000)
         test_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.testset.text_list, 'term':self.testset.term_list, 'aspect':self.testset.aspect_list, 'aspect_onehot':self.testset.aspect_onehot_list}).batch(self.opt.batch_size)
@@ -156,7 +154,6 @@ class Instructor:
         self.saver.restore(self.session, best_model_path)
         test_p, test_r, test_f1 = self._evaluete_metric(test_data_loader)
         logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
-
 
 def main():
     print(os.getcwd())

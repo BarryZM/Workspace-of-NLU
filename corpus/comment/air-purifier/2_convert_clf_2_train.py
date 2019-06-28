@@ -9,6 +9,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--input_excel', type=str)
 args = parser.parse_args()
 
+count = 0
+
 #convert_dict = {'p-e-volume': '冰箱容量', 'p-e-door': '冰箱门款', 'p-e-conditioning': '冰箱控温', 'p-e-sound': '冰箱运转音', 'p-e-screen': '冰箱显示', 'p-e-energy': '冰箱能效', 'p-c-price': '商品价格', 'p-c-quality': '商品质量', 'p-c-color': '商品颜色', 'p-c-appearance': '商品外观', 'p-c-marketing': '商品营销', 'p-c-brand': '商品品牌', 'p-c-others': '商品其他', 'cs-c-price': '客服价格政策问题', 'cs-c-refund': '客服退款问题', 'cs-c-gift': '客服赠品问题', 'cs-c-return': '客服换货问题', 'cs-c-maintanence': '客服维修问题', 'cs-c-installment': '客服安装问题', 'cs-c-others': '客服其他', 'l-c-delivery': '物流配送', 'l-c-return': '退货服务', 'l-c-refund': '退换服务', 'l-c-others': '物流其他', 's-c-maintanence': '维修服务', 's-c-installment': '安装服务', 's-c-others': '售后其他', 'general': '其他'}
 
 #convert_dict = {'p-e-light': '指示灯', 'p-e-smell': '味道', 'p-e-sound': '运转音', 'p-e-purification': '净化效果', 'p-e-effect': '风量', 'p-e-power': '电源', 'p-e-size': '尺寸', 'p-e-induction': '感应', 'p-e-design': '设计', 'p-e-strainer': '滤芯滤网', 'p-e-pattern': '模式', 'p-e-operation': '操作', 'p-e-packing': '包装', 'p-e-screen': '显示', 'p-e-function': '功能', 'p-e-pricematch': '价保', 'p-e-invoice': '发票', 'p-c-price': '商品价格', 'p-c-quality': '商品质量', 'p-c-color': '商品颜色', 'p-c-appearance': '商品外观', 'p-c-marketing': '商品营销', 'p-c-brand': '商品品牌', 'p-c-origin': '商品产地', 'p-c-others': '商品其他', 'cs-c-attitude': '客服态度', 'cs-c-handling': '客服处理速度', 'cs-c-others': '客服其他', 'l-c-delivery': '配送速度', 'l-c-attitude': '物流态度', 'l-c-others': '物流其他', 's-c-maintanence': '维修服务', 's-c-installment': '安装服务', 's-c-return': '退货服务', 's-c-exchange': '换货服务', 's-c-warranty': '质保', 's-c-refund': '退款服务', 's-c-others': '售后其他', 'general': '其他', 'platform': '京东'}
@@ -42,8 +44,47 @@ def str2slotlist(input_str:str):
 
     return return_list
 
-
 def match_aspect_sentiment(aspect_slot_list, sentiment_slot_list):
+    aspect_polarity = []
+
+    for aspect_slot in aspect_slot_list:
+        aspect_index = round(1/2 * (int(aspect_slot['start']) + int(aspect_slot['end'])))
+       
+        min_gap = maxsize
+        best_match_polarity = "" 
+
+        # match sentiment and aspect
+        if len(sentiment_slot_list) == 0:
+            best_match_polarity = "moderate"
+            global count
+            count += 1
+            print("%%% sentiment slot list is none")
+        else:
+            for sentiment_slot in sentiment_slot_list:
+                sentiment_index = round(1/2 * (int(sentiment_slot['start']) + int(sentiment_slot['end'])))
+                if abs(aspect_index - sentiment_index) < min_gap:
+                    min_gap = abs(aspect_index - sentiment_index) 
+                    # print(sentiment_slot['slotname'])
+                    try:
+                        tmp = sentiment_slot['slotname'].split('-')[1]
+                        if tmp in ['positive', 'positibve', 'negative', 'moderate']:
+                            best_match_polarity = tmp 
+                    except IndexError:
+                        print("#4", sentiment_slot)
+
+        # convert polarity to int
+        if best_match_polarity in ['positibve', 'positive'] :
+            best_match_polarity = 1
+        elif best_match_polarity == 'negative':
+            best_match_polarity = -1
+        elif best_match_polarity == 'moderate':
+            best_match_polarity = 0
+        else:
+            print(best_match_polarity)
+            raise Exception()
+        aspect_polarity.append(best_match_polarity)
+
+    return aspect_polarity 
 
 def write_data(output_dir, line, aspect_slot_list, aspect_polarity, mode):
 
@@ -108,12 +149,15 @@ def get_clf_data(text_list, slot_list, mode):
                     print('>>>>>slot error')
                     print(slot['domain'])
         
-        if len(aspect_slot_list) == 0 or len(sentiment_slot_list) == 0:
+        #if len(aspect_slot_list) == 0 or len(sentiment_slot_list) == 0:
+        #    continue
+        if len(aspect_slot_list) == 0: 
             continue
         else: # A^{m} S^{n} m>0 n>0
             # 当前规则，选取最近的sentiment 作为 aspect 对应的情感词，并表明该aspect 的极性
             aspect_polarity = match_aspect_sentiment(aspect_slot_list, sentiment_slot_list)             
             write_data(output_dir, line, aspect_slot_list, aspect_polarity, mode) 
+    print("\n\n count is :", count)
 
 output_dir = "clf"
 

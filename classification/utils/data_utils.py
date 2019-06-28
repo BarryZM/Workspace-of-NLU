@@ -168,7 +168,9 @@ class CLFDataset():
         return len(self.text_list)
     
     def set_label_list(self):
-        return [ item.strip().strip("'") for item in self.label_str.split(',')]
+        label_list = [ item.strip().strip("'") for item in self.label_str.split(',')]
+        print("%%%, label list length", len(label_list))
+        return label_list
 
     def set_aspect2id(self):
         label_dict = {}
