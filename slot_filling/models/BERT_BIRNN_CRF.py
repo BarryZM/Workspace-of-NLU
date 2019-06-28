@@ -4,6 +4,8 @@
 Copyright 2018 The Google AI Language Team Authors.
 BASED ON Google_BERT.
 @Author:zhoukaiyin, Apollo2Mars@gmail.com
+problem : max seq length it too long for train/eval/predict
+
 """
 from __future__ import absolute_import
 from __future__ import division
@@ -29,98 +31,35 @@ from tensorflow.contrib.layers.python.layers import initializers
 from layers.layer_rnn_crf import BLSTM_CRF
 
 flags = tf.flags
-
 FLAGS = flags.FLAGS
-
-flags.DEFINE_string(
-    "label_list", None,
-    "input_label_list"
-)
-
-flags.DEFINE_string(
-   "type_name", None, 
-    "entity or emotion"
-)
-
-flags.DEFINE_string(
-    "data_dir", None,
-    "The input datadir.",
-)
-
-flags.DEFINE_string(
-    "bert_config_file", None,
-    "The config json file corresponding to the pre-trained BERT model."
-)
-
-flags.DEFINE_string(
-    "task_name", None, "The name of the task to train."
-)
-
-flags.DEFINE_string(
-    "output_dir", None,
-    "The output directory where the model checkpoints will be written."
-)
-
+flags.DEFINE_string("label_list", None, "input_label_list")
+flags.DEFINE_string("type_name", None, "entity or emotion")
+flags.DEFINE_string("data_dir", None, "The input datadir.")
+flags.DEFINE_string("bert_config_file", None, "The config json file corresponding to the pre-trained BERT model.")
+flags.DEFINE_string("task_name", None, "The name of the task to train.")
+flags.DEFINE_string( "output_dir", None, "The output directory where the model checkpoints will be written.")
 ## Other parameters
-flags.DEFINE_string(
-    "init_checkpoint", None,
-    "Initial checkpoint (usually from a pre-trained BERT model)."
-)
-
-flags.DEFINE_bool(
-    "do_lower_case", True,
-    "Whether to lower case the input text."
-)
-
-flags.DEFINE_string(
-    "gpu", '0',
-    "gpu card number"
-)
-
-flags.DEFINE_integer(
-    "max_seq_length", 64,
-    "The maximum total input sequence length after WordPiece tokenization."
-)
-
-flags.DEFINE_bool(
-    "do_train", False,
-    "Whether to run training."
-)
+flags.DEFINE_string( "init_checkpoint", None, "Initial checkpoint (usually from a pre-trained BERT model).")
+flags.DEFINE_bool( "do_lower_case", True, "Whether to lower case the input text.")
+flags.DEFINE_string( "gpu", '0', "gpu card number")
+flags.DEFINE_integer( "max_seq_length", 128, "The maximum sequence length for train in char-level.")
+flags.DEFINE_integer( "max_seq_length_predict", 512, "The maximum sequence length for predict in char-level")
+flags.DEFINE_bool( "do_train", False, "Whether to run training.")
 flags.DEFINE_bool("use_tpu", False, "Whether to use TPU or GPU/CPU.")
-
 flags.DEFINE_bool("do_eval", False, "Whether to run eval on the dev set.")
-
 flags.DEFINE_bool("do_predict", False,"Whether to run the model in inference mode on the test set.")
-
 flags.DEFINE_integer("train_batch_size", 8, "Total batch size for training.")
-
 flags.DEFINE_integer("eval_batch_size", 8, "Total batch size for eval.")
-
 flags.DEFINE_integer("predict_batch_size", 8, "Total batch size for predict.")
-
 flags.DEFINE_float("learning_rate", 5e-5, "The initial learning rate for Adam.")
-
 flags.DEFINE_float("num_train_epochs", 100.0, "Total number of training epochs to perform.")
 
-
-
-flags.DEFINE_float(
-    "warmup_proportion", 0.1,
-    "Proportion of training to perform linear learning rate warmup for. "
-    "E.g., 0.1 = 10% of training.")
-
-flags.DEFINE_integer("save_checkpoints_steps", 1000,
-                     "How often to save the model checkpoint.")
-
-flags.DEFINE_integer("iterations_per_loop", 1000,
-                     "How many steps to make in each estimator call.")
-
-flags.DEFINE_string("vocab_file", None,
-                    "The vocabulary file that the BERT model was trained on.")
+flags.DEFINE_float( "warmup_proportion", 0.1, "Proportion of training to perform linear learning rate warmup for. " "E.g., 0.1 = 10% of training.") 
+flags.DEFINE_integer("save_checkpoints_steps", 1000, "How often to save the model checkpoint.")
+flags.DEFINE_integer("iterations_per_loop", 1000, "How many steps to make in each estimator call.")
+flags.DEFINE_string("vocab_file", None, "The vocabulary file that the BERT model was trained on.")
 tf.flags.DEFINE_string("master", None, "[Optional] TensorFlow master URL.")
-flags.DEFINE_integer(
-    "num_tpu_cores", 8,
-    "Only used if `use_tpu` is True. Total number of TPU cores to use.")
+flags.DEFINE_integer( "num_tpu_cores", 8, "Only used if `use_tpu` is True. Total number of TPU cores to use.")
 
 class InputExample(object):
     """A single training/test example for simple sequence classification."""
@@ -218,15 +157,11 @@ class NerProcessor(DataProcessor):
 
     @staticmethod
     def get_labels():
-        print(FLAGS.label_list.split(','))
         return FLAGS.label_list.split(',')
-        #return ["[CLS]","[SEP]","O", "B-3", "I-3"]
-        #return ["[CLS]","[SEP]","O", "B-product", "I-product", "B-cs", "I-cs", "B-logistics", "I-logistics", "B-service", "I-service", "B-general", "I-general"]
         
     def _create_example(self, lines, set_type):
         examples = []
         for (i, line) in enumerate(lines):
-            #print(line)
             guid = "%s-%s" % (set_type, i)
             # text = tokenization.convert_to_unicode(line[1])
             # label = tokenization.convert_to_unicode(line[0])
@@ -246,8 +181,6 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     label_map = {}
     for (i, label) in enumerate(label_list,1):
         label_map[label] = i
-    
-    # print('label_map', label_map)
     with open('./outputs/label2id_'+str(FLAGS.type_name)+'.pkl','wb') as w:
         pickle.dump(label_map,w)
     textlist = example.text
@@ -256,17 +189,10 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     tokens = []
     labels = []
     for i, word in enumerate(textlist):
-        #print(i)
-        #print(word)
-        #print(labellist[i])
-
         token = tokenizer.tokenize(word)
         tokens.append(token[0]) if len(token) > 0 else tokens.append("<S>")
         label = labellist[i]
         labels.append(label)
-
-    # print(tokens)
-    # print(labels)
 
     if len(tokens) >= max_seq_length - 1:
         tokens = tokens[0:(max_seq_length - 2)]
@@ -637,7 +563,7 @@ def main(_):
         
         predict_input_fn = file_based_input_fn_builder(
             input_file=predict_file,
-            seq_length=FLAGS.max_seq_length,
+            seq_length=FLAGS.max_seq_length_predict,
             is_training=False,
             drop_remainder=predict_drop_remainder)
 
