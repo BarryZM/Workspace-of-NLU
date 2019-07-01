@@ -8,16 +8,28 @@
 
 + Repreducing algorithms of **N**ature **L**anguage **U**nderstanding
 + Efficient and beautiful code
++ Framework for multi-dataset and multi-card
 + Framework for model ensemble
 
-# Dataset
+# Algorithms
++ Classification
++ Slot Filling
++ Sentiment Analysis
++ Relation Extraction
++ Natural Language Inference
 
-+ THUnews
+# Coding Standards
++ pass
+
+# Dataset
++ Classification
+    + THUnews
++ Slot Filling
++ Sentiment Analysis
++ Others
 
 # Classification
-
 ## [Text CNN](https://arxiv.org/abs/1408.5882)
-
 ![](https://ws4.sinaimg.cn/large/006tNbRwly1fwv4l4e186j30qd0cjmxx.jpg)
 
 + Framework
@@ -256,6 +268,12 @@
 
 # Challenge
 + ABSA  Dataset/Kaggle/
+
+# Problems
++ slot filling
+    + max seq length 取的512， batch size 不能太大，导致训练较慢
+        + 训练的时候截取一段长度
+        + 预测的时候取测试集的最大长度（或者可以不取固定长度？）
 
 # Reference
 
