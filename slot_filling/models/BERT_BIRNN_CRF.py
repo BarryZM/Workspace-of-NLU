@@ -18,9 +18,9 @@ print(os.getcwd())
 print(os.path.dirname(os.getcwd()))
 sys.path.append(os.getcwd())
 
-from bert  import modeling
+from bert import modeling
 from bert import optimization  
-from bert  import tokenization 
+from bert import tokenization 
 import tensorflow as tf
 from sklearn.metrics import f1_score,precision_score,recall_score
 from tensorflow.python.ops import math_ops
@@ -469,8 +469,7 @@ def main(_):
         #        f.write(str(line.text) + '\n')
         #        f.write(str(line.label) + '\n')
 
-        num_train_steps = int(
-            len(train_examples) / FLAGS.train_batch_size * FLAGS.num_train_epochs)
+        num_train_steps = int(len(train_examples) / FLAGS.train_batch_size * FLAGS.num_train_epochs)
         num_warmup_steps = int(num_train_steps * FLAGS.warmup_proportion)
 
     model_fn = model_fn_builder(
@@ -592,5 +591,4 @@ if __name__ == "__main__":
     flags.mark_flag_as_required("bert_config_file")
     flags.mark_flag_as_required("output_dir")
     tf.app.run()
-
 

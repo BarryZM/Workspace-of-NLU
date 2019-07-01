@@ -86,11 +86,17 @@ def get_label_data(text_list, slot_list):
                     if len(slot['slotname'].split('-')) != 2:
                         print(slot)
                         continue 
-                    sentiment_list[idx] = 'B-' + str(slot['slotname'].split('-')[1])
+                    
+                    tmp_str = str(slot['slotname']).split('-')[1] 
+                    if tmp_str == 'positibve':
+                        tmp_str = 'positive'
+                    sentiment_list[idx] = 'B-' + tmp_str 
                     idx = idx + 1
                     while (idx <= int(slot['end'])) and (idx < len(line)):
-                        sentiment_list[idx] = 'I-3'
-                        sentiment_list[idx] = 'I-' + str(slot['slotname'].split('-')[1])
+                        tmp_str = str(slot['slotname']).split('-')[1]
+                        if tmp_str == 'positibve':
+                            tmp_str = 'positive'
+                        sentiment_list[idx] = 'I-' + tmp_str
                         idx = idx + 1
     
         current_data = []

@@ -1,7 +1,6 @@
 [TOC]
 
 
-
 # Workspace of Nature Language Understanding
 
 # Target
@@ -155,7 +154,6 @@
 | AdversialLSTM |                               |
 
 
-
 # Slot Filling
 
 ## Metric
@@ -201,13 +199,10 @@
 ### MGAN
 
 
-
 # Relation Extraction
 
 
-
 # Natural Language Inference
-
 
 
 # Joint Learning for NLU
@@ -230,7 +225,8 @@
     + Joint-learning或multi-task策略，辅助未达标的分类领域  https://arxiv.org/pdf/1801.05149.pdf
     + 利用Bert embedding 进行再训练，如Bert embedding + Bi-LSTM-CRF https://github.com/BrikerMan/Kashgar
 
-
+# Problem
++ Slot Filling 添加 logger
 
 # Code Structure
 
@@ -261,5 +257,5 @@
 
 + <https://github.com/jiangxinyang227/textClassifier>
 + <https://github.com/brightmart/text_classification>
-+ https://github.com/songyouwei/ABSA-PyTorch
++ <https://github.com/songyouwei/ABSA-PyTorch>
 

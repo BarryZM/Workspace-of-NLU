@@ -1,12 +1,16 @@
 dataset_name="air-purifier"
-type_name='emotion'
-gpu='2'
+#type_name='entity'
+#gpu='3'
+
+type_name='entity'
+gpu='3'
+
 epoch=10
 max_seq_len=128
-max_seq_len_predict=512
+max_seq_len_predict=128
 hidden_layer=4
 target_folder="./outputs/"${dataset_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len}_gpu_${gpu} 
-train_flag=True
+train_flag=False
 eval_flag=False
 predict_flag=True
 
@@ -27,6 +31,9 @@ if [ $train_flag == True ] ;then
 /bin/rm -rf $target_folder
 mkdir $target_folder
 
+fi
+
+# Train or Predict
 python models/BERT_BIRNN_CRF.py \
     --task_name="NER"  \
     --type_name=${type_name} \
@@ -45,11 +52,10 @@ python models/BERT_BIRNN_CRF.py \
     --learning_rate=2e-5   \
     --num_train_epochs=$epoch   \
     --output_dir=$target_folder
-fi
 
 if [ $predict_flag == True ] ;then
 # delete lines which contain [CLS], [SEP]  
-cp ${target_folder}/${type_name}_test_results.txt ${target_folder}/{type_name}_test_results.txt-backup
+cp ${target_folder}/${type_name}_test_results.txt ${target_folder}/${type_name}_test_results.txt-backup
 sed -i '/SEP/d' ${target_folder}/${type_name}_test_results.txt
 sed -i '/CLS/d' ${target_folder}/${type_name}_test_results.txt
 
