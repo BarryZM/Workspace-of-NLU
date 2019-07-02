@@ -5,15 +5,16 @@ dataset_name="air-purifier"
 type_name='entity'
 gpu='3'
 
-epoch=10
+epoch=15
 max_seq_len=128
 max_seq_len_predict=128
+learning_rate=5e-5
 hidden_layer=4
 target_folder="./outputs/"${dataset_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len}_gpu_${gpu} 
-train_flag=False
+train_flag=True
 eval_flag=False
 predict_flag=True
-
+metric_flag=True
 
 if [ "$type_name" == 'emotion' ] ;then
 label_list="O,[CLS],[SEP],B-positive,I-positive,B-negative,I-negative,B-moderate,I-moderate"
@@ -27,11 +28,9 @@ fi
 
 echo ${target_folder}
 
-if [ $train_flag == True ] ;then
+if [ $train_flag == True -o $predict_flag == True ] ;then
 /bin/rm -rf $target_folder
 mkdir $target_folder
-
-fi
 
 # Train or Predict
 python models/BERT_BIRNN_CRF.py \
@@ -49,11 +48,12 @@ python models/BERT_BIRNN_CRF.py \
     --init_checkpoint=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_model.ckpt   \
     --max_seq_length=$max_seq_len   \
     --train_batch_size=16   \
-    --learning_rate=2e-5   \
+    --learning_rate=${learning_rate}   \
     --num_train_epochs=$epoch   \
     --output_dir=$target_folder
+fi
 
-if [ $predict_flag == True ] ;then
+if [ $metric_flag == True ] ;then
 # delete lines which contain [CLS], [SEP]  
 cp ${target_folder}/${type_name}_test_results.txt ${target_folder}/${type_name}_test_results.txt-backup
 sed -i '/SEP/d' ${target_folder}/${type_name}_test_results.txt

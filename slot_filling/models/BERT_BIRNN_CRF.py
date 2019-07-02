@@ -14,8 +14,6 @@ from __future__ import print_function
 import collections
 import os
 import sys
-print(os.getcwd())
-print(os.path.dirname(os.getcwd()))
 sys.path.append(os.getcwd())
 
 from bert import modeling
@@ -44,8 +42,7 @@ flags.DEFINE_bool( "do_lower_case", True, "Whether to lower case the input text.
 flags.DEFINE_string( "gpu", '0', "gpu card number")
 flags.DEFINE_integer( "max_seq_length", 128, "The maximum sequence length for train in char-level.")
 flags.DEFINE_integer( "max_seq_length_predict", 512, "The maximum sequence length for predict in char-level")
-flags.DEFINE_bool( "do_train", False, "Whether to run training.")
-flags.DEFINE_bool("use_tpu", False, "Whether to use TPU or GPU/CPU.")
+flags.DEFINE_bool("do_train", False, "Whether to run training.")
 flags.DEFINE_bool("do_eval", False, "Whether to run eval on the dev set.")
 flags.DEFINE_bool("do_predict", False,"Whether to run the model in inference mode on the test set.")
 flags.DEFINE_integer("train_batch_size", 8, "Total batch size for training.")
@@ -53,12 +50,12 @@ flags.DEFINE_integer("eval_batch_size", 8, "Total batch size for eval.")
 flags.DEFINE_integer("predict_batch_size", 8, "Total batch size for predict.")
 flags.DEFINE_float("learning_rate", 5e-5, "The initial learning rate for Adam.")
 flags.DEFINE_float("num_train_epochs", 100.0, "Total number of training epochs to perform.")
-
 flags.DEFINE_float( "warmup_proportion", 0.1, "Proportion of training to perform linear learning rate warmup for. " "E.g., 0.1 = 10% of training.") 
 flags.DEFINE_integer("save_checkpoints_steps", 1000, "How often to save the model checkpoint.")
 flags.DEFINE_integer("iterations_per_loop", 1000, "How many steps to make in each estimator call.")
 flags.DEFINE_string("vocab_file", None, "The vocabulary file that the BERT model was trained on.")
 tf.flags.DEFINE_string("master", None, "[Optional] TensorFlow master URL.")
+flags.DEFINE_bool("use_tpu", False, "Whether to use TPU or GPU/CPU.")
 flags.DEFINE_integer( "num_tpu_cores", 8, "Only used if `use_tpu` is True. Total number of TPU cores to use.")
 
 class InputExample(object):
@@ -148,7 +145,7 @@ class NerProcessor(DataProcessor):
 
     def get_dev_examples(self, data_dir):
         return self._create_example(
-            self._read_data(os.path.join(data_dir, "dev.txt")), "dev"
+            self._read_data(os.path.join(data_dir, "test.txt")), "dev"
         )
 
     def get_test_examples(self,data_dir):
@@ -544,12 +541,12 @@ def main(_):
             print("id2label", id2label)
         predict_examples = processor.get_test_examples(FLAGS.data_dir)
 
-        #print(predict_examples[0].text)
-        #print(predict_examples[1].text)
+        print(predict_examples[0].text)
+        print(predict_examples[1].text)
         
         predict_file = os.path.join(FLAGS.output_dir, "predict.tf_record")
-        # filed_based_convert_examples_to_features(predict_examples, label_list, 512 , tokenizer,predict_file,mode="test")
-        filed_based_convert_examples_to_features(predict_examples, label_list,FLAGS.max_seq_length, tokenizer,predict_file,mode="test")
+        #filed_based_convert_examples_to_features(predict_examples, label_list, 512 , tokenizer,predict_file,mode="test")
+        filed_based_convert_examples_to_features(predict_examples, label_list,FLAGS.max_seq_length_predict, tokenizer,predict_file,mode="test")
                             
         tf.logging.info("***** Running prediction*****")
         tf.logging.info("  Num examples = %d", len(predict_examples))
