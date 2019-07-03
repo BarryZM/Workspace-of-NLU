@@ -6,7 +6,7 @@
 import os
 import pickle
 import numpy as np
-import tensorflow as tf
+
 
 def build_tokenizer(fnames, max_seq_len, dat_fname):
     if os.path.exists(dat_fname):
