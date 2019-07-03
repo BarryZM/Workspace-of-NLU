@@ -69,28 +69,32 @@ class BERTCNN(object):
             fc = tf.nn.dropout(fc, self.keep_prob)
             fc = tf.nn.relu(fc)
 
-        '''logits'''
         with tf.name_scope('logits'):
-            self.logits = tf.layers.dense(fc, self.class_num, name='logits')
-            self.prob = tf.nn.softmax(self.logits)
-            self.y_pred_cls = tf.argmax(tf.nn.softmax(self.logits), 1)
+            logits = tf.layers.dense(fc, self.class_num, name='logits')
+            softmax = tf.nn.softmax(logits)
+            self.outputs = tf.argmax(softmax, 1, name='predict')
 
-        '''计算loss，因为输入的样本标签不是one_hot的形式，需要转换下'''
         with tf.name_scope('loss'):
-            log_probs = tf.nn.log_softmax(self.logits, axis=-1)
-            one_hot_labels = tf.one_hot(self.labels, depth=self.class_num, dtype=tf.float32)
-            per_example_loss = -tf.reduce_sum(one_hot_labels * log_probs, axis=-1)
-            self.loss = tf.reduce_mean(per_example_loss)
+            loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=self.input_y)
+            loss = tf.reduce_mean(loss)
+
+            # log_probs = tf.nn.log_softmax(self.logits, axis=-1)
+            # one_hot_labels = tf.one_hot(self.labels, depth=self.class_num, dtype=tf.float32)
+            # per_example_loss = -tf.reduce_sum(one_hot_labels * log_probs, axis=-1)
+            # self.loss = tf.reduce_mean(per_example_loss)
 
         '''optimizer'''
         with tf.name_scope('optimizer'):
-            optimizer = tf.train.AdamOptimizer(self.learning_rate)
-            gradients, variables = zip(*optimizer.compute_gradients(self.loss))
-            gradients, _ = tf.clip_by_global_norm(gradients, self.clip)
-            self.optim = optimizer.apply_gradients(zip(gradients, variables), global_step=self.global_step)
+            self.trainer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss)
+            tf.summary.scalar('loss', loss)
 
-        '''accuracy'''
-        with tf.name_scope('accuracy'):
-            correct_pred = tf.equal(self.labels, self.y_pred_cls)
-            self.acc = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+            # optimizer = tf.train.AdamOptimizer(self.learning_rate)
+            # gradients, variables = zip(*optimizer.compute_gradients(loss))
+            # gradients, _ = tf.clip_by_global_norm(gradients, self.clip)
+            # self.trainer = optimizer.apply_gradients(zip(gradients, variables), global_step=self.global_step)
+
+        # '''accuracy'''
+        # with tf.name_scope('accuracy'):
+        #     correct_pred = tf.equal(self.labels, self.y_pred_cls)
+        #     self.acc = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 

@@ -52,10 +52,10 @@ class TextCNN(object):
         with tf.name_scope("fully connect"):
             fc = tf.layers.dense(outputs, self.hidden_dim, name='fc1')
             fc = tf.nn.relu(fc)
-            fc_1 = tf.nn.dropout(fc, self.keep_prob)
+            fc = tf.nn.dropout(fc, self.keep_prob)
 
         with tf.name_scope("logits"):
-            logits = tf.layers.dense(fc_1, self.class_num, name='fc2')
+            logits = tf.layers.dense(fc, self.class_num, name='fc2')
             softmax = tf.nn.softmax(logits, name="my_output")
             self.outputs = tf.argmax(softmax, 1, name='predict')
 
