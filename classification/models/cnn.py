@@ -66,22 +66,3 @@ class TextCNN(object):
         with tf.name_scope("optimizer"):
             self.trainer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss)
             tf.summary.scalar('loss', loss)
-
-        # pooled_outputs = []
-        #
-        # with tf.name_scope('conv-maxpool-%s' % self.filters_size[0]):
-        #     conv1 = tf.layers.conv1d(inputs_with_terms, self.filters_num, self.filters_size[0], padding='SAME')
-        #     pooled_outputs.append(conv1)
-        #
-        # with tf.name_scope('conv-maxpool-%s' % self.filters_size[1]):
-        #     conv2 = tf.layers.conv1d(inputs_with_terms, self.filters_num, self.filters_size[1], padding='SAME')
-        #     pooled_outputs.append(conv2)
-        #
-        # with tf.name_scope('conv-maxpool-%s' % self.filters_size[2]):
-        #     conv3 = tf.layers.conv1d(inputs_with_terms, self.filters_num, self.filters_size[2], padding='SAME')
-        #     pooled_outputs.append(conv3)
-        #
-        # sw = tf.concat(pooled_outputs, -1)  # (?, self.seq_len, self.filters_num*len(self.filters_size))
-        #
-        # print('sw shape', sw.shape)
-        # gmp = tf.reduce_max(sw, reduction_indices=[1], name='gmp')  # (?, 768)
