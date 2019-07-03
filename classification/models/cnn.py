@@ -2,14 +2,8 @@
 #  -*- coding: utf-8 -*-
 # author : Apollo2Mars@gmail.com
 
-import os, sys
 import tensorflow as tf
 
-import os
-import numpy as np
-import tensorflow as tf
-import sys
-import argparse
 
 class TextCNN(object):
     def __init__(self, args, tokenizer):

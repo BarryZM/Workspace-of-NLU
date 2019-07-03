@@ -325,6 +325,7 @@ def create_model(bert_config, is_training, input_ids, input_mask,
     rst = blstm_crf.add_blstm_crf_layer()
 
     return rst
+
         
 def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
                      num_train_steps, num_warmup_steps, use_tpu,
