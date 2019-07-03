@@ -2,19 +2,13 @@
 #  -*- coding: utf-8 -*-
 # author : Apollo2Mars@gmail.com
 
-import os, sys
 import tensorflow as tf
 
-import os
-import numpy as np
-import tensorflow as tf
-import sys
-import argparse
 
 class TextCNN(object):
     def __init__(self, args, tokenizer):
         self.vocab_size = len(tokenizer.word2idx) + 2
-        self.seq_length = args.max_seq_len
+        self.seq_len = args.max_seq_len
         self.emb_dim = args.emb_dim
         self.hidden_dim = args.hidden_dim
         self.batch_size = args.batch_size
@@ -23,8 +17,8 @@ class TextCNN(object):
         self.class_num = len(str(args.label_list).split(','))
         self.learning_rate = args.learning_rate
 
-        self.input_x = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_length], name='input_x')
-        self.input_term = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_length], name='input_term')
+        self.input_x = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_x')
+        self.input_term = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_term')
         self.input_y = tf.placeholder(dtype=tf.float32, shape=[None, self.class_num], name='input_y')
         self.global_step = tf.placeholder(shape=(), dtype=tf.int32, name='global_step')
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')

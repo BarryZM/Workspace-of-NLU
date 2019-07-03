@@ -3,6 +3,12 @@ import numpy as np
 from tensorflow.python.framework.graph_util import convert_variables_to_constants
 import tensorflow as tf
 import sys
+
+import sys
+from os import path
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
+
 import argparse
 import time
 from sklearn import metrics
@@ -155,6 +161,7 @@ class Instructor:
         test_p, test_r, test_f1 = self._evaluete_metric(test_data_loader)
         logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
 
+
 def main():
     print(os.getcwd())
     parser = argparse.ArgumentParser()
@@ -187,7 +194,7 @@ def main():
     
     model_classes = {
         'text_cnn':TextCNN,
-        #'bert_cnn':BERTCNN
+        'bert_cnn':BERTCNN
     }
 
     dataset_files = {

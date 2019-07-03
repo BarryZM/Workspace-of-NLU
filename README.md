@@ -26,6 +26,8 @@
     + THUnews
 + Slot Filling
 + Sentiment Analysis
+    + [AI chanllenge 2018 细粒度用户评论情感分析](https://challenger.ai/dataset/fsaouord2018)
+    
 + Others
 
 # Classification
