@@ -53,7 +53,9 @@ class TextCNN(object):
             conv3 = tf.layers.conv1d(inputs_with_terms, self.filters_num, self.filters_size[2], padding='SAME')
             pooled_outputs.append(conv3)
 
-        sw = tf.concat(pooled_outputs, -1)  # (?, 30, 768)
+        sw = tf.concat(pooled_outputs, -1)  # (?, self.seq_len, self.filters_num*len(self.filters_size))
+        
+        print('sw shape', sw.shape)
         gmp = tf.reduce_max(sw, reduction_indices=[1], name='gmp')  # (?, 768)
 
         with tf.name_scope("score"):

@@ -17,6 +17,7 @@ from utils.data_utils import *
 import logging
 
 from models.cnn import TextCNN
+from models.bert_cnn import BERTCNN
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
