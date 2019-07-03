@@ -49,7 +49,7 @@ class TextCNN(object):
                     pooled_outputs.append(pooled)
             outputs = tf.concat(pooled_outputs, 1)
 
-        with tf.name_scope("fully connect"):
+        with tf.name_scope("fully-connect"):
             fc = tf.layers.dense(outputs, self.hidden_dim, name='fc1')
             fc = tf.nn.relu(fc)
             fc = tf.nn.dropout(fc, self.keep_prob)

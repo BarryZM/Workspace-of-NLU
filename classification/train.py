@@ -205,7 +205,8 @@ def main():
     }
 
     inputs_cols = {
-        'text_cnn':['text']
+        'text_cnn':['text'],
+        'bert_cnn':['text']
     }
 
     #initializers = {
@@ -236,5 +237,4 @@ def main():
 
 if __name__ == "__main__":
 
-    os.environ['CUDA_VISIBLE_DEVICES'] = '1'
     main()
