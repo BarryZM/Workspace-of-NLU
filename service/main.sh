@@ -47,10 +47,10 @@ python models/BERT_BIRNN_CRF.py \
     --do_train=${train_flag}   \
     --do_eval=${eval_flag}   \
     --do_predict=${predict_flag} \
-    --data_dir=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/${dataset_name}/label   \
-    --vocab_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/vocab.txt  \
-    --bert_config_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_config.json \
-    --init_checkpoint=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_model.ckpt   \
+    --data_dir=../corpus/sa/comment/${dataset_name}/label   \
+    --vocab_file=../resources/chinese_L-12_H-768_A-12/vocab.txt  \
+    --bert_config_file=../resources/chinese_L-12_H-768_A-12/bert_config.json \
+    --init_checkpoint=../resources/chinese_L-12_H-768_A-12/bert_model.ckpt   \
     --max_seq_length=$max_seq_len   \
     --train_batch_size=16   \
     --learning_rate=${learning_rate}   \
@@ -65,5 +65,10 @@ sed -i '/SEP/d' ${target_folder}/${type_name}_test_results.txt
 sed -i '/CLS/d' ${target_folder}/${type_name}_test_results.txt
 
 # post processing
+
+py get_slot_list.py --file ${target_folder}/${type_name}_test_results.txt
+# slot dict list
+
+
 
 
