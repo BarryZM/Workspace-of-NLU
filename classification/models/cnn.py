@@ -1,6 +1,7 @@
 # !/usr/bin/python
 #  -*- coding: utf-8 -*-
 # author : Apollo2Mars@gmail.com
+# Problems : inputs and terms
 
 import tensorflow as tf
 
@@ -39,36 +40,48 @@ class TextCNN(object):
 
         inputs_with_terms = tf.concat([inputs, terms], -1)
 
-        pooled_outputs = []
+        with tf.name_scope('conv'):
+            pooled_outputs = []
+            for i, filter_size in enumerate(self.filters_size):
+                with tf.variable_scope("conv-maxpool-%s" % filter_size, reuse=False):
+                    conv = tf.layers.conv1d(inputs_with_terms, self.filters_num, filter_size, name='conv1d')
+                    pooled = tf.reduce_max(conv, axis=[1], name='gmp')
+                    pooled_outputs.append(pooled)
+            outputs = tf.concat(pooled_outputs, 1)
 
-        with tf.name_scope('conv-maxpool-%s' % self.filters_size[0]):
-            conv1 = tf.layers.conv1d(inputs_with_terms, self.filters_num, self.filters_size[0], padding='SAME')
-            pooled_outputs.append(conv1)
-
-        with tf.name_scope('conv-maxpool-%s' % self.filters_size[1]):
-            conv2 = tf.layers.conv1d(inputs_with_terms, self.filters_num, self.filters_size[1], padding='SAME')
-            pooled_outputs.append(conv2)
-
-        with tf.name_scope('conv-maxpool-%s' % self.filters_size[2]):
-            conv3 = tf.layers.conv1d(inputs_with_terms, self.filters_num, self.filters_size[2], padding='SAME')
-            pooled_outputs.append(conv3)
-
-        sw = tf.concat(pooled_outputs, -1)  # (?, self.seq_len, self.filters_num*len(self.filters_size))
-        
-        print('sw shape', sw.shape)
-        gmp = tf.reduce_max(sw, reduction_indices=[1], name='gmp')  # (?, 768)
-
-        with tf.name_scope("score"):
-            """ dense layer 1 """
-            fc = tf.layers.dense(gmp, self.hidden_dim, name='fc1')
+        with tf.name_scope("fully connect"):
+            fc = tf.layers.dense(outputs, self.hidden_dim, name='fc1')
             fc = tf.nn.relu(fc)
             fc_1 = tf.nn.dropout(fc, self.keep_prob)
-            """ dense layer 2 """
-            dense = tf.layers.dense(fc_1, self.class_num, name='fc2')
-            softmax = tf.nn.softmax(dense, name="my_output")
-            self.outputs = tf.argmax(softmax, 1, name='predict')  # 最大domain的类别
-            loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=dense, labels=self.input_y)
-            loss = tf.reduce_mean(loss)
-            self.trainer = tf.train.AdamOptimizer(learning_rate = self.learning_rate).minimize(loss)
 
+        with tf.name_scope("logits"):
+            logits = tf.layers.dense(fc_1, self.class_num, name='fc2')
+            softmax = tf.nn.softmax(logits, name="my_output")
+            self.outputs = tf.argmax(softmax, 1, name='predict')
+
+        with tf.name_scope("loss"):
+            loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=self.input_y)
+            loss = tf.reduce_mean(loss)
+
+        with tf.name_scope("optimizer"):
+            self.trainer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss)
             tf.summary.scalar('loss', loss)
+
+        # pooled_outputs = []
+        #
+        # with tf.name_scope('conv-maxpool-%s' % self.filters_size[0]):
+        #     conv1 = tf.layers.conv1d(inputs_with_terms, self.filters_num, self.filters_size[0], padding='SAME')
+        #     pooled_outputs.append(conv1)
+        #
+        # with tf.name_scope('conv-maxpool-%s' % self.filters_size[1]):
+        #     conv2 = tf.layers.conv1d(inputs_with_terms, self.filters_num, self.filters_size[1], padding='SAME')
+        #     pooled_outputs.append(conv2)
+        #
+        # with tf.name_scope('conv-maxpool-%s' % self.filters_size[2]):
+        #     conv3 = tf.layers.conv1d(inputs_with_terms, self.filters_num, self.filters_size[2], padding='SAME')
+        #     pooled_outputs.append(conv3)
+        #
+        # sw = tf.concat(pooled_outputs, -1)  # (?, self.seq_len, self.filters_num*len(self.filters_size))
+        #
+        # print('sw shape', sw.shape)
+        # gmp = tf.reduce_max(sw, reduction_indices=[1], name='gmp')  # (?, 768)
