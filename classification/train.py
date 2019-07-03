@@ -1,24 +1,11 @@
-import os
-import numpy as np
-from tensorflow.python.framework.graph_util import convert_variables_to_constants
-import tensorflow as tf
-import sys
-
-import sys
+import os,sys,time,argparse,logging
 from os import path
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
-
-import argparse
-import time
+sys.path.append(path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from sklearn import metrics
-from models import cnn
-from utils.data_utils import *
-import logging
-
-from models.cnn import TextCNN
-from models.bert_cnn import BERTCNN
-
+from utils.data_utils_clf import *
+from classification.models.cnn import TextCNN
+from classification.models.bert_cnn import BERTCNN
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -76,9 +63,7 @@ class Instructor:
             while True:
                 try:
                     sample_batched = self.session.run(one_element)    
-                    #inputs = [sample_batched[col] for col in self.opt.inputs_cols]
-                    #inputs_list = [sample_batched[col] for col in self.opt.inputs_cols]
-                    inputs = sample_batched['text'] 
+                    inputs = sample_batched['text']
                     terms = sample_batched['term']
                     targets = sample_batched['aspect']
                     targets_onehot = sample_batched['aspect_onehot']
@@ -116,9 +101,7 @@ class Instructor:
         while True:
             try:
                 sample_batched = self.session.run(one_element)    
-                #inputs = [sample_batched[col] for col in self.opt.inputs_cols]
-                #inputs_list = [sample_batched[col] for col in self.opt.inputs_cols]
-                inputs = sample_batched['text'] 
+                inputs = sample_batched['text']
                 terms = sample_batched['term']
                 targets = sample_batched['aspect']
                 targets_onehot = sample_batched['aspect_onehot']

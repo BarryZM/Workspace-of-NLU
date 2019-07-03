@@ -13,7 +13,7 @@
 * pytorch >= 0.4.0
 * numpy >= 1.13.3
 * python 3.6 / 3.7
-* GloVe pre-trained word vectors (See [data_utils.py](./data_utils.py) for more detail)
+* GloVe pre-trained word vectors (See [data_utils.py](../utils/data_utils_sa.py) for more detail)
   * Download pre-trained word vectors [here](https://github.com/stanfordnlp/GloVe#download-pre-trained-word-vectors),
   * extract the [glove.twitter.27B.zip](http://nlp.stanford.edu/data/wordvecs/glove.twitter.27B.zip) and [glove.42B.300d.zip](http://nlp.stanford.edu/data/wordvecs/glove.42B.300d.zip) to the root directory
 * pytorch-pretrained-bert 0.6.1

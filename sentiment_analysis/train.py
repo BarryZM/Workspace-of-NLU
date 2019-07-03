@@ -184,6 +184,7 @@ class Instructor:
         test_acc, test_p, test_r, test_f1 = self._evaluate_acc_f1(test_data_loader)
         logger.info('>> test_acc: {:.4f}, test_p: {:.4f}, test_r: {:.4f}, test_f1: {:.4f}'.format(test_acc, test_p, test_r, test_f1))
 
+
 def main():
     # Hyper Parameters
     parser = argparse.ArgumentParser()
