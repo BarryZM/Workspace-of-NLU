@@ -84,7 +84,6 @@ input_mode='file'
 # post processing
 # output file is clf_test_results.txt
 
- 
 
 #########
 # ABSA
@@ -98,6 +97,11 @@ python ../sentiment_analysis/train.py \
     --do_test
 
 # post processing
+
+py get_slot_list.py --file ${target_folder}/${type_name}_test_results.txt
+# slot dict list
+
+
 
 
 
