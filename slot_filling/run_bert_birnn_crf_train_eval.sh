@@ -11,10 +11,10 @@ max_seq_len_predict=128
 learning_rate=5e-5
 hidden_layer=4
 target_folder="./outputs/"${dataset_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len}_gpu_${gpu} 
-train_flag=True
-eval_flag=False
-predict_flag=True
-metric_flag=True
+train_flag=True # whether to train model on trainset
+eval_flag=False # whether to eval trained model on devset, default is False 
+predict_flag=True # whether to predict result on testset by trained model
+metric_flag=True # whether run eval.py to calculate metric
 
 if [ "$type_name" == 'emotion' ] ;then
 label_list="O,[CLS],[SEP],B-positive,I-positive,B-negative,I-negative,B-moderate,I-moderate"
@@ -28,10 +28,12 @@ fi
 
 echo ${target_folder}
 
-if [ $train_flag == True -o $predict_flag == True ] ;then
+if [ $train_flag == True ] ;then
 /bin/rm -rf $target_folder
 mkdir $target_folder
+fi
 
+if [ $train_flag == True -o $eval_flag == True -o $predict_flag == True ] ;then
 # Train or Predict
 python models/BERT_BIRNN_CRF.py \
     --task_name="NER"  \
@@ -42,7 +44,7 @@ python models/BERT_BIRNN_CRF.py \
     --do_train=${train_flag}   \
     --do_eval=${eval_flag}   \
     --do_predict=${predict_flag} \
-    --data_dir=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/${dataset_name}/label   \
+    --data_dir=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/label   \
     --vocab_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/vocab.txt  \
     --bert_config_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_config.json \
     --init_checkpoint=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_model.ckpt   \

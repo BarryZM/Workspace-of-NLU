@@ -15,6 +15,8 @@ def build_tokenizer(fnames, max_seq_len, dat_fname):
     else:
         text = ''
         for fname in fnames:
+            if fname.strip() ==  '':
+                continue
             fin = open(fname, 'r', encoding='utf-8', newline='\n', errors='ignore')
             lines = fin.readlines()
             fin.close()
@@ -35,8 +37,8 @@ def _load_word_vec(path, word2idx=None):
         tokens = line.rstrip().split(' ')
         #tokens = line.rstrip().split()
         if word2idx is None or tokens[0] in word2idx.keys():
-            print(tokens[0])
-            print(tokens[1:])
+            #print(tokens[0])
+            #print(tokens[1:])
             word_vec[tokens[0]] = np.asarray(tokens[1:], dtype='float32')
     return word_vec
 
@@ -52,7 +54,10 @@ def build_embedding_matrix(word2idx, embed_dim, dat_fname):
         word_vec = _load_word_vec(fname, word2idx=word2idx)
         print('building embedding_matrix:', dat_fname)
         for word, i in word2idx.items():
-                embedding_matrix[i] = vec
+            if word in word_vec.keys():
+                embedding_matrix[i] = word_vec[word]
+            else:
+                print("build embedding error")
         pickle.dump(embedding_matrix, open(dat_fname, 'wb'))  
     #else:
     #    print('loading word vectors...')

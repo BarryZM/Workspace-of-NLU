@@ -17,8 +17,11 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
 
-from data_utils import build_tokenizer, build_embedding_matrix, Tokenizer4Bert, ABSADataset
+from os import path
+sys.path.append(path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
+from utils.data_utils import build_tokenizer, build_embedding_matrix, Tokenizer4Bert, ABSADataset
 from models import LSTM, IAN, MemNet, RAM, TD_LSTM, Cabasc, ATAE_LSTM, TNet_LF, AOA, MGAN
 from models.aen import CrossEntropyLoss_LSR, AEN_BERT
 from models.bert_spc import BERT_SPC

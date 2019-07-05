@@ -5,6 +5,7 @@ Copyright 2018 The Google AI Language Team Authors.
 BASED ON Google_BERT.
 @Author:zhoukaiyin, Apollo2Mars@gmail.com
 problem : max seq length it too long for train/eval/predict
+    solution : train max_seq_len is 128, predict max_seq_len is 512(more than max length of testset)
 
 """
 from __future__ import absolute_import
@@ -14,11 +15,12 @@ from __future__ import print_function
 import collections
 import os
 import sys
-sys.path.append(os.getcwd())
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from bert import modeling
-from bert import optimization  
-from bert import tokenization 
+from resources.bert import modeling
+from resources.bert import optimization  
+from resources.bert import tokenization 
 import tensorflow as tf
 from sklearn.metrics import f1_score,precision_score,recall_score
 from tensorflow.python.ops import math_ops
@@ -178,7 +180,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     label_map = {}
     for (i, label) in enumerate(label_list,1):
         label_map[label] = i
-    with open('./outputs/label2id_'+str(FLAGS.type_name)+'.pkl','wb') as w:
+    with open(os.path.join(os.path.dirname(FLAGS.output_dir), 'label2id_'+str(FLAGS.type_name)+'.pkl'),'wb') as w:
         pickle.dump(label_map,w)
     textlist = example.text
     labellist = example.label
@@ -533,10 +535,10 @@ def main(_):
                 writer.write("%s = %s\n" % (key, str(result[key])))
 
     estimator._export_to_tpu = False
-    estimator.export_savedmodel('./outputs', serving_input_fn)
+    estimator.export_savedmodel(os.path.dirname(FLAGS.output_dir), serving_input_fn)
 
     if FLAGS.do_predict:
-        with open('./outputs/label2id_'+str(FLAGS.type_name)+'.pkl','rb') as rf:
+        with open(os.path.join(os.path.dirname(FLAGS.output_dir), 'label2id_'+str(FLAGS.type_name)+'.pkl'),'rb') as rf:
             label2id = pickle.load(rf)
             id2label = {value:key for key,value in label2id.items()}
             print("id2label", id2label)

@@ -26,8 +26,6 @@ EvalByType = {"strict": deepcopy(eval_metics),
 OverallEval = {}
 
 
-
-
 def calc_partial_match_evaluation_per_line(prediction: list, goldenStandard: list, text: str, domain_name: str):
     """
     Calculate detailed partial evaluation metric. See Evaluation of the SemEval-2013 Task 9.1

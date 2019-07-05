@@ -165,10 +165,11 @@ class ABSADataset(Dataset):
         fin.close()
 
         all_data = []
-        for i in range(0, len(lines), 3):
+        for i in range(0, len(lines), 4):
             text_left, _, text_right = [s.lower().strip() for s in lines[i].partition("$T$")]
-            aspect = lines[i + 1].lower().strip()
-            polarity = lines[i + 2].strip()
+            term = lines[i + 1].lower().strip()
+            aspect = lines[i + 2].lower().strip()
+            polarity = lines[i + 3].strip()
 
             text_raw_indices = tokenizer.text_to_sequence(text_left + " " + aspect + " " + text_right)
             text_raw_without_aspect_indices = tokenizer.text_to_sequence(text_left + " " + text_right)

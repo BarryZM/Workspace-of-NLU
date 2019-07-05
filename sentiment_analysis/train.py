@@ -2,14 +2,11 @@
 # file: train.py
 # author: songyouwei <youwei0314@gmail.com>
 # Copyright (C) 2018. All Rights Reserved.
-import logging
-import argparse
-import math
-import os
-import sys
+import logging, argparse, math, os, sys, random, numpy
 from time import strftime, localtime
-import random
-import numpy
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from pytorch_pretrained_bert import BertModel
 from sklearn import metrics
@@ -18,7 +15,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
 
-from data_utils import build_tokenizer, build_embedding_matrix, Tokenizer4Bert, ABSADataset
+from utils.data_utils_sa import build_tokenizer, build_embedding_matrix, Tokenizer4Bert, ABSADataset
 
 from models import LSTM, IAN, MemNet, RAM, TD_LSTM, Cabasc, ATAE_LSTM, TNet_LF, AOA, MGAN
 from models.aen import CrossEntropyLoss_LSR, AEN_BERT
@@ -155,6 +152,11 @@ class Instructor:
                     t_targets_all = torch.cat((t_targets_all, t_targets), dim=0)
                     t_outputs_all = torch.cat((t_outputs_all, t_outputs), dim=0)
 
+        if self.opt.do_train is False and self.opt.do_test is True: 
+            with open('entity_test_sa_results.txt', mode='w', encoding='utf-8') as f:
+                for item in t_outputs_all:
+                    f.write(str(item) + '\n')
+
         acc = n_correct / n_total
 
         flag = 'weighted'
@@ -173,16 +175,21 @@ class Instructor:
         _params = filter(lambda p: p.requires_grad, self.model.parameters())
         optimizer = self.opt.optimizer(_params, lr=self.opt.learning_rate, weight_decay=self.opt.l2reg)
 
-        train_data_loader = DataLoader(dataset=self.trainset, batch_size=self.opt.batch_size, shuffle=True)
-        test_data_loader = DataLoader(dataset=self.testset, batch_size=self.opt.batch_size, shuffle=False)
-        val_data_loader = DataLoader(dataset=self.valset, batch_size=self.opt.batch_size, shuffle=False)
+        if self.opt.do_train is True:
+            train_data_loader = DataLoader(dataset=self.trainset, batch_size=self.opt.batch_size, shuffle=True)
+            val_data_loader = DataLoader(dataset=self.valset, batch_size=self.opt.batch_size, shuffle=False)
+            self._reset_params()
+            best_model_path = self._train(criterion, optimizer, train_data_loader, val_data_loader)
+        
+        if self.opt.do_test is True:    
+            test_data_loader = DataLoader(dataset=self.testset, batch_size=self.opt.batch_size, shuffle=False)
 
-        self._reset_params()
-        best_model_path = self._train(criterion, optimizer, train_data_loader, val_data_loader)
-        self.model.load_state_dict(torch.load(best_model_path))
-        self.model.eval()
-        test_acc, test_p, test_r, test_f1 = self._evaluate_acc_f1(test_data_loader)
-        logger.info('>> test_acc: {:.4f}, test_p: {:.4f}, test_r: {:.4f}, test_f1: {:.4f}'.format(test_acc, test_p, test_r, test_f1))
+            #self.model.load_state_dict(torch.load(best_model_path))
+            best_model_path = "/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/state_dict/bert_spc_air-purifier_val_acc0.9163"
+            self.model.load_state_dict(torch.load(best_model_path))
+            self.model.eval()
+            test_acc, test_p, test_r, test_f1 = self._evaluate_acc_f1(test_data_loader)
+            logger.info('>> test_acc: {:.4f}, test_p: {:.4f}, test_r: {:.4f}, test_f1: {:.4f}'.format(test_acc, test_p, test_r, test_f1))
 
 
 def main():
@@ -208,6 +215,11 @@ def main():
     parser.add_argument('--device', default='cuda:3', type=str, help='e.g. cuda:0')
     parser.add_argument('--seed', default=None, type=int, help='set seed for reproducibility')
     parser.add_argument('--valset_ratio', default=0, type=float, help='set ratio between 0 and 1 for validation support')
+
+    parser.add_argument('--do_train', action='store_true')
+    parser.add_argument('--do_test', action='store_true')
+
+
     opt = parser.parse_args()
 
     if opt.seed is not None:
@@ -252,6 +264,10 @@ def main():
         'air-purifier':{
             'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/clf/train-term.txt',
             'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/clf/test-term.txt'
+        }, 
+        'air-purifier-100-test':{
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/absa-clf.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/absa-clf.txt'
         }
     }
     input_colses = {

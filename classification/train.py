@@ -1,4 +1,5 @@
 import os,sys,time,argparse,logging
+import tensorflow as tf
 from os import path
 sys.path.append(path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -14,14 +15,15 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 class Instructor:
     def __init__(self, opt):
         self.opt = opt
+        print("@@@@ self.opt", self.opt)
         tokenizer = build_tokenizer(
             fnames=[opt.dataset_file['train'], opt.dataset_file['test']],
             max_seq_len=opt.max_seq_len,
-            dat_fname='{0}_tokenizer.dat'.format(opt.dataset_name))
+            dat_fname='/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/classification/{0}_tokenizer.dat'.format(opt.dataset_name))
         embedding_matrix = build_embedding_matrix(
             word2idx=tokenizer.word2idx,
             embed_dim=opt.emb_dim,
-            dat_fname='{0}_{1}_embedding_matrix.dat'.format(str(opt.emb_dim), opt.dataset_name))
+            dat_fname='/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/classification/{0}_{1}_embedding_matrix.dat'.format(str(opt.emb_dim), opt.dataset_name))
         logger.info("embedding check {}".format(embedding_matrix[:100]))
 
         model = TextCNN(self.opt, tokenizer) 
@@ -111,6 +113,11 @@ class Instructor:
                 t_outputs_all.extend(outputs)
 
             except tf.errors.OutOfRangeError:
+                if self.opt.do_test is True and self.opt.do_train is False:
+                    with open('clf_test_results.txt', mode='w', encoding='utf-8') as f:
+                        for item in t_outputs_all:
+                            f.write(str(item) + '\n')
+
                 break
 
         print("##", t_targets_all[:100])
@@ -133,21 +140,32 @@ class Instructor:
         
         train_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.trainset.text_list, 'term':self.trainset.term_list, 'aspect':self.trainset.aspect_list, 'aspect_onehot':self.trainset.aspect_onehot_list}).batch(self.opt.batch_size).shuffle(10000)
         test_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.testset.text_list, 'term':self.testset.term_list, 'aspect':self.testset.aspect_list, 'aspect_onehot':self.testset.aspect_onehot_list}).batch(self.opt.batch_size)
-        #val_data_loader = tf.data.Dataset.from_tensor_slices(self.testset.data).batch(self.opt.batch_size)
+        # val_data_loader = tf.data.Dataset.from_tensor_slices(self.testset.data).batch(self.opt.batch_size)
         logger.info('>> load data done')
 
         #self._reset_params()
         # train and find best model path
-        best_model_path = self._train(None, optimizer, train_data_loader, test_data_loader)
+        #if self.opt.do_train is True and self.opt.do_test is True:
+        if self.opt.do_train is True and self.opt.do_test is True : 
+            print("do train", self.opt.do_train)
+            print("do test", self.opt.do_test)
+            best_model_path = self._train(None, optimizer, train_data_loader, test_data_loader)
+            self.saver.restore(self.session, best_model_path)
+            test_p, test_r, test_f1 = self._evaluete_metric(test_data_loader)
+            logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
 
-        # load best model and prdict
-        self.saver.restore(self.session, best_model_path)
-        test_p, test_r, test_f1 = self._evaluete_metric(test_data_loader)
-        logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
-
+        elif self.opt.do_train is False and self.opt.do_test is True:
+            ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
+            if ckpt and ckpt.model_checkpoint_path:
+                self.saver.restore(self.session, ckpt.model_checkpoint_path)
+                test_p, test_r, test_f1 = self._evaluete_metric(test_data_loader)
+                logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
+            else:
+                logger.info('@@@ Error:load ckpt error')
+        else:
+            logger.info("@@@ Not Include This Situation")
 
 def main():
-    print(os.getcwd())
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset_name', type=str, default='air-purifier', help='air-purifier, refrigerator')
     parser.add_argument('--emb_dim', type=int, default='200')
@@ -162,9 +180,6 @@ def main():
     parser.add_argument('--filters_num', type=int, default=256, help='number of filters')
     parser.add_argument('--filters_size', type=int, default=[4,3,2], help='size of filters')
     parser.add_argument('--es', type=int, default=10, help='early stopping epochs')
-    parser.add_argument('--do_train', type=bool, default=True)
-    parser.add_argument('--do_eval', type=bool, default=True)
-    parser.add_argument('--do_test', type=bool, default=True)
     
     parser.add_argument('--model_name', type=str, default='text_cnn')
     parser.add_argument('--inputs_cols', type=str, default='text')
@@ -173,6 +188,8 @@ def main():
 
     parser.add_argument('--learning_rate', type=float, default=1e-2)
     parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--do_train', action='store_true')
+    parser.add_argument('--do_test', action='store_true')
      
     args = parser.parse_args()
     
@@ -183,8 +200,11 @@ def main():
 
     dataset_files = {
         'air-purifier':{
-            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/' + args.dataset_name + '/clf/train-term-category.txt',
-            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/'+ args.dataset_name + '/clf/test-term-category.txt'}
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/train-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/'+ args.dataset_name + '/clf/test-term-category.txt'},
+        'air-purifier-100-test':{
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/absa-clf.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/absa-clf.txt'}
     }
 
     inputs_cols = {
@@ -210,14 +230,11 @@ def main():
     args.inputs_cols = inputs_cols[args.model_name]
     #args.initializer = initializers[args.initializer]
     args.optimizer = optimizers[args.optimizer]
-
     log_file = 'outputs/logs/{}-{}-{}.log'.format(args.model_name, args.dataset_name, time.strftime("%y%m%d-%H%M", time.localtime(time.time())))
     logger.addHandler(logging.FileHandler(log_file))
-
     ins = Instructor(args)
     ins.run()
 
 
 if __name__ == "__main__":
-
     main()
