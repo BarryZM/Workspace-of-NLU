@@ -53,8 +53,12 @@ def find_slots(labels:list, texts:list):
 
 texts = []
 labels = []
-with open("/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/air-purifier/label_100test/test-text.txt", 'r', encoding='utf-8') as f:
-    texts = f.readlines()
+with open("/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/air-purifier/label_100test/test.txt", 'r', encoding='utf-8') as f:
+    lines = f.readlines()
+    texts = []
+    for item in lines:
+        texts.append(item.split('\t')[0])
+    
 
 with open("outputs/entity_test_results.txt", 'r', encoding='utf-8') as f:
     labels = f.readlines()
