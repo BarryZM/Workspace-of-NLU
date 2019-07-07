@@ -114,7 +114,7 @@ class Instructor:
 
             except tf.errors.OutOfRangeError:
                 if self.opt.do_test is True and self.opt.do_train is False:
-                    with open('clf_test_results.txt', mode='w', encoding='utf-8') as f:
+                    with open(self.opt.results_file,  mode='w', encoding='utf-8') as f:
                         for item in t_outputs_all:
                             f.write(str(item) + '\n')
 
@@ -172,7 +172,9 @@ def main():
     parser.add_argument('--emb_file', type=str, default='embedding.text')
     parser.add_argument('--vocab_file', type=str, default='vacab.txt')
     parser.add_argument('--label_list', type=str)
-    parser.add_argument('--outputs_folder', type=str, default='./outputs')
+    parser.add_argument('--outputs_folder', type=str)
+    parser.add_argument('--results_file', type=str)
+
     parser.add_argument('--gpu', type=str, default='0')
     parser.add_argument('--max_seq_len', type=str, default=80)
     parser.add_argument('--batch_size', type=int, default=128)

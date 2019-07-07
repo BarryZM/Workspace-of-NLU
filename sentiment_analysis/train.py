@@ -2,6 +2,7 @@
 # file: train.py
 # author: songyouwei <youwei0314@gmail.com>
 # Copyright (C) 2018. All Rights Reserved.
+# problem do_test use specific model, not last checkpoint model
 import logging, argparse, math, os, sys, random, numpy
 from time import strftime, localtime
 
@@ -153,7 +154,7 @@ class Instructor:
                     t_outputs_all = torch.cat((t_outputs_all, t_outputs), dim=0)
 
         if self.opt.do_train is False and self.opt.do_test is True: 
-            with open('entity_test_sa_results.txt', mode='w', encoding='utf-8') as f:
+            with open(self.opt.results_file, mode='w', encoding='utf-8') as f:
                 for item in t_outputs_all:
                     f.write(str(item) + '\n')
 
@@ -219,6 +220,7 @@ def main():
     parser.add_argument('--do_train', action='store_true')
     parser.add_argument('--do_test', action='store_true')
 
+    parser.add_argument('--results_file', type=str)
 
     opt = parser.parse_args()
 
