@@ -201,10 +201,11 @@ def main():
     dataset_files = {
         'air-purifier':{
             'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/train-term-category.txt',
-            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/'+ args.dataset_name + '/clf/test-term-category.txt'},
-        'air-purifier-100-test':{
-            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/absa-clf.txt',
             'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/absa-clf.txt'}
+            #'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/'+ args.dataset_name + '/clf/test-term-category.txt'},
+        #'air-purifier':{
+        #    'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/absa-clf.txt',
+        #    'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/absa-clf.txt'}
     }
 
     inputs_cols = {
