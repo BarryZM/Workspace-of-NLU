@@ -186,7 +186,8 @@ class Instructor:
             test_data_loader = DataLoader(dataset=self.testset, batch_size=self.opt.batch_size, shuffle=False)
 
             #self.model.load_state_dict(torch.load(best_model_path))
-            best_model_path = "/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/state_dict/bert_spc_air-purifier_val_acc0.9163"
+            best_model_path = "/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/state_dict/bert_spc_air-purifier_val_acc0.8485"
+            #best_model_path = "/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/state_dict/bert_spc_air-purifier_val_acc0.9163"
             self.model.load_state_dict(torch.load(best_model_path))
             self.model.eval()
             test_acc, test_p, test_r, test_f1 = self._evaluate_acc_f1(test_data_loader)
@@ -264,12 +265,13 @@ def main():
             'test':'./datasets/comment/refrigerator/test-term.txt'
         },
         'air-purifier':{
-            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/clf/train-term.txt',
-            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/comment/air-purifier/clf/test-term.txt'
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/air-purifier/clf/train-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/air-purifier/clf/test-term-category.txt'
+
         }, 
         'air-purifier-100-test':{
-            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/absa-clf.txt',
-            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/absa-clf.txt'
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/result_absa_clf_training_data.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/result_absa_clf_training_data.txt'
         }
     }
     input_colses = {

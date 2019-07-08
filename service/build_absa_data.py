@@ -94,7 +94,7 @@ print('sentence slots is :', len(sentence_slots_list))
 
 assert len(sentence_text_list) == len(sentence_label_list) == len(sentence_slots_list)
 
-with open("absa-clf.txt", 'w', encoding='utf-8') as f:
+with open("result_absa_clf_training_data.txt", 'w', encoding='utf-8') as f:
     for line_item, slots_item in zip(sentence_text_list, sentence_slots_list):
         org_line = "".join(line_item)
 

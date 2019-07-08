@@ -25,7 +25,7 @@ print("label_dict", label_dict)
 
 
 origin_lines = []
-with open("absa-clf.txt", mode='r', encoding='utf-8') as f:
+with open("result_absa_clf_training_data.txt", mode='r', encoding='utf-8') as f:
     origin_lines = f.readlines()
 
 absa_results = []
@@ -54,6 +54,9 @@ for idx4, idx_clf, idx_absa in zip(range(0, len(origin_lines), 4), clf_label, ab
     new_results.append(str(idx_clf) + '\n')
     new_results.append(str(idx_absa) + '\n')
 
-for item in new_results:
-    print(item.strip())
+with open("result_all.txt", mode='w', encoding='utf-8') as f:
+    for item in new_results:
+        print(item.strip())
+        f.write(item.strip() + '\n')
+
 

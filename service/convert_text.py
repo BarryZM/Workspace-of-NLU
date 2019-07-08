@@ -12,7 +12,7 @@ if __name__ == '__main__':
     lines = []
     with open(args.input_file, mode='r', encoding='utf-8') as f:
         lines = f.readlines()
-    with open('2_convert.txt', mode='w', encoding='utf-8') as f:
+    with open('result_convert.txt', mode='w', encoding='utf-8') as f:
         for line in lines:
             for char in list(line):
                 if char.strip() is not '':
