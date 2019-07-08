@@ -13,13 +13,44 @@
 
 # Dataset
 
-| Dataset                                                      | SOTA | Tips |
+| Classification Dataset                                       | SOTA                                                     | Tips |
+| ------------------------------------------------------------ | -------------------------------------------------------- | ---- |
+| IMDB                                                         | Learning Structured Text Representations                 |      |
+| Reuter                                                       |                                                          |      |
+| THUCTC                                                       |                                                          |      |
+| Twenty Newsgroups                                            | Very Deep Convolutional Networks for Text Classification |      |
+| [SogouTCE(文本分类评价)](http://www.sogou.com/labs/resource/tce.php) |                                                          |      |
+| [SogouCA(全网新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |      |
+| [SogouCE(搜狐新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |      |
+
+| Sentiment Analysis Dataset                  | SOTA | Tips |
+| ------------------------------------------- | ---- | ---- |
+| Sentiment140                                |      |      |
+| https://challenger.ai/dataset/fsaouord2018) |      |      |
+| Stanford Sentiment Treebank                 |      |      |
+|                                             |      |      |
+
+| Solt Filling Dataset                                         | SOTA | Tips |
 | ------------------------------------------------------------ | ---- | ---- |
-| THUnews                                                      |      |      |
-|                                                              |      |      |
-| [AI chanllenge 2018 细粒度用户评论情感分析](https://challenger.ai/dataset/fsaouord2018) |      |      |
+| National-Language-council                                    |      |      |
+| Conll-2000                                                   |      |      |
+| WSJ-PTB                                                      |      |      |
+| [Reference](https://github.com/Apollo2Mars/Corpus-Summary/tree/master/3-Named-Entity-Recogination) |      |      |
+
+| Relation Extraction Dataset | SOTA | Tips            |
+| --------------------------- | ---- | --------------- |
+| SemEval 2010 Task 8         |      |                 |
+| FewRel                      |      | EMNLP2018，清华 |
+|                             |      |                 |
+
+| Natural Language Inference Dataset                           | SOTA | Tips           |
+| ------------------------------------------------------------ | ---- | -------------- |
+| [XNLI](XNLI: Evaluating Cross-lingual Sentence Representations) |      | EMNLP2018:FAIR |
+|                                                              |      |                |
+|                                                              |      |                |
 
 # Metric
+
 + Classification/Sentiment Analysis
 + Slot Filling
     + strict/type/partial/overlap/
@@ -57,11 +88,7 @@
     + One-hop Interaction
     + Multi-hop Interaction
 + Output Prediction
-    + Word Predictor
-    + Opinion Selector
-    + Span Extractor
-    + Answer Generator
-    + **Ranker**
+    + pass
 
 # Solutions
 
@@ -116,6 +143,7 @@
 + ABSA  Dataset/Kaggle/
 
 # Problems
+
 + slot filling
     + max seq length 取的512， batch size 不能太大，导致训练较慢
         + 训练的时候截取一段长度
@@ -142,12 +170,20 @@
     - 基于domain，intent，slot和其他信息（知识库，缠绕词表，热度）的re-rank策略  https://arxiv.org/pdf/1804.08064.pdf
     - Joint-learning或multi-task策略，辅助未达标的分类领域  https://arxiv.org/pdf/1801.05149.pdf
     - 利用Bert embedding 进行再训练，如Bert embedding + Bi-LSTM-CRF https://github.com/BrikerMan/Kashgar
++ 离线模型封装与预测
+    + 现有模型接口输出
+    + 单条
+    + 文件
 
 
 
 # Open Issues
 
++ Reinforce Learning/Active Learning for NLU
+
 # Milestone
+
++ pass
 
 # Coding Standards
 
@@ -156,8 +192,8 @@
 
 # Usages
 
++ Service 
 + Will be used in “Workspace of Conversation-AI"
-  
 
 # Reference
 
