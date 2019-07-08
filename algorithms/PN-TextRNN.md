@@ -1,0 +1,1 @@
+![](https://ws3.sinaimg.cn/large/006tKfTcly1g1hi3f0gbvj30r80f6adv.jpg)+ Framwork  + Embedding    + 同CNN  + BiLSTM    + 将前向最后一个单元的Hidden state 和 反向最后一个单元的Hidden State 进行拼接  + Results    + 同CNN
