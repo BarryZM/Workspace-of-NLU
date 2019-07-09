@@ -116,19 +116,24 @@ class Instructor:
                 if global_step % self.opt.log_step == 0:
                     train_acc = n_correct / n_total
                     train_loss = loss_total / n_total
-                    logger.info('loss: {:.4f}, acc: {:.4f}'.format(train_loss, train_acc))
+                    #logger.info('loss: {:.4f}, acc: {:.4f}'.format(train_loss, train_acc))
 
             val_acc, val_p, val_r, val_f1 = self._evaluate_acc_f1(val_data_loader)
             logger.info('> val_acc: {:.4f}, val_p:{:.4f}, val_r:{:.4f}, val_f1: {:.4f}'.format(val_acc, val_p, val_r, val_f1))
-            if val_acc > max_val_acc:
-                max_val_acc = val_acc
-                if not os.path.exists('state_dict'):
-                    os.mkdir('state_dict')
-                path = 'state_dict/{0}_{1}_val_acc{2}'.format(self.opt.model_name, self.opt.dataset, round(val_acc, 4))
-                torch.save(self.model.state_dict(), path)
-                logger.info('>> saved: {}'.format(path))
+            #if val_acc > max_val_acc:
+            #    max_val_acc = val_acc
+            #    if not os.path.exists('outputs'):
+            #        os.mkdir('outputs')
+            #    path = 'outputs/{0}_{1}_val_acc{2}'.format(self.opt.model_name, self.opt.dataset, round(val_acc, 4))
+            #    torch.save(self.model.state_dict(), path)
+            #    logger.info('>> saved: {}'.format(path))
             if val_f1 > max_val_f1:
                 max_val_f1 = val_f1
+                if not os.path.exists('outputs'):
+                    os.mkdir('outputs')
+                path = 'outputs/{0}_{1}_val_f1{2}'.format(self.opt.model_name, self.opt.dataset, round(val_f1, 4))
+                torch.save(self.model.state_dict(), path)
+                logger.info('>> saved: {}'.format(path))
 
         return path
 
@@ -186,8 +191,8 @@ class Instructor:
             test_data_loader = DataLoader(dataset=self.testset, batch_size=self.opt.batch_size, shuffle=False)
 
             #self.model.load_state_dict(torch.load(best_model_path))
-            best_model_path = "/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/state_dict/bert_spc_air-purifier_val_acc0.8485"
-            #best_model_path = "/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/state_dict/bert_spc_air-purifier_val_acc0.9163"
+            best_model_path = "/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/outputs/bert_spc_air-purifier_val_acc0.8485"
+            #best_model_path = "/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/outputs/bert_spc_air-purifier_val_acc0.9163"
             self.model.load_state_dict(torch.load(best_model_path))
             self.model.eval()
             test_acc, test_p, test_r, test_f1 = self._evaluate_acc_f1(test_data_loader)

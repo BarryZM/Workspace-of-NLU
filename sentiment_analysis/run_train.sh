@@ -1,3 +1,10 @@
 
-python train.py --do_train --do_test  --batch_size 64 --valset_ratio 0.1 --model_name 'bert_spc' --dataset 'air-purifier' --device 'cuda:2' --epochs '30'
-
+python train.py \
+    --do_train \
+    --batch_size 64 \
+    --model_name 'bert_spc' \
+    --dataset 'air-purifier' \
+    --device 'cuda:2' \
+    --epochs '50' \
+    --valset_ratio 0.1
+    

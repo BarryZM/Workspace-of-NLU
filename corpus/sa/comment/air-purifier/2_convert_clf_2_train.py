@@ -44,7 +44,24 @@ def str2slotlist(input_str:str):
 
     return return_list
 
-def match_aspect_sentiment(aspect_slot_list, sentiment_slot_list):
+def match_aspect_sentiment(line, aspect_slot_list, sentiment_slot_list):
+    """
+    用逗号和空格切分句子
+
+    aspect1, sentiment1
+    ==> {aspect1, sentiment1}
+
+    aspect1, aspect2 sentiment1, sentiment2, sentiment3, aspect3 sentiment4
+    ==> {aspcect, moderate}, {aspect2, sentiment1}, {aspect2, sentiment2}, {aspect2, sentiment3}, {aspect3, sentiment4} 
+
+    aspect1 sentiment1, aspect2, aspect3 sentiment2, 
+    ==> {a1, s1}, {a2, moderate}, {a3, s3}
+
+    """
+    line_tuple = list(enumerate(line))  
+    cut_idx_list = [item[0] for item in line_tuple if item[0] in ["\t"," ", ",", ".","?","!", "。", "，", "？", "！"]
+
+
     aspect_polarity = []
 
     for aspect_slot in aspect_slot_list:
@@ -54,7 +71,7 @@ def match_aspect_sentiment(aspect_slot_list, sentiment_slot_list):
         best_match_polarity = "" 
 
         # match sentiment and aspect
-        if len(sentiment_slot_list) == 0:
+        if len(sentiment_slot_list) == 0: # 整句都没有情感词，则认为整句中的观点都是中性 
             best_match_polarity = "moderate"
             global count
             count += 1
@@ -62,15 +79,22 @@ def match_aspect_sentiment(aspect_slot_list, sentiment_slot_list):
         else:
             for sentiment_slot in sentiment_slot_list:
                 sentiment_index = round(1/2 * (int(sentiment_slot['start']) + int(sentiment_slot['end'])))
-                if abs(aspect_index - sentiment_index) < min_gap:
-                    min_gap = abs(aspect_index - sentiment_index) 
-                    # print(sentiment_slot['slotname'])
-                    try:
-                        tmp = sentiment_slot['slotname'].split('-')[1]
-                        if tmp in ['positive', 'positibve', 'negative', 'moderate']:
-                            best_match_polarity = tmp 
-                    except IndexError:
-                        print("#4", sentiment_slot)
+                
+                # build tuple
+                aspect_tuple_list = [('aspect', idx) for asp]
+                sentiment_tuple_list = []
+                
+                (cut_idx_list, aspect_index, sentiment_index)        
+
+                #if abs(aspect_index - sentiment_index) < min_gap:
+                    #min_gap = abs(aspect_index - sentiment_index) 
+                    ## print(sentiment_slot['slotname'])
+                    #try:
+                    #    tmp = sentiment_slot['slotname'].split('-')[1]
+                    #    if tmp in ['positive', 'positibve', 'negative', 'moderate']:
+                    #        best_match_polarity = tmp 
+                    #except IndexError:
+                    #    print("#4", sentiment_slot)
 
         # convert polarity to int
         if best_match_polarity in ['positibve', 'positive'] :
@@ -155,7 +179,7 @@ def get_clf_data(text_list, slot_list, mode):
             continue
         else: # A^{m} S^{n} m>0 n>0
             # 当前规则，选取最近的sentiment 作为 aspect 对应的情感词，并表明该aspect 的极性
-            aspect_polarity = match_aspect_sentiment(aspect_slot_list, sentiment_slot_list)             
+            aspect_polarity = match_aspect_sentiment(line, aspect_slot_list, sentiment_slot_list)             
             write_data(output_dir, line, aspect_slot_list, aspect_polarity, mode) 
     print("\n\n count is :", count)
 
@@ -172,6 +196,13 @@ test_folder = 'test_csv'
 
 train_text_list, train_slot_list = read_data_by_folder(train_folder)
 test_text_list, test_slot_list = read_data_by_folder(test_folder)
+
+all_text_list = train_text_list + test_text_list 
+all_slot_list = train_slot_list + test_slot_list
+
+with open("all_data.txt", mode='w', encoding='utf-8') as f:
+    for text, slot in zip(all_text_list, all_slot_list):
+        f.write(str(text) + '\n' + str(slot) + '\n' + '###' + '\n')
 
 get_clf_data(train_text_list, train_slot_list, mode='train')
 get_clf_data(test_text_list, test_slot_list, mode='test')

@@ -48,6 +48,12 @@ with open("result_clf_text.txt", mode='r', encoding='utf-8') as f:
 
 
 new_results = []
+
+print(len(clf_label))
+print(len(absa_idx))
+print(str(int(len(origin_lines)/4)))
+assert len(clf_label) == len(absa_idx) == int(len(origin_lines)/4)
+
 for idx4, idx_clf, idx_absa in zip(range(0, len(origin_lines), 4), clf_label, absa_idx):
     new_results.append(origin_lines[idx4] + '\n')
     new_results.append(origin_lines[idx4+1] + '\n')
