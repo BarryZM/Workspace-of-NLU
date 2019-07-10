@@ -37,11 +37,11 @@
 | WSJ-PTB                                                      |      |      |
 | [Reference](https://github.com/Apollo2Mars/Corpus-Summary/tree/master/3-Named-Entity-Recogination) |      |      |
 
-| Relation Extraction Dataset | SOTA | Tips            |
-| --------------------------- | ---- | --------------- |
-| SemEval 2010 Task 8         |      |                 |
-| FewRel                      |      | EMNLP2018，清华 |
-|                             |      |                 |
+| Relation Extraction Dataset | SOTA | Tips                          |
+| --------------------------- | ---- | ----------------------------- |
+| SemEval 2010 Task 8         |      |                               |
+| FewRel                      |      | EMNLP2018，清华               |
+| NYT10                       |      | https://github.com/thunlp/NRE |
 
 | Natural Language Inference Dataset                           | SOTA | Tips           |
 | ------------------------------------------------------------ | ---- | -------------- |
@@ -138,6 +138,14 @@
 
 ## Relation Extraction
 
+| Model                                       | Tips                         | Result |
+| ------------------------------------------- | ---------------------------- | ------ |
+| [THUNLP/NRE](https://github.com/thunlp/NRE) | CNN, PCNN, CNN+ATT, PCNN+ATT |        |
+|                                             |                              |        |
+|                                             |                              |        |
+
+
+
 ## Natural Language Inference
 
 ## Joint Learning for NLU
@@ -146,10 +154,6 @@
 
 + paramenters
 + sample number, data max/average length
-
-# Challenge
-
-+ ABSA  Dataset/Kaggle/
 
 # Problems
 
