@@ -30,18 +30,18 @@
 | Stanford Sentiment Treebank                 |      |      |
 |                                             |      |      |
 
-| Solt Filling Dataset                                         | SOTA | Tips |
+| Slot Filling Dataset                                         | SOTA | Tips |
 | ------------------------------------------------------------ | ---- | ---- |
 | National-Language-council                                    |      |      |
 | Conll-2000                                                   |      |      |
 | WSJ-PTB                                                      |      |      |
 | [Reference](https://github.com/Apollo2Mars/Corpus-Summary/tree/master/3-Named-Entity-Recogination) |      |      |
 
-| Relation Extraction Dataset | SOTA | Tips            |
-| --------------------------- | ---- | --------------- |
-| SemEval 2010 Task 8         |      |                 |
-| FewRel                      |      | EMNLP2018，清华 |
-|                             |      |                 |
+| Relation Extraction Dataset | SOTA | Tips                          |
+| --------------------------- | ---- | ----------------------------- |
+| SemEval 2010 Task 8         |      |                               |
+| FewRel                      |      | EMNLP2018，清华               |
+| NYT10                       |      | https://github.com/thunlp/NRE |
 
 | Natural Language Inference Dataset                           | SOTA | Tips           |
 | ------------------------------------------------------------ | ---- | -------------- |
@@ -59,25 +59,25 @@
 
 # General Architecture
 
-+ + Embedding
-    + One-hot
-    + Static Embedding
-        + Word2Vec
-        + Glove
-    + Dynamic Embedding(Contextualized based)
-        + Cove
-        + ELMo
-        + GPT
-        + BERT
-        + MASS
-        + UniLM
-        + XLNET
-    + Multiple Granularity
-        + Character Embedding
-        + POS
-        + NER
-        + Binary Feature of Exact Match (EM)
-        + Query-Category    
++ Embedding
+  + One-hot
+  + Static Embedding
+      + Word2Vec
+      + Glove
+  + Dynamic Embedding(Contextualized based)
+      + Cove
+      + ELMo
+      + GPT
+      + BERT
+      + MASS
+      + UniLM
+      + XLNET
+  + Multiple Granularity
+      + Character Embedding
+      + POS
+      + NER
+      + Binary Feature of Exact Match (EM)
+      + Query-Category    
 + Feature Extraction
     + CNN
     + RNN
@@ -122,12 +122,29 @@
 
 ## Sentiment Analysis
 
-| Model | Tips       | Result |
-| ----- | ---------- | ------ |
-| ATAE  | 未横向比较 |        |
-| MGAN  | SOTA       |        |
+| Model                                                        | Tips        | Result |
+| ------------------------------------------------------------ | ----------- | ------ |
+| [ATAE](Wang, Yequan, Minlie Huang, and Li Zhao. "Attention-based lstm for aspect-level sentiment classification." Proceedings of the 2016 conference on empirical methods in natural language processing. 2016) | EMNLP 2016  |        |
+| [MGAN](http://aclweb.org/anthology/D18-1380)                 | EMNLP 2018  |        |
+| AOA                                                          |             |        |
+| TNet                                                         |             |        |
+| Cabasc                                                       |             |        |
+| RAM                                                          | EMNLP 2017  |        |
+| MemNet                                                       | EMNLP 2016  |        |
+| IAN                                                          |             |        |
+| TD-LSTM                                                      | COLING 2016 |        |
+| AEN-BERT                                                     |             |        |
+| BERT-SPC                                                     |             |        |
 
 ## Relation Extraction
+
+| Model                                       | Tips                         | Result |
+| ------------------------------------------- | ---------------------------- | ------ |
+| [THUNLP/NRE](https://github.com/thunlp/NRE) | CNN, PCNN, CNN+ATT, PCNN+ATT |        |
+|                                             |                              |        |
+|                                             |                              |        |
+
+
 
 ## Natural Language Inference
 
@@ -137,10 +154,6 @@
 
 + paramenters
 + sample number, data max/average length
-
-# Challenge
-
-+ ABSA  Dataset/Kaggle/
 
 # Problems
 
@@ -198,6 +211,14 @@
 # Reference
 
 + <https://github.com/jiangxinyang227/textClassifier>
+
 + <https://github.com/brightmart/text_classification>
+
 + <https://github.com/songyouwei/ABSA-PyTorch>
+
++ Zhang, Lei, Shuai Wang, and Bing Liu. "Deep Learning for Sentiment Analysis: A Survey." arXiv preprint arXiv:1801.07883 (2018). [[pdf\]](https://arxiv.org/pdf/1801.07883)
+
+  Young, Tom, et al. "Recent trends in deep learning based natural language processing." arXiv preprint arXiv:1708.02709 (2017). [[pdf\]](https://arxiv.org/pdf/1708.02709)
+
+  ##
 
