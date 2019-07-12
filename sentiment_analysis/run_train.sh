@@ -6,5 +6,5 @@ python train.py \
     --dataset 'air-purifier' \
     --device 'cuda:2' \
     --epochs '10' \
-    --learning_rate '5e-6' 
+    --learning_rate '5e-5' 
     

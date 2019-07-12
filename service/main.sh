@@ -18,7 +18,7 @@ cp result_convert.txt /export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa
 # run ner script and post processing
 dataset_name="air-purifier"
 type_name='entity'
-gpu='0'
+gpu='3'
 
 epoch=10
 max_seq_len=128
@@ -99,8 +99,13 @@ python ../sentiment_analysis/train.py \
     --device 'cuda:0' \
     --epochs '30' \
     --do_test \
-    --results_file result_absa_text.txt
+    --results_file 'result_absa_text.txt' \
+    --load_model_path '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/outputs/bert_spc_air-purifier_val_f10.9026'  
 #    --outputs_folder /export/home/sunhongchao1/1-NLU/Workspace-of-NLU/classification/outputs/ \ 
  
 # post processing
 
+#########
+# all results
+#########
+python all_results.py

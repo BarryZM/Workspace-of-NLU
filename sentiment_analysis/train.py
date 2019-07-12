@@ -191,7 +191,7 @@ class Instructor:
             test_data_loader = DataLoader(dataset=self.testset, batch_size=self.opt.batch_size, shuffle=False)
 
             #self.model.load_state_dict(torch.load(best_model_path))
-            best_model_path = "/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/outputs/bert_spc_air-purifier_val_f10.8418"
+            best_model_path = self.opt.load_model_path 
             #best_model_path = "/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/outputs/bert_spc_air-purifier_val_acc0.9163"
             self.model.load_state_dict(torch.load(best_model_path))
             self.model.eval()
@@ -227,6 +227,7 @@ def main():
     parser.add_argument('--do_test', action='store_true')
 
     parser.add_argument('--results_file', type=str)
+    parser.add_argument('--load_model_path', type=str)
 
     opt = parser.parse_args()
 

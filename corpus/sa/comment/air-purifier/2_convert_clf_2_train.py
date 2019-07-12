@@ -184,18 +184,20 @@ def match_aspect_sentiment(line, aspect_slot_list, sentiment_slot_list):
         print("aspect slot list ", aspect_slot_list[idx])
         # 当前短句能找到情感，返回最近的情感
         match_sentiment_idx, tmp_polarity = find_sentiment_in_current_short_sentence(aspect_idx, sentiment_idx_list, cut_idx_list, sentiment_slot_list) 
-        if tmp_polarity is not None:
-            print(">>> CCCCC find match sentiment in current short sentence, polarity is {}, matched sentiment index is {}".format(tmp_polarity, match_sentiment_idx))
-            aspect_polarity_list.append(tmp_polarity)
-        else:
-            # 当前短句找不到，查找相邻短句，如果相邻短句只有情感NER，没有实体，则当前实体匹配对应情感，如果相邻短句同时有实体和情感NER，则认为当前句实体为中性
-            match_sentiment_idx, tmp_polarity = find_sentiment_in_adjacent_short_sentence(aspect_idx, sentiment_idx_list, cut_idx_list, sentiment_slot_list)
-            if tmp_polarity is not None:
-                print(">>> AAAAA find match sentiment in current short sentence, polarity is {}, matched sentiment index is {}".format(tmp_polarity, match_sentiment_idx))
-                aspect_polarity_list.append(tmp_polarity)
-            else:
-                print(">>> 333:", tmp_polarity) 
-                aspect_polarity_list.append(0)
+        print(">>> CCCCC find match sentiment in current short sentence, polarity is {}, matched sentiment index is {}".format(tmp_polarity, match_sentiment_idx))
+        aspect_polarity_list.append(tmp_polarity)
+        #if tmp_polarity is not None:
+        #    print(">>> CCCCC find match sentiment in current short sentence, polarity is {}, matched sentiment index is {}".format(tmp_polarity, match_sentiment_idx))
+        #    aspect_polarity_list.append(tmp_polarity)
+        #else:
+        #    # 当前短句找不到，查找相邻短句，如果相邻短句只有情感NER，没有实体，则当前实体匹配对应情感，如果相邻短句同时有实体和情感NER，则认为当前句实体为中性
+        #    match_sentiment_idx, tmp_polarity = find_sentiment_in_adjacent_short_sentence(aspect_idx, sentiment_idx_list, cut_idx_list, sentiment_slot_list)
+        #    if tmp_polarity is not None:
+        #        print(">>> AAAAA find match sentiment in current short sentence, polarity is {}, matched sentiment index is {}".format(tmp_polarity, match_sentiment_idx))
+        #        aspect_polarity_list.append(tmp_polarity)
+        #    else:
+        #        print(">>> 333:", tmp_polarity) 
+        #        aspect_polarity_list.append(0)
 
     print("line is :", list(line))
     print("cut is :", cut_idx_list)
@@ -209,10 +211,11 @@ def write_data(output_dir, line, aspect_slot_list, aspect_polarity, mode):
 
     with open(os.path.join(output_dir, str(mode) + '-term-category.txt'), encoding='utf-8', mode='a') as f:
         for slot, polarity in zip(aspect_slot_list, aspect_polarity):
+            if polarity is None:
+                continue
             try:
                 convert_dict[slot['slotname']]
                 term = line[int(slot['start']):int(slot['end'])+1]
-                # bug for "机器示数太高了，这示数是怎么回事?"
                 if int(slot['start']) != 0 and int(slot['end']) != 0:
                     replace_line = line[:int(slot['start'])] + "$T$" + line[int(slot['end']) + 1:]
                 elif int(slot['start']) == 0:
