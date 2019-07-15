@@ -96,11 +96,16 @@ python ../sentiment_analysis/train.py \
     --batch_size 64 \
     --model_name 'bert_spc' \
     --dataset 'air-purifier-100-test' \
-    --device 'cuda:2' \
+    --device 'cuda:0' \
     --epochs '30' \
     --do_test \
-    --results_file result_absa_text.txt
+    --results_file 'result_absa_text.txt' \
+    --load_model_path '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/outputs/bert_spc_air-purifier_val_f10.9026'  
 #    --outputs_folder /export/home/sunhongchao1/1-NLU/Workspace-of-NLU/classification/outputs/ \ 
  
 # post processing
 
+#########
+# all results
+#########
+python all_results.py

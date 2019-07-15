@@ -5,6 +5,6 @@ python train.py \
     --model_name 'bert_spc' \
     --dataset 'air-purifier' \
     --device 'cuda:2' \
-    --epochs '50' \
-    --valset_ratio 0.1
+    --epochs '10' \
+    --learning_rate '5e-5' 
     
