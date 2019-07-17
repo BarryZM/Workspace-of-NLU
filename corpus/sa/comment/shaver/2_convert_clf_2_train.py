@@ -11,8 +11,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--input_excel', type=str)
 args = parser.parse_args()
 
+convert_dict = {'p-e-mode': '剃须方式', 'p-e-fittings': '配件', 'p-e-blade': '刀头刀片', 'p-e-cleaning': '清洁方式', 'p-e-effect': '剃须效果', 'p-e-charge': '充电', 'p-e-endurance': '续航', 'p-e-sound': '运转音', 'p-e-packing': '包装', 'p-e-screen': '显示', 'p-e-size': '尺寸', 'p-e-pricematch': '价保', 'p-c-loyalty': '商品复购', 'p-c-use': '商品用途', 'p-c-price': '商品价格', 'p-c-quality': '商品质量', 'p-c-color': '商品颜色', 'p-c-appearance': '商品外观', 'p-c-marketing': '商品营销', 'p-c-brand': '商品品牌', 'p-c-origin': '商品产地', 'p-c-others': '商品其他', 'cs-c-attitude': '客服态度', 'cs-c-handling': '客服处理速度', 'cs-c-others': '客服其他', 'l-c-delivery': '配送速度', 'l-c-attitude': '物流态度', 'l-c-others': '物流其他', 's-c-maintanence': '维修服务', 's-c-return': '退货服务', 's-c-exchange': '换货服务', 's-c-warranty': '质保', 's-c-refund': '退款服务', 's-c-others': '售后其他'}
 
-convert_dict = {'p-e-light': '指示灯', 'p-e-smell': '味道', 'p-e-sound': '运转音', 'p-e-purification': '净化效果', 'p-e-effect': '风量', 'p-e-power': '电源', 'p-e-size': '尺寸', 'p-e-induction': '感应', 'p-e-design': '设计', 'p-e-strainer': '滤芯滤网', 'p-e-pattern': '模式', 'p-e-operation': '操作', 'p-e-packing': '包装', 'p-e-screen': '显示', 'p-e-function': '功能', 'p-e-pricematch': '价保', 'p-e-invoice': '发票', 'p-c-loyalty': '商品复购', 'p-c-gift': '商品用途', 'p-c-price': '商品价格', 'p-c-quality': '商品质量', 'p-c-color': '商品颜色', 'p-c-appearance': '商品外观', 'p-c-marketing': '商品营销', 'p-c-brand': '商品品牌', 'p-c-origin': '商品产地', 'p-c-others': '商品其他', 'cs-c-attitude': '客服态度', 'cs-c-handling': '客服处理速度', 'cs-c-others': '客服其他', 'l-c-delivery': '配送速度', 'l-c-attitude': '物流态度', 'l-c-others': '物流其他', 's-c-maintanence': '维修服务', 's-c-installment': '安装服务', 's-c-return': '退货服务', 's-c-exchange': '换货服务', 's-c-warranty': '质保', 's-c-refund': '退款服务', 's-c-others': '售后其他'}
+# convert_dict = {'p-e-light': '指示灯', 'p-e-smell': '味道', 'p-e-sound': '运转音', 'p-e-purification': '净化效果', 'p-e-effect': '风量', 'p-e-power': '电源', 'p-e-size': '尺寸', 'p-e-induction': '感应', 'p-e-design': '设计', 'p-e-strainer': '滤芯滤网', 'p-e-pattern': '模式', 'p-e-operation': '操作', 'p-e-packing': '包装', 'p-e-screen': '显示', 'p-e-function': '功能', 'p-e-pricematch': '价保', 'p-e-invoice': '发票', 'p-c-loyalty': '商品复购', 'p-c-gift': '商品用途', 'p-c-price': '商品价格', 'p-c-quality': '商品质量', 'p-c-color': '商品颜色', 'p-c-appearance': '商品外观', 'p-c-marketing': '商品营销', 'p-c-brand': '商品品牌', 'p-c-origin': '商品产地', 'p-c-others': '商品其他', 'cs-c-attitude': '客服态度', 'cs-c-handling': '客服处理速度', 'cs-c-others': '客服其他', 'l-c-delivery': '配送速度', 'l-c-attitude': '物流态度', 'l-c-others': '物流其他', 's-c-maintanence': '维修服务', 's-c-installment': '安装服务', 's-c-return': '退货服务', 's-c-exchange': '换货服务', 's-c-warranty': '质保', 's-c-refund': '退款服务', 's-c-others': '售后其他'}
 
 def str2slotlist(input_str:str):
     input_str = input_str.replace('\t', '')
@@ -36,7 +37,7 @@ def str2slotlist(input_str:str):
                 continue
             new_dict = dict_tmp.copy()
             return_list.append(new_dict)
-    print(">>>slot list after process", return_list)
+    print(">>> init slot list after process", return_list)
     return return_list
 
 def find_boundary(input_value, input_value_list):
@@ -137,7 +138,7 @@ def convert(best_match_polarity):
         best_match_polarity = 0
     else:
         print(best_match_polarity)
-        raise Exception()
+        #raise Exception()
     return best_match_polarity
 
 def match_aspect_sentiment(line, aspect_slot_list, sentiment_slot_list):
@@ -211,7 +212,10 @@ def write_data(output_dir, line, aspect_slot_list, aspect_polarity, mode):
 
     with open(os.path.join(output_dir, str(mode) + '-term-category.txt'), encoding='utf-8', mode='a') as f:
         for slot, polarity in zip(aspect_slot_list, aspect_polarity):
+            print(">>>>> slot:", slot)
+            print(">>>>>>> polarity:", polarity)
             if polarity is None:
+                print("$$$$, polarity")
                 continue
             try:
                 convert_dict[slot['slotname']]
@@ -226,7 +230,9 @@ def write_data(output_dir, line, aspect_slot_list, aspect_polarity, mode):
                     print("wrte data error")
                     continue
                 f.write(replace_line + '\n' + term + '\n' + convert_dict[slot['slotname']] + '\n' + str(polarity) + '\n') 
+                print("$$$$, write data done")
             except KeyError:
+                print("$$$$, key error")
                 continue
     
 def get_clf_data(text_list, slot_list, mode):
@@ -250,10 +256,10 @@ def get_clf_data(text_list, slot_list, mode):
         sentiment_slot_list = []
 
         for slot in slots: # 遍历所有slot，分别找到aspect slot 和 sentiment slot
-            if slot['domain'] == 'sentiment':
+            if slot['domain'] == 'sentiment' and slot['slotname'] in ['sentiment-positive', 'sentiment-positibve', 'sentiment-negative', 'sentiment-moderate']:
                 sentiment_slot_list.append(slot)
                 #print('>>>sentiment', slot)
-            elif slot['domain'] in ['product', 'cs', 'logistics', 'service']:
+            elif slot['domain'] in ['product', 'cs', 'logistics', 'service'] and slot['slotname'] in ['p-e-mode', 'p-e-fittings', 'p-e-blade', 'p-e-cleaning', 'p-e-effect', 'p-e-charge', 'p-e-endurance', 'p-e-sound', 'p-e-packing', 'p-e-screen', 'p-e-size', 'p-e-pricematch', 'p-c-loyalty', 'p-c-use', 'p-c-price', 'p-c-quality', 'p-c-color', 'p-c-appearance', 'p-c-marketing', 'p-c-brand', 'p-c-origin', 'p-c-others', 'cs-c-attitude', 'cs-c-handling', 'cs-c-others', 'l-c-delivery', 'l-c-attitude', 'l-c-others', 's-c-maintanence', 's-c-return', 's-c-exchange', 's-c-warranty', 's-c-refund', 's-c-others']:
                 aspect_slot_list.append(slot)                      
                 #print('>>>aspect', slot)
             else:

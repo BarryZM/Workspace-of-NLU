@@ -1,4 +1,4 @@
-dataset_name="air-purifier"
+dataset_name="shaver"
 #type_name='entity'
 #gpu='3'
 

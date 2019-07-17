@@ -273,12 +273,15 @@ def main():
         'air-purifier':{
             'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/air-purifier/clf/train-term-category.txt',
             'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/air-purifier/clf/test-term-category.txt'
-
         }, 
         'air-purifier-100-test':{
             'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/result_absa_clf_training_data.txt',
             'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/result_absa_clf_training_data.txt'
-        }
+        },
+        'shaver':{
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/shaver/clf/train-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/shaver/clf/test-term-category.txt'
+        } 
     }
     input_colses = {
         'lstm': ['text_raw_indices'],
