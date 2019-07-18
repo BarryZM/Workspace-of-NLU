@@ -28,7 +28,16 @@
 | Sentiment140                                |      |      |
 | https://challenger.ai/dataset/fsaouord2018) |      |      |
 | Stanford Sentiment Treebank                 |      |      |
-|                                             |      |      |
+| SemEval-2014 Task4                          |      |      |
+| SemEval-2015 Task12                         |      |      |
+| SemEval-2016 Task 5                         |      |      |
+| Twitter                                     |      |      |
+| MPQA                                        |      |      |
+| Hindi                                       |      |      |
+| SentiHood                                   |      |      |
+| Mitchell                                    |      |      |
+| tripAdvisor                                 |      |      |
+| openTable                                   |      |      |
 
 | Slot Filling Dataset                                         | SOTA | Tips |
 | ------------------------------------------------------------ | ---- | ---- |
@@ -211,14 +220,10 @@
 # Reference
 
 + <https://github.com/jiangxinyang227/textClassifier>
-
 + <https://github.com/brightmart/text_classification>
-
 + <https://github.com/songyouwei/ABSA-PyTorch>
-
 + Zhang, Lei, Shuai Wang, and Bing Liu. "Deep Learning for Sentiment Analysis: A Survey." arXiv preprint arXiv:1801.07883 (2018). [[pdf\]](https://arxiv.org/pdf/1801.07883)
-
-  Young, Tom, et al. "Recent trends in deep learning based natural language processing." arXiv preprint arXiv:1708.02709 (2017). [[pdf\]](https://arxiv.org/pdf/1708.02709)
-
-  ##
++ Young, Tom, et al. "Recent trends in deep learning based natural language processing." arXiv preprint arXiv:1708.02709 (2017). [[pdf\]](https://arxiv.org/pdf/1708.02709)
++ https://ieeexplore.ieee.org/document/8726353
++ https://github.com/12190143/Deep-Learning-for-Aspect-Level-Sentiment-Classification-Baselines
 
