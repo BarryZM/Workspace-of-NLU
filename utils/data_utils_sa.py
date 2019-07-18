@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 # file: data_utils_sa.py
-# author: songyouwei <youwei0314@gmail.com>
-# Copyright (C) 2018. All Rights Reserved.
 
 import os
 import pickle
