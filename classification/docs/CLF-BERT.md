@@ -1,0 +1,1 @@
++ Tips  + 模型较大，延时较长+ Framework  ![](https://ws1.sinaimg.cn/large/006tKfTcly1g1hi3rch3nj30k004ydge.jpg)  + Embedding    ![](https://ws4.sinaimg.cn/large/006tKfTcly1g1hi3u8lszj30k006fmxr.jpg)  + Masked LM    + Musk 一部分词， 使用上下文预测当前词， 预训练语言模型  + Results    + Dense     + DNNs      + CNN      + LSTM

@@ -61,6 +61,14 @@
 # Metric
 
 + Classification/Sentiment Analysis
+    + 正确率，召回率，F-score
+    + 微平均
+        - 根据总数据计算 P R F
+    + 宏平均
+        - 计算出每个类得，再求平均值
+    + 平衡点
+    + 11点平均正确率
+        - https://blog.csdn.net/u010367506/article/details/38777909
 + Slot Filling
     + strict/type/partial/overlap/
 + Relation Extraction
