@@ -13,6 +13,8 @@
 
 # Dataset
 
+## Classification Dataset
+
 | Classification Dataset                                       | SOTA                                                     | Tips |
 | ------------------------------------------------------------ | -------------------------------------------------------- | ---- |
 | IMDB                                                         | Learning Structured Text Representations                 |      |
@@ -22,6 +24,8 @@
 | [SogouTCE(文本分类评价)](http://www.sogou.com/labs/resource/tce.php) |                                                          |      |
 | [SogouCA(全网新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |      |
 | [SogouCE(搜狐新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |      |
+
+## Sentiment Analysis Dataset
 
 | Sentiment Analysis Dataset                  | SOTA | Tips |
 | ------------------------------------------- | ---- | ---- |
@@ -39,6 +43,8 @@
 | tripAdvisor                                 |      |      |
 | openTable                                   |      |      |
 
+## Slot Filling Dataset
+
 | Slot Filling Dataset                                         | SOTA | Tips |
 | ------------------------------------------------------------ | ---- | ---- |
 | National-Language-council                                    |      |      |
@@ -46,11 +52,15 @@
 | WSJ-PTB                                                      |      |      |
 | [Reference](https://github.com/Apollo2Mars/Corpus-Summary/tree/master/3-Named-Entity-Recogination) |      |      |
 
+## Relation Extraction Dataset
+
 | Relation Extraction Dataset | SOTA | Tips                          |
 | --------------------------- | ---- | ----------------------------- |
 | SemEval 2010 Task 8         |      |                               |
 | FewRel                      |      | EMNLP2018，清华               |
 | NYT10                       |      | https://github.com/thunlp/NRE |
+
+## Natural Language Inference Dataset
 
 | Natural Language Inference Dataset                           | SOTA | Tips           |
 | ------------------------------------------------------------ | ---- | -------------- |
@@ -99,11 +109,6 @@
     + CNN
     + RNN
     + Transformer
-+ Context-Question Interaction
-    + Un Attn
-    + Bi Attn
-    + One-hop Interaction
-    + Multi-hop Interaction
 + Output Prediction
     + pass
 
@@ -174,42 +179,34 @@
 
 # Problems
 
-+ slot filling
-    + max seq length 取的512， batch size 不能太大，导致训练较慢
-        + 训练的时候截取一段长度
-        + 预测的时候取测试集的最大长度（或者可以不取固定长度？）
-+ Dataset
-    + CLF 等单独拿处理啊
-+ utils 
-    + 合并
-+ 空格预处理
-    + 原始预料中把空格全部删除掉
-+ Slot Filling 添加 logger
-+ downlaod.sh
-+ 工程优化
-    - 定义命名规范
-    - parser 和 flag 使用方式要统一
-    - parser 变量名规范化（有的文件的parser 使用的有问题）
-    - train dev test 的运行时间逻辑有问题
-    - tensorboard
-    - """检测文件是否存在，如果存在，则不执行此函数"""
-    - 外层代码全部转化为 jupyter notebook
-+ 多卡，多线程训练;提速方法
-+ Unsupervised Learning/Semi-supervised Learning
-+ Joint/Multi-task Learning
-    - 基于domain，intent，slot和其他信息（知识库，缠绕词表，热度）的re-rank策略  https://arxiv.org/pdf/1804.08064.pdf
-    - Joint-learning或multi-task策略，辅助未达标的分类领域  https://arxiv.org/pdf/1801.05149.pdf
-    - 利用Bert embedding 进行再训练，如Bert embedding + Bi-LSTM-CRF https://github.com/BrikerMan/Kashgar
-+ 离线模型封装与预测
-    + 现有模型接口输出
-    + 单条
-    + 文件
-
-
++ Slot filling
+    + max seq length
+        + training max seq length : 128
+        + test and predict max length : max test length of corpus, now is  512
+    + result save to logger
++ Unified Preprocessing
+    + whitespace
++ Corpus
+    + download.sh
++ Resoruce
+    + Download.sh
++ Code Fix
+    - Unified Naming Convention
+    - Combine Parser and FLAG
+    - Tensorboard
+    - Check if the file exists
+    - Jupyter notebook for data visualization about preprocess corpus and show results
 
 # Open Issues
 
 + Reinforce Learning/Active Learning for NLU
++ 多卡，多线程训练;提速方法
++ Unsupervised Learning/Semi-supervised Learning
++ Joint/Multi-task Learning
+  - 基于domain，intent，slot和其他信息（知识库，缠绕词表，热度）的re-rank策略  https://arxiv.org/pdf/1804.08064.pdf
+  - Joint-learning或multi-task策略，辅助未达标的分类领域  https://arxiv.org/pdf/1801.05149.pdf
+  - 利用Bert embedding 进行再训练，如Bert embedding + Bi-LSTM-CRF https://github.com/BrikerMan/Kashgar
++ service framework
 
 # Milestone
 
@@ -217,8 +214,8 @@
 
 # Coding Standards
 
-+ 大小写
-+ 复数
++ Uppercase and lowercase letters
++ Single and plural
 
 # Usages
 
