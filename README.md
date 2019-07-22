@@ -222,6 +222,17 @@
 + Service 
 + Will be used in “Workspace of Conversation-AI"
 
+# IDEA
+
+## Represent
+
+## Update Logic
+
+## Inference
+
+- 层次分类， hierachical level
+- 多分类，multi label
+
 # Reference
 
 + <https://github.com/jiangxinyang227/textClassifier>
