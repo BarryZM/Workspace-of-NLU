@@ -79,8 +79,18 @@
     + 平衡点
     + 11点平均正确率
         - https://blog.csdn.net/u010367506/article/details/38777909
-+ Slot Filling
++ Lexical analysis
     + strict/type/partial/overlap/
+    + 准确率(Precision)和召回率(Recall)
+      + Precision = 正确切分出的词的数目/切分出的词的总数
+      + Recall = 正确切分出的词的数目/应切分出的词的总数
+    + 综合性能指标F-measure
+      + Fβ = (β2 + 1)*Precision*Recall/(β2*Precision + Recall)*
+      + *β为权重因子，如果将准确率和召回率同等看待，取β = 1，就得到最常用的F1-measure*
+      + *F1 = 2*Precisiton*Recall/(Precision+Recall)
+    + 未登录词召回率(R_OOV)和词典中词的召回率(R_IV)
+      + R_OOV = 正确切分出的未登录词的数目/标准答案中未知词的总数
+      + R_IV = 正确切分出的已知词的数目/标准答案中已知词的总数
 + Relation Extraction
 + Natural Language Inference
 
@@ -224,11 +234,20 @@
 
 # Reference
 
+## Projects
+
 + <https://github.com/jiangxinyang227/textClassifier>
 + <https://github.com/brightmart/text_classification>
 + <https://github.com/songyouwei/ABSA-PyTorch>
++ https://github.com/12190143/Deep-Learning-for-Aspect-Level-Sentiment-Classification-Baselines
++ https://github.com/guillaumegenthial/sequence_tagging
+
+## Papers
+
 + Zhang, Lei, Shuai Wang, and Bing Liu. "Deep Learning for Sentiment Analysis: A Survey." arXiv preprint arXiv:1801.07883 (2018). [[pdf\]](https://arxiv.org/pdf/1801.07883)
 + Young, Tom, et al. "Recent trends in deep learning based natural language processing." arXiv preprint arXiv:1708.02709 (2017). [[pdf\]](https://arxiv.org/pdf/1708.02709)
 + https://ieeexplore.ieee.org/document/8726353
-+ https://github.com/12190143/Deep-Learning-for-Aspect-Level-Sentiment-Classification-Baselines
 
+- Bidirectional LSTM-CRF Models for Sequence Tagging
+- Neural Architectures for Named Entity Recognition
+- Character-Based LSTM-CRF with Radical-Level Features for Chinese Named Entity Recognition
