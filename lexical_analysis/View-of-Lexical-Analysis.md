@@ -1,4 +1,5 @@
-# View of Sequence Labeling
+# View of Lexical Analysis
+
 ### 人民日报语料下载
 
 ### NCRF++:An Open-source Neural Sequence Labeling Toolkit
@@ -30,3 +31,7 @@
   - 在《Neural Architectures for Named Entity Recognition》文章中，提出了两种用于NER模型。这些模型采用有监督的语料学习字符的表示，或者从无标记的语料库中学习无监督的词汇表达[4]。使用英语，荷兰语，德语和西班牙语等不同数据集，如CoNLL-2002和CoNLL-2003进行了大量测试。该小组最终得出结论，如果没有任何特定语言的知识或资源（如地名词典），他们的模型在NER中取得最好的成绩。
 - POS
   - 在《Part-of-Speech Tagging with Bidirectional Long Short-Term Memory Recurrent Neural Network》工作中，提出了一个采用RNN进行词性标注的系统[5]。该模型采用《Wall Street Journal data from Penn Treebank III》数据集进行了测试，并获得了97.40％的标记准确性。
+
+
+
+https://github.com/FuYanzhe2/Name-Entity-Recognition
