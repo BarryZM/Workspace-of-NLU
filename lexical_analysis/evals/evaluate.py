@@ -12,8 +12,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 #parser.add_argument('label2id_path', type='str')
-parser.add_argument('--true_text_path', type=str)
-parser.add_argument('--true_label_path', type=str)
+parser.add_argument('--ground_text_path', type=str)
 parser.add_argument('--predict_label_path', type=str)
 
 args = parser.parse_args()
@@ -73,13 +72,17 @@ def cut_resulst_2_sentence(text_list, ground_list, predict_list):
     idx = 0
 
     for item_t, item_g, item_p in zip(text_list, ground_list, predict_list):
-        if len(item_g.strip()) == 0 and len(item_p.strip()) != 0:
-            print('index', idx)
-            raise Exception("Error")
-        elif len(item_g.strip()) != 0 and len(item_p.strip()) == 0:
-            print('index', idx)
-            raise Exception("Error")
-        elif len(item_g.strip()) == 0 and len(item_p.strip()) == 0:
+        print("item_t", item_t)
+        print("item_g", item_g)
+        print("item_p", item_p)
+
+        #if len(item_g.strip()) == 0 and len(item_p.strip()) != 0:
+        #    print('index', idx)
+        #    raise Exception("Error")
+        #elif len(item_g.strip()) != 0 and len(item_p.strip()) == 0:
+        #   print('index', idx)
+        #   raise Exception("Error")
+        if len(item_g.strip()) == 0 and len(item_p.strip()) == 0:
             text_sentence_list.append(tmp_t.copy())
             ground_sentence_list.append(tmp_g.copy())
             predict_sentence_list.append(tmp_p.copy())
@@ -119,17 +122,30 @@ if __name__  == '__main__':
 
     print("current path", os.getcwd())
 
-    with open(args.true_text_path, mode='r', encoding='utf-8') as f:
-        text_lines = f.readlines()
-        print(len(text_lines))
+    text_lines = []
+    ground_lines = []
 
-    with open(args.true_label_path, mode='r', encoding='utf-8') as f:
-        ground_lines = f.readlines()
-        print(len(ground_lines))
+    with open(args.ground_text_path, mode='r', encoding='utf-8') as f:
+        for item in f.readlines():
+            cut_list = item.strip().split("\t")
+            if len(cut_list) is 3:
+                text_lines.append(cut_list[0])
+                ground_lines.append(cut_list[1])
+            else:
+                text_lines.append("")
+                ground_lines.append("")
 
     with open(args.predict_label_path, mode='r', encoding='utf-8') as f:
         predict_lines = f.readlines()
         print(len(predict_lines))    
+
+    print(len(predict_lines))
+    print(len(ground_lines))
+    print(len(text_lines))
+
+    print(predict_lines[:100])
+    print(ground_lines[:100])
+    print(text_lines[:100])
 
 #    assert len(predict_lines) == len(ground_lines) == len(text_lines), print('predict is {}, ground is {}, text is {}'.format(len(predict_lines), len(ground_lines), len(text_lines)))
 

@@ -293,9 +293,20 @@ if __name__ == '__main__':
     all_text_list = train_text_list + test_text_list 
     all_slot_list = train_slot_list + test_slot_list
 
-    #with open("all_data.txt", mode='w', encoding='utf-8') as f:
-    #    for text, slot in zip(all_text_list, all_slot_list):
-    #        f.write(str(text) + '\n' + str(slot) + '\n' + '###' + '\n')
+    import random
+    randnum = random.randint(0,100)
+    random.seed(randnum)
+    random.shuffle(all_text_list)
+    random.seed(randnum)
+    random.shuffle(all_slot_list)
+
+    cut_value = int(0.9 * len(all_text_list))
+
+    train_text_list = all_text_list[:cut_value]
+    test_text_list = all_text_list[cut_value:]
+
+    train_slot_list = all_slot_list[:cut_value]
+    test_slot_list = all_slot_list[cut_value:]
 
     get_clf_data(train_text_list, train_slot_list, mode='train')
     get_clf_data(test_text_list, test_slot_list, mode='test')

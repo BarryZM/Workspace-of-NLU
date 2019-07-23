@@ -100,7 +100,7 @@ python ../sentiment_analysis/train.py \
     --epochs '30' \
     --do_test \
     --results_file 'result_absa_text.txt' \
-    --load_model_path '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/outputs/bert_spc_air-purifier_val_f10.9026'  
+    --load_model_path '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/outputs/bert_spc_air-purifier_val_f10.931'  
 #    --outputs_folder /export/home/sunhongchao1/1-NLU/Workspace-of-NLU/classification/outputs/ \ 
  
 # post processing

@@ -8,6 +8,9 @@ from sklearn import metrics
 import pandas as pd
 from datetime import date
 import json
+import argparse
+import os
+
 
 """
 标注数据交叉验证脚本提交
@@ -228,7 +231,17 @@ def is_slots_has_others(slot_list_a, slot_list_b):
 
 if __name__ =='__main__':
     # NLP00001232_cross.xlsx  NLP00001234_cross.xlsx
-    df = pd.read_excel('NLP00001535_cross.xlsx')
+    #df = pd.read_excel('NLP000001601_CROSS.csv')
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input_file', type=str, help='input file name', default='NLP000001601_CROSS.csv')
+    args = parser.parse_args()
+
+    if 'csv' in args.input_file:
+        df = pd.read_csv(args.input_file)
+    if 'xlsx' in args.input_file:
+        df = pd.read_excel(args.input_file)
+
     print(len(df))
     input_list = []
 
@@ -361,6 +374,9 @@ if __name__ =='__main__':
         if is_wrong:
             # wrong_list.append(correct_sentence_pre + '\n')
             wrong_num += 1
+
+    if os.path.exists("output") is False:
+        os.mkdir("output")
 
     output = open('output/wrong_list.txt', "w", encoding="utf-8")
     output.writelines(wrong_list)

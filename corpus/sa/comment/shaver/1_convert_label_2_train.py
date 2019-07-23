@@ -118,31 +118,6 @@ def write_data(total_label_data, mode=''):
                 f.write(sentiment + '\n')
             f.write('\n')
     
-    with open(os.path.join(args.output_dir, mode+'-opinion.txt'), encoding='utf-8', mode='w') as f:
-        for item in total_label_data:
-            for text, aspect in zip(item[0], item[1]):
-                f.write(text + '\t')
-                f.write(aspect + '\n')
-            f.write('\n')
-    
-    with open(os.path.join(args.output_dir, mode+'-text.txt'), encoding='utf-8', mode='w') as f:
-        for item in total_label_data:
-            for text, aspect in zip(item[0], item[1]):
-                f.write(text + '\n')
-            f.write('\n')
-    
-    with open(os.path.join(args.output_dir, mode+'-entity-label.txt'), encoding='utf-8', mode='w') as f:
-        for item in total_label_data:
-            for text, aspect in zip(item[0], item[1]):
-                f.write(aspect + '\n')
-            f.write('\n')
-
-    with open(os.path.join(args.output_dir, mode+'-emotion-label.txt'), encoding='utf-8', mode='w') as f:
-        for item in total_label_data:
-            for text, aspect in zip(item[0], item[2]):
-                f.write(aspect + '\n')
-            f.write('\n')
-    
 train_folder = 'train_csv'
 test_folder = 'test_csv'
 

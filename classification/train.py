@@ -167,7 +167,7 @@ class Instructor:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset_name', type=str, default='air-purifier', help='air-purifier, refrigerator')
+    parser.add_argument('--dataset_name', type=str, default='air-purifier', help='air-purifier, refrigerator, shaver')
     parser.add_argument('--emb_dim', type=int, default='200')
     parser.add_argument('--emb_file', type=str, default='embedding.text')
     parser.add_argument('--vocab_file', type=str, default='vacab.txt')
@@ -201,10 +201,13 @@ def main():
     }
 
     dataset_files = {
+        'shaver':{
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/train-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/test-term-category.txt'},
         'air-purifier':{
             'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/train-term-category.txt',
-            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/result_absa_clf_training_data.txt'}
-            #'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/'+ args.dataset_name + '/clf/test-term-category.txt'},
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/'+ args.dataset_name + '/clf/test-term-category.txt'},
+            #'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/result_absa_clf_training_data.txt'}
         #'air-purifier':{
         #    'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/absa-clf.txt',
         #    'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/absa-clf.txt'}
