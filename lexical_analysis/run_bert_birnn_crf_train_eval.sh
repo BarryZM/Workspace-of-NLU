@@ -1,16 +1,16 @@
-dataset_name="electric-toothbrush"
+dataset_name="shaver"
 type_name='entity'
 gpu='3'
 
-epoch=5
+epoch=1
 max_seq_len=128
 max_seq_len_predict=128
 learning_rate=2e-5
 hidden_layer=4
 target_folder="./outputs/"${dataset_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len}_gpu_${gpu} 
-train_flag=False # whether to train model on trainset
+train_flag=True # whether to train model on trainset
 eval_flag=False # whether to eval trained model on devset, default is False 
-predict_flag=False # whether to predict result on testset by trained model
+predict_flag=True # whether to predict result on testset by trained model
 metric_flag=True # whether run eval.py to calculate metric
 
 if [ "$type_name" == 'emotion' ] ;then
@@ -25,8 +25,10 @@ fi
 
 echo ${target_folder}
 
-if [ $train_flag == True ] ;then
+if [ "$train_flag" == True  -a  -d "$target_folder" ] ;then
 /bin/rm -rf $target_folder
+mkdir $target_folder
+elif [ "$train_flag" == True -a  ! -d "$target_folder" ];then
 mkdir $target_folder
 fi
 

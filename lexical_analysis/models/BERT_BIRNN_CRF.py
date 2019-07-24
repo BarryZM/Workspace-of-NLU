@@ -534,8 +534,8 @@ def main(_):
                 tf.logging.info("  %s = %s", key, str(result[key]))
                 writer.write("%s = %s\n" % (key, str(result[key])))
 
-    estimator._export_to_tpu = False
-    estimator.export_savedmodel(os.path.dirname(FLAGS.output_dir), serving_input_fn)
+        estimator._export_to_tpu = False
+        estimator.export_savedmodel(os.path.dirname(FLAGS.output_dir), serving_input_fn)
 
     if FLAGS.do_predict:
         with open(os.path.join(os.path.dirname(FLAGS.output_dir), 'label2id_'+str(FLAGS.type_name)+'.pkl'),'rb') as rf:

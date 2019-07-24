@@ -251,3 +251,6 @@
 - Bidirectional LSTM-CRF Models for Sequence Tagging
 - Neural Architectures for Named Entity Recognition
 - Character-Based LSTM-CRF with Radical-Level Features for Chinese Named Entity Recognition
+
+# Problems
++ lexical_analysis/outputs/label_2id.pkl 根据任务不同，生成不同的文件，或者使用其他数据结构
