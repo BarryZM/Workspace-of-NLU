@@ -1,6 +1,6 @@
 [TOC]
 
-# Summary of Natrual Language Process
+# View of Natrual Language Process
 
 # Tasks
 
