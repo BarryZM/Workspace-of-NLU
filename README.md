@@ -207,6 +207,7 @@
     - Tensorboard
     - Check if the file exists
     - Jupyter notebook for data visualization about preprocess corpus and show results
+    + lexical_analysis/outputs/label_2id.pkl 根据任务不同，生成不同的文件，或者使用其他数据结构
 
 # Open Issues
 
