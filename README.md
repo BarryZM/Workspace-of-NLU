@@ -195,11 +195,15 @@
         + training max seq length : 128
         + test and predict max length : max test length of corpus, now is  512
     + result save to logger
+    + 个别的末尾标点符号处理的有问题
 + Unified Preprocessing
+    
     + whitespace
 + Corpus
+    
     + download.sh
 + Resoruce
+    
     + Download.sh
 + Code Fix
     - Unified Naming Convention
