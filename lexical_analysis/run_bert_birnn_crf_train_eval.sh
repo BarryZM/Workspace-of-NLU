@@ -1,12 +1,12 @@
 dataset_name="shaver"
 type_name='entity'
-gpu='3'
+gpu='1'
 
-epoch=1
+epoch=20
 max_seq_len=128
 max_seq_len_predict=128
-learning_rate=2e-5
-hidden_layer=4
+learning_rate=5e-5
+hidden_layer=6
 target_folder="./outputs/"${dataset_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len}_gpu_${gpu} 
 train_flag=True # whether to train model on trainset
 eval_flag=False # whether to eval trained model on devset, default is False 

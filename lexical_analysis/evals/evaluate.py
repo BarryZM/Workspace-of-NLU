@@ -147,7 +147,7 @@ if __name__  == '__main__':
     print(ground_lines[:100])
     print(text_lines[:100])
 
-#    assert len(predict_lines) == len(ground_lines) == len(text_lines), print('predict is {}, ground is {}, text is {}'.format(len(predict_lines), len(ground_lines), len(text_lines)))
+    assert len(predict_lines) == len(ground_lines) == len(text_lines), print('predict is {}, ground is {}, text is {}'.format(len(predict_lines), len(ground_lines), len(text_lines)))
 
     count_predict = 0
     count_ground = 0
