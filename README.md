@@ -195,11 +195,15 @@
         + training max seq length : 128
         + test and predict max length : max test length of corpus, now is  512
     + result save to logger
+    + 个别的末尾标点符号处理的有问题
 + Unified Preprocessing
+    
     + whitespace
 + Corpus
+    
     + download.sh
 + Resoruce
+    
     + Download.sh
 + Code Fix
     - Unified Naming Convention
@@ -275,11 +279,8 @@
 
 ### Sentiment Analysis
 
-#### Reviews / Surveys
-
 - Zhang, Lei, Shuai Wang, and Bing Liu. "Deep Learning for Sentiment Analysis: A Survey." arXiv preprint arXiv:1801.07883 (2018). [[pdf]](https://arxiv.org/pdf/1801.07883)
 
-- Young, Tom, et al. "Recent trends in deep learning based natural language processing." arXiv preprint arXiv:1708.02709 (2017). [[pdf]](https://arxiv.org/pdf/1708.02709)
 
 + Song, Youwei, et al. "Attentional Encoder Network for Targeted Sentiment Classification." arXiv preprint arXiv:1902.09314 (2019). [[pdf]](https://arxiv.org/pdf/1902.09314.pdf)
 

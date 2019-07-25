@@ -6,6 +6,10 @@
 
 - 文本分类更侧重与文本得客观性，情感分类更侧重主观性
 
+# Document Level Sentiment Analysis
+
++ pass
+
 # Sentence Level Sentiment Analysis
 
 - pass
