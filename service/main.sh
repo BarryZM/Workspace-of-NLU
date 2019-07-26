@@ -8,7 +8,7 @@ dataset_name="shaver"
 clf_result_path="outputs/${dataset_name}/result_clf.txt"
 absa_result_path="outputs/${dataset_name}/result_absa.txt"
 ner_coling_path='outputs/${dataset_name}/ner_coling.txt'
-ner_result_path='outputs/${dataset_name}/resutlt_ner.txt'
+ner_result_path='outputs/${dataset_name}/result_ner.txt'
 
 ##########
 #NER
@@ -29,11 +29,6 @@ if [ "$type_name" == 'entity' ] ;then
 label_list="O,[CLS],[SEP],B-3,I-3"
 echo $label_list
 fi
-
-python 0_convert_text.py --input_file '0_origin_${dataset_name}.txt'
-cp ${ner_coling_path} /export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/predict/test.txt
-cp ${ner_coling_path} /export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/predict/train.txt
-cp ${ner_coling_path} /export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/predict/dev.txt
 
 
 # Just Predict
@@ -57,7 +52,7 @@ python ../lexical_analysis/models/BERT_BIRNN_CRF.py \
     --output_dir=$target_folder
 
 # delete lines which contain [CLS], [SEP]
-cp ${target_folder}/${type_name}_test_results.txt ${ner_result_path}
+cp ${target_folder}/${type_name}_predict_result.txt ${ner_result_path}
 sed -i '/SEP/d' ${ner_result_path}
 sed -i '/CLS/d' ${ner_result_path} 
 
@@ -81,7 +76,7 @@ CUDA_VISIBLE_DEVICES=2 python ../classification/train.py  \
 #########
 # ABSA
 #########
-CUDA_VISIBLE_DEVICE = 2 python ../sentiment_analysis/train.py \
+CUDA_VISIBLE_DEVICE=2 python ../sentiment_analysis/train.py \
     --dataset 'shaver-100-test' \
     --model_name 'bert_spc' \
     --batch_size 64 \
