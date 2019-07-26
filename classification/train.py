@@ -15,7 +15,8 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 class Instructor:
     def __init__(self, opt):
         self.opt = opt
-        print("@@@@ self.opt", self.opt)
+        logger.info("parameters for programming :  {}".format(self.opt))
+        # >>> just tencent embedding, not include BERT
         tokenizer = build_tokenizer(
             fnames=[opt.dataset_file['train'], opt.dataset_file['test']],
             max_seq_len=opt.max_seq_len,
@@ -25,22 +26,17 @@ class Instructor:
             embed_dim=opt.emb_dim,
             dat_fname='/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/classification/{0}_{1}_embedding_matrix.dat'.format(str(opt.emb_dim), opt.dataset_name))
         logger.info("embedding check {}".format(embedding_matrix[:100]))
+        # >>> Just CNN model, not include other model
+        model = TextCNN(self.opt, tokenizer, embedding_matrix) 
 
-        model = TextCNN(self.opt, tokenizer) 
-        
-        config = tf.ConfigProto()  
-        config.gpu_options.allow_growth = True  
-        session = tf.Session(config=config)
-        session.run(tf.global_variables_initializer())
-        session.run(model.input_init, feed_dict={model.ph_input: embedding_matrix})
-        session.run(model.term_init, feed_dict={model.ph_term: embedding_matrix})
-
-        self.saver = tf.train.Saver(max_to_keep=1)
         self.model = model
-        self.session = session
+        self.session = model.session
 
         self.trainset = CLFDataset(opt.dataset_file['train'], tokenizer, self.opt.label_list)
         self.testset = CLFDataset(opt.dataset_file['test'], tokenizer, self.opt.label_list)
+        self.predictset = CLFDataset(opt.dataset_file['predict'], tokenizer, self.opt.label_list)
+
+        self.saver = tf.train.Saver(max_to_keep=1)
 
     def _print_args(self):
         pass
@@ -55,9 +51,9 @@ class Instructor:
         max_f1 = 0
         path = None
         print("train begin")
-        for epoch in range(self.opt.epochs):
+        for _epoch in range(self.opt.epoch):
             logger.info('>' * 100)
-            logger.info('epoch: {}'.format(epoch))
+            logger.info('epoch: {}'.format(_epoch))
 
             iterator = train_data_loader.make_one_shot_iterator()
             one_element = iterator.get_next()
@@ -71,13 +67,13 @@ class Instructor:
                     targets_onehot = sample_batched['aspect_onehot']
                     
                     model = self.model
-                    _ = self.session.run(model.trainer, feed_dict = {model.input_x : inputs, model.input_term : terms , model.input_y : targets_onehot, model.global_step : epoch, model.keep_prob : 1.0})
+                    _ = self.session.run(model.trainer, feed_dict = {model.input_x : inputs, model.input_term : terms , model.input_y : targets_onehot, model.global_step : _epoch, model.keep_prob : 1.0})
                     self.model = model
 
                 except tf.errors.OutOfRangeError:
                     break
 
-            val_p, val_r, val_f1 = self._evaluete_metric(val_data_loader)
+            val_p, val_r, val_f1 = self._evaluate_metric(val_data_loader)
             logger.info('>>>>>> val_p: {:.4f}, val_r:{:.4f}, val_f1: {:.4f}'.format(val_p, val_r, val_f1))
             
             if val_f1 > max_f1:
@@ -86,7 +82,7 @@ class Instructor:
                     os.mkdir(self.opt.outputs_folder)
                 path = os.path.join(self.opt.outputs_folder, '{0}_{1}_val_f1{2}'.format(self.opt.model_name, self.opt.dataset_name, round(val_f1, 4)))
     
-                last_improved = epoch
+                last_improved = _epoch
                 self.saver.save(sess=self.session, save_path=path)
                 # pb output
                 # convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=[os.path.join(self.opt.outputs_folder, 'model')])
@@ -95,7 +91,7 @@ class Instructor:
 
         return path
 
-    def _evaluete_metric(self, data_loader):
+    def _evaluate_metric(self, data_loader):
         t_targets_all, t_outputs_all = [], []
         iterator = data_loader.make_one_shot_iterator()
         one_element = iterator.get_next()
@@ -140,6 +136,7 @@ class Instructor:
         
         train_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.trainset.text_list, 'term':self.trainset.term_list, 'aspect':self.trainset.aspect_list, 'aspect_onehot':self.trainset.aspect_onehot_list}).batch(self.opt.batch_size).shuffle(10000)
         test_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.testset.text_list, 'term':self.testset.term_list, 'aspect':self.testset.aspect_list, 'aspect_onehot':self.testset.aspect_onehot_list}).batch(self.opt.batch_size)
+        predict_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.predictset.text_list, 'term':self.predictset.term_list, 'aspect':self.predictset.aspect_list, 'aspect_onehot':self.predictset.aspect_onehot_list}).batch(self.opt.batch_size)
         # val_data_loader = tf.data.Dataset.from_tensor_slices(self.testset.data).batch(self.opt.batch_size)
         logger.info('>> load data done')
 
@@ -151,15 +148,23 @@ class Instructor:
             print("do test", self.opt.do_test)
             best_model_path = self._train(None, optimizer, train_data_loader, test_data_loader)
             self.saver.restore(self.session, best_model_path)
-            test_p, test_r, test_f1 = self._evaluete_metric(test_data_loader)
+            test_p, test_r, test_f1 = self._evaluate_metric(test_data_loader)
             logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
 
         elif self.opt.do_train is False and self.opt.do_test is True:
             ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
             if ckpt and ckpt.model_checkpoint_path:
                 self.saver.restore(self.session, ckpt.model_checkpoint_path)
-                test_p, test_r, test_f1 = self._evaluete_metric(test_data_loader)
+                test_p, test_r, test_f1 = self._evaluate_metric(test_data_loader)
                 logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
+            else:
+                logger.info('@@@ Error:load ckpt error')
+        elif self.opt.do_predict: 
+            ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
+            if ckpt and ckpt.model_checkpoint_path:
+                self.saver.restore(self.session, ckpt.model_checkpoint_path)
+                predict_p, predict_r, predict_f1 = self._evaluate_metric(predict_data_loader)
+                logger.info('>> predict_p: {:.4f}, predict_r:{:.4f}, predict_f1: {:.4f}'.format(predict_p, predict_r, predict_f1))
             else:
                 logger.info('@@@ Error:load ckpt error')
         else:
@@ -189,9 +194,10 @@ def main():
     parser.add_argument('--optimizer', type=str, default='adam')
 
     parser.add_argument('--learning_rate', type=float, default=1e-2)
-    parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--epoch', type=int, default=100)
     parser.add_argument('--do_train', action='store_true')
     parser.add_argument('--do_test', action='store_true')
+    parser.add_argument('--do_predict', action='store_true')
      
     args = parser.parse_args()
     
@@ -201,17 +207,24 @@ def main():
     }
 
     dataset_files = {
-        'shaver':{
-            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/train-term-category.txt',
-            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/test-term-category.txt'},
         'air-purifier':{
             'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/train-term-category.txt',
-            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/'+ args.dataset_name + '/clf/test-term-category.txt'},
-            #'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/result_absa_clf_training_data.txt'}
-        #'air-purifier':{
-        #    'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/absa-clf.txt',
-        #    'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/absa-clf.txt'}
+            'eval':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/test-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/test-term-category.txt',
+            'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/outputs/' + args.dataset_name + '/clf/predict-term-category.txt'},
+        'shaver':{
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/train-term-category.txt',
+            'eval':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/test-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/test-term-category.txt',
+            'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/outputs/' + args.dataset_name + '/clf/predict-term-category.txt'}
     }
+
+    label_lists = {
+        'air-purifier':"'指示灯', '味道', '运转音', '净化效果', '风量', '电源', '尺寸', '感应', '设计', '滤芯滤网', '模式', '操作', '包装', '显示', '功能', '价保', '发票', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '安装服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'",
+        'shaver':"'剃须方式', '配件', '刀头刀片', '清洁方式', '剃须效果', '充电', '续航', '运转音', '包装', '显示', '尺寸', '价保', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '退货服务', '换货服务', '质保','退款服务', '售后其他'",
+        'electric-toothbrush':''
+    }
+
 
     inputs_cols = {
         'text_cnn':['text'],
@@ -234,6 +247,7 @@ def main():
     args.model_class = model_classes[args.model_name]
     args.dataset_file = dataset_files[args.dataset_name]
     args.inputs_cols = inputs_cols[args.model_name]
+    args.label_list = label_lists[args.dataset_name]
     #args.initializer = initializers[args.initializer]
     args.optimizer = optimizers[args.optimizer]
     log_file = 'outputs/logs/{}-{}-{}.log'.format(args.model_name, args.dataset_name, time.strftime("%y%m%d-%H%M", time.localtime(time.time())))

@@ -30,6 +30,17 @@ def read_data(folder, file_list):
 
     return text_list, slot_list
 
+def read_data_by_folder_text(folder):
+    text_list = []
+    file_list = os.listdir(folder)
+        
+    for file_item in file_list:
+        current_file_item = os.path.join(folder, file_item)
+        lines = open(current_file_item, mode='r', encoding='utf-8').readlines()       
+        text_list.extend(lines)
+ 
+    return text_list
+
 def read_data_by_folder(folder):
     text_list = []
     slot_list = []
