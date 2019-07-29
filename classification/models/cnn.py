@@ -7,7 +7,7 @@ import tensorflow as tf
 
 
 class TextCNN(object):
-    def __init__(self, args, tokenizer):
+    def __init__(self, args, tokenizer, embedding_matrix):
         self.vocab_size = len(tokenizer.word2idx) + 2
         self.seq_len = args.max_seq_len
         self.emb_dim = args.emb_dim
@@ -24,6 +24,7 @@ class TextCNN(object):
         self.global_step = tf.placeholder(shape=(), dtype=tf.int32, name='global_step')
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
+        self.embedding_matrix = embedding_matrix
         self.cnn()
 
     def cnn(self):
@@ -66,3 +67,13 @@ class TextCNN(object):
         with tf.name_scope("optimizer"):
             self.trainer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss)
             tf.summary.scalar('loss', loss)
+
+
+        config = tf.ConfigProto()  
+        config.gpu_options.allow_growth = True  
+        session = tf.Session(config=config)
+        session.run(tf.global_variables_initializer())
+        session.run(self.input_init, feed_dict={self.ph_input: self.embedding_matrix})
+        session.run(self.term_init, feed_dict={self.ph_term: self.embedding_matrix})
+        self.session = session
+

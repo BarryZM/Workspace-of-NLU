@@ -281,7 +281,11 @@ def main():
         'shaver':{
             'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/shaver/clf/train-term-category.txt',
             'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/shaver/clf/test-term-category.txt'
-        } 
+        },
+        'shaver-100-test':{
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/result_absa_clf_training_data.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/result_absa_clf_training_data.txt'
+        }
     }
     input_colses = {
         'lstm': ['text_raw_indices'],

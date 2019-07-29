@@ -53,7 +53,7 @@ def find_slots(labels:list, texts:list):
 
 texts = []
 labels = []
-with open("/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/air-purifier/label_100test/test.txt", 'r', encoding='utf-8') as f:
+with open("/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/shaver/label_100test/test.txt", 'r', encoding='utf-8') as f:
     lines = f.readlines()
     texts = []
     for item in lines:
@@ -62,6 +62,10 @@ with open("/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/ai
 
 with open("outputs/entity_test_results.txt", 'r', encoding='utf-8') as f:
     labels = f.readlines()
+
+print("texts", len(texts))
+print("labels", len(labels))
+assert len(texts) == len(labels)
 
 sentence_text_list = []
 sentence_label_list = []
@@ -92,6 +96,10 @@ print('sentence text is :', len(sentence_text_list))
 print('sentence label is :', len(sentence_label_list))  
 print('sentence slots is :', len(sentence_slots_list))  
 
+print('sentence text is :', sentence_text_list)  
+print('sentence label is :', sentence_label_list)  
+print('sentence slots is :', sentence_slots_list)  
+
 assert len(sentence_text_list) == len(sentence_label_list) == len(sentence_slots_list)
 
 with open("result_absa_clf_training_data.txt", 'w', encoding='utf-8') as f:
@@ -112,5 +120,5 @@ with open("result_absa_clf_training_data.txt", 'w', encoding='utf-8') as f:
             #line = org_line.replace(term, "$T")
             #print("new line", line)
             line = replace_str(org_line, int(slots['start']), int(slots['end']), '$T$')
-            f.write(line+'\n'+term+'\n'+'味道'+'\n'+'0'+'\n')
+            f.write(line+'\n'+term+'\n'+'配件'+'\n'+'0'+'\n')
 

@@ -14,8 +14,9 @@ if __name__ == '__main__':
         lines = f.readlines()
     with open('result_convert.txt', mode='w', encoding='utf-8') as f:
         for line in lines:
+            line = line.replace(" ", "")
             for char in list(line):
-                if char.strip() is not '':
+                if char is  not '\n':
                     f.write(char + '\t' + 'O' + '\t' + 'O' + '\n')
                 else:
-                    f.write(char)
+                    f.write('\n')

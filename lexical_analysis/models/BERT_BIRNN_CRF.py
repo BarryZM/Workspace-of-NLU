@@ -154,6 +154,10 @@ class NerProcessor(DataProcessor):
         return self._create_example(
             self._read_data(os.path.join(data_dir, "test.txt")), "test")
 
+    def get_predict_examples(self,data_dir):
+        return self._create_example(
+            self._read_data(os.path.join(data_dir, "predict.txt")), "predict")
+
     @staticmethod
     def get_labels():
         return FLAGS.label_list.split(',')
@@ -542,7 +546,7 @@ def main(_):
             label2id = pickle.load(rf)
             id2label = {value:key for key,value in label2id.items()}
             print("id2label", id2label)
-        predict_examples = processor.get_test_examples(FLAGS.data_dir)
+        predict_examples = processor.get_predict_examples(FLAGS.data_dir)
 
         print(predict_examples[0].text)
         print(predict_examples[1].text)
