@@ -15,43 +15,53 @@
 
 ## Classification Dataset
 
-| Classification Dataset                                       | SOTA                                                     | Tips |
-| ------------------------------------------------------------ | -------------------------------------------------------- | ---- |
-| IMDB                                                         | Learning Structured Text Representations                 |      |
-| Reuter                                                       |                                                          |      |
-| THUCTC                                                       |                                                          |      |
-| Twenty Newsgroups                                            | Very Deep Convolutional Networks for Text Classification |      |
-| [SogouTCE(文本分类评价)](http://www.sogou.com/labs/resource/tce.php) |                                                          |      |
-| [SogouCA(全网新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |      |
-| [SogouCE(搜狐新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |      |
+| Classification Dataset                                       | SOTA                                                     | Tips                                                         |
+| ------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------ |
+| IMDB                                                         | Learning Structured Text Representations                 | 25,000个高度差异化的电影评论用于训练，25,000个测试 二元情感分类，并具有比此领域以前的任何数据集更多的数据 除了训练和测试评估示例之外，还有更多未标记的数据可供使用 包括文本和预处理的词袋格式。 |
+| [Reuter](http://kdd.ics.uci.edu/databases/reuters21578/reuters21578.html) |                                                          | 一系列1987年在路透上发布的按分类索引的文档。同样可以看RCV1，RCV2，以及TRC2 |
+| THUCTC                                                       |                                                          |                                                              |
+| Twenty Newsgroups                                            | Very Deep Convolutional Networks for Text Classification |                                                              |
+| [SogouTCE(文本分类评价)](http://www.sogou.com/labs/resource/tce.php) |                                                          |                                                              |
+| [SogouCA(全网新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |                                                              |
+| [SogouCE(搜狐新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |                                                              |
 
 ## Sentiment Analysis Dataset
 
-| Sentiment Analysis Dataset                                   | SOTA | Tips |
-| ------------------------------------------------------------ | ---- | ---- |
-| Sentiment140                                                 |      |      |
-| https://challenger.ai/dataset/fsaouord2018)                  |      |      |
-| Stanford Sentiment Treebank                                  |      |      |
-| SemEval 2014 dataset task4](http://alt.qcri.org/semeval2014/task4/) |      |      |
-| SemEval-2015 Task12                                          |      |      |
-| SemEval-2016 Task 5                                          |      |      |
-| Twitter                                                      |      |      |
-| MPQA                                                         |      |      |
-| Hindi                                                        |      |      |
-| SentiHood                                                    |      |      |
-| Mitchell                                                     |      |      |
-| tripAdvisor                                                  |      |      |
-| openTable                                                    |      |      |
-| [清华ATAE 源码及数据](http://coai.cs.tsinghua.edu.cn/media/files/atae-lstm_uVgRmdb.rar) |      |      |
+| Sentiment Analysis Dataset                                   | SOTA                                                         | Tips                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Sentiment140                                                 | Assessing State-of-the-Art Sentiment Models on State-of-the-Art Sentiment Datasets | Sentiment140是一个可用于情感分析的数据集。一个流行的数据集，非常适合开始你的NLP旅程。情绪已经从数据中预先移除 最终的数据集具有以下6个特征：  极性/ID/日期/问题/用户名/文本 大小：80 MB（压缩） 记录数量：160,000条推文 |
+| https://challenger.ai/dataset/fsaouord2018)                  |                                                              |                                                              |
+| Stanford Sentiment Treebank                                  |                                                              |                                                              |
+| SemEval 2014 dataset task4](http://alt.qcri.org/semeval2014/task4/) |                                                              |                                                              |
+| SemEval-2015 Task12                                          |                                                              |                                                              |
+| SemEval-2016 Task 5                                          |                                                              |                                                              |
+| Twitter                                                      |                                                              |                                                              |
+| MPQA                                                         |                                                              |                                                              |
+| Hindi                                                        |                                                              |                                                              |
+| SentiHood                                                    |                                                              |                                                              |
+| Mitchell                                                     |                                                              |                                                              |
+| tripAdvisor                                                  |                                                              |                                                              |
+| openTable                                                    |                                                              |                                                              |
+| [清华ATAE 源码及数据](http://coai.cs.tsinghua.edu.cn/media/files/atae-lstm_uVgRmdb.rar) |                                                              |                                                              |
+| [Kaggle Twitter Sentiment Analysis](https://www.kaggle.com/c/si650winter11/leaderboard) |                                                              |                                                              |
 
-## Slot Filling Dataset
+## Lexical Analysis Dataset
 
-| Slot Filling Dataset                                         | SOTA | Tips |
-| ------------------------------------------------------------ | ---- | ---- |
-| National-Language-council                                    |      |      |
-| Conll-2000                                                   |      |      |
-| WSJ-PTB                                                      |      |      |
-| [Reference](https://github.com/Apollo2Mars/Corpus-Summary/tree/master/3-Named-Entity-Recogination) |      |      |
+| Slot Filling Dataset                                         | SOTA | Tips                                                         |
+| ------------------------------------------------------------ | ---- | ------------------------------------------------------------ |
+| [中国自然语言开源组织](http://www.nlpcn.org/)                |      |                                                              |
+| [国内免费语料库](https://www.cnblogs.com/mo-wang/p/4444858.html) |      |                                                              |
+| [corpusZH](https://github.com/liwenzhu/corpusZh)             |      | 总词汇量在7400W+                                             |
+| National-Language-council                                    |      |                                                              |
+| [SIGHAN的汉语处理评测的Bakeoff语料](http://sighan.cs.uchicago.edu/bakeoff2005/) |      |                                                              |
+| Conll-2000                                                   |      |                                                              |
+| WSJ-PTB                                                      |      |                                                              |
+| [Reference](https://github.com/Apollo2Mars/Corpus-Summary/tree/master/3-Named-Entity-Recogination) |      |                                                              |
+| ccks2017                                                     |      | 一个中文的电子病例测评相关的数据                             |
+| [BosonNLP](https://link.zhihu.com/?target=http%3A//bosonnlp.com/dev/resource) |      |                                                              |
+| [CoNLL 2002）Annotated Corpus for Named Entity Recognition](https://link.zhihu.com/?target=https%3A//www.kaggle.com/abhinavwalia95/entity-annotated-corpus) |      |                                                              |
+| Weibo NER corpus                                             |      | 1890条, person, organization, location and geo-political entity |
+|                                                              |      |                                                              |
 
 ## Relation Extraction Dataset
 
@@ -60,6 +70,17 @@
 | SemEval 2010 Task 8         |      |                               |
 | FewRel                      |      | EMNLP2018，清华               |
 | NYT10                       |      | https://github.com/thunlp/NRE |
+|                             |      |                               |
+
+## Semantic Role Labeling
+
+| Semantic Role Labeling | SOTA | Tips |
+| ---------------------- | ---- | ---- |
+|                        |      |      |
+|                        |      |      |
+|                        |      |      |
+
+
 
 ## Natural Language Inference Dataset
 
@@ -68,6 +89,35 @@
 | [XNLI](XNLI: Evaluating Cross-lingual Sentence Representations) |      | EMNLP2018:FAIR |
 |                                                              |      |                |
 |                                                              |      |                |
+
+
+
+## Summarization
+
+| Summarization                                                | SOTA | Tips |
+| ------------------------------------------------------------ | ---- | ---- |
+| [Legal Case Reports Data Set](https://archive.ics.uci.edu/ml/datasets/Legal+Case+Reports) |      |      |
+| [The AQUAINT Corpus of English News Text](https://catalog.ldc.upenn.edu/LDC2002T31) |      |      |
+| [4000法律案例以及摘要的集合 TIPSTER](http://www-nlpir.nist.gov/related_projects/tipster_summac/cmp_lg.html) |      |      |
+
+## Embedding
+
+| Embedding                                                    | SOTA                                                         | Tips |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
+| [Project Gutenberg](https://www.gutenberg.org/)              |                                                              |      |
+| [Brown University Standard Corpus of Present-Day American English](https://en.wikipedia.org/wiki/Brown_Corpus) |                                                              |      |
+| [Google 1 Billion Word Corpus](https://github.com/ciprian-chelba/1-billion-word-language-modeling-benchmark) |                                                              |      |
+| [Microsoft Research entence Completion Challenge dataset]()  | A fast and simple algorithm for training neural probabilistic language models |      |
+
+## Information Retrieval
+
+| Information Retrieval                                        | SOTA | Tips |
+| ------------------------------------------------------------ | ---- | ---- |
+| [LETOR](http://research.microsoft.com/en-us/um/beijing/projects/letor/) |      |      |
+| [Microsoft Learning to Rank Dataset](http://research.microsoft.com/en-us/projects/mslr/) |      |      |
+| [Yahoo Learning to Rank Challenge](http://webscope.sandbox.yahoo.com/) |      |      |
+
+
 
 # Metric
 
@@ -145,13 +195,14 @@
 
 ## Slot Filling
 
-| Model                                               | Tips                 | Result |
-| --------------------------------------------------- | -------------------- | ------ |
-| [Bi-LSTM CRF](https://arxiv.org/pdf/1508.01991.pdf) | 工业界普遍使用的方法 |        |
-| IDCNN CRF                                           | 未横向比较           |        |
-| Seq2Seq + CRF                                       | 未横向比较           |        |
-| DBN                                                 | 未横向比较           |        |
-| Lattice-LSTM CRF                                    | SOTA                 |        |
+| Model                                               | Tips | Result |
+| --------------------------------------------------- | ---- | ------ |
+| [Bi-LSTM CRF](https://arxiv.org/pdf/1508.01991.pdf) |      |        |
+| IDCNN CRF                                           |      |        |
+| Seq2Seq + CRF                                       |      |        |
+| DBN                                                 |      |        |
+| Lattice-LSTM CRF                                    |      |        |
+| BERT-BIGRU-CRF                                      | SOTA |        |
 
 ## Sentiment Analysis
 
@@ -197,13 +248,13 @@
     + result save to logger
     + 个别的末尾标点符号处理的有问题
 + Unified Preprocessing
-    
+  
     + whitespace
 + Corpus
-    
+  
     + download.sh
 + Resoruce
-    
+  
     + Download.sh
 + Code Fix
     - Unified Naming Convention
@@ -212,6 +263,8 @@
     - Check if the file exists
     - Jupyter notebook for data visualization about preprocess corpus and show results
     + lexical_analysis/outputs/label_2id.pkl 根据任务不同，生成不同的文件，或者使用其他数据结构
+    
++ slot filling with atteniton
 
 # Open Issues
 
@@ -239,6 +292,10 @@
 + Will be used in “Workspace of Conversation-AI"
 
 # Reference
+
+## Links
+
++ https://www.zhihu.com/question/52756127
 
 ## Projects
 
@@ -315,3 +372,6 @@ You can raise an issue or submit a pull request, whichever is more convenient fo
 ## Licence
 
 Apache License
+
+
+
