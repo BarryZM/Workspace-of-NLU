@@ -208,15 +208,15 @@ def main():
 
     dataset_files = {
         'air-purifier':{
-            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/train-term-category.txt',
-            'eval':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/test-term-category.txt',
-            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/test-term-category.txt',
-            'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/outputs/' + args.dataset_name + '/clf/predict-term-category.txt'},
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/train-term-category.txt',
+            'eval':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/test-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/test-term-category.txt',
+            'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/predict-term-category.txt'},
         'shaver':{
-            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/train-term-category.txt',
-            'eval':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/test-term-category.txt',
-            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/clf/test-term-category.txt',
-            'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/outputs/' + args.dataset_name + '/clf/predict-term-category.txt'}
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/train-term-category.txt',
+            'eval':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/test-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/test-term-category.txt',
+            'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/predict-term-category.txt'},
     }
 
     label_lists = {

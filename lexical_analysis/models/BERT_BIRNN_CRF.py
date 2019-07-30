@@ -50,7 +50,7 @@ flags.DEFINE_integer( "max_seq_length_predict", 512, "The maximum sequence lengt
 flags.DEFINE_bool("do_train", False, "Whether to run training.")
 flags.DEFINE_bool("do_eval", False, "Whether to run eval on the dev set.")
 flags.DEFINE_bool("do_test", False, "Whether to run the model in inference mode on test set.")
-flags.DEFINE_bool("do_predict", False,"Whether to run the model in inference mode on the test set.")
+flags.DEFINE_bool("do_predict", False,  "Whether to run the model in inference mode on the test set.")
 flags.DEFINE_integer("train_batch_size", 8, "Total batch size for training.")
 flags.DEFINE_integer("eval_batch_size", 8, "Total batch size for eval.")
 flags.DEFINE_integer("test_batch_size", 8, "Total batch size for test.")
@@ -102,6 +102,14 @@ class DataProcessor(object):
         raise NotImplementedError()
 
     def get_dev_examples(self, data_dir):
+        """Gets a collection of `InputExample`s for the dev set."""
+        raise NotImplementedError()
+
+    def get_test_examples(self, data_dir):
+        """Gets a collection of `InputExample`s for the dev set."""
+        raise NotImplementedError()
+
+    def get_predict_examples(self, data_dir):
         """Gets a collection of `InputExample`s for the dev set."""
         raise NotImplementedError()
 
@@ -158,6 +166,10 @@ class NerProcessor(DataProcessor):
     def get_test_examples(self,data_dir):
         return self._create_example(
             self._read_data(os.path.join(data_dir, "test.txt")), "test")
+
+    def get_predict_examples(self,data_dir):
+        return self._create_example(
+            self._read_data(os.path.join(data_dir, "predict.txt")), "predict")
 
     @staticmethod
     def get_labels():
@@ -541,8 +553,8 @@ def main(_):
 
         estimator._export_to_tpu = False
         estimator.export_savedmodel(os.path.dirname(FLAGS.output_dir), serving_input_fn)
-
-    if FLAGS.do_predict:
+    
+    if FLAGS.do_test: 
         with open(os.path.join(os.path.dirname(FLAGS.output_dir), 'label2id_'+str(FLAGS.type_name)+'.pkl'),'rb') as rf:
             label2id = pickle.load(rf)
             id2label = {value:key for key,value in label2id.items()}
@@ -573,6 +585,53 @@ def main(_):
 
         result = estimator.predict(input_fn=predict_input_fn)
         output_predict_file = os.path.join(FLAGS.output_dir, FLAGS.type_name + "_test_results.txt")
+        with open(output_predict_file,'w') as writer:
+            for prediction in result:
+                #print(prediction)
+                output_line = ""
+                for item in prediction:
+                    try:
+                        if item != 0 and item != 3:
+                            output_line = output_line + str(id2label[item]) + '\n'
+                        if item == 3:
+                            output_line = output_line + str(id2label[item]) + '\n\n'
+                            break
+                    except KeyError:
+                        print("item is ", item)
+                        break
+                writer.write(output_line)
+
+    if FLAGS.do_predict:
+        with open(os.path.join(os.path.dirname(FLAGS.output_dir), 'label2id_'+str(FLAGS.type_name)+'.pkl'),'rb') as rf:
+            label2id = pickle.load(rf)
+            id2label = {value:key for key,value in label2id.items()}
+            print("id2label", id2label)
+        predict_examples = processor.get_predict_examples(FLAGS.data_dir)
+
+        print(predict_examples[0].text)
+        print(predict_examples[1].text)
+        
+        predict_file = os.path.join(FLAGS.output_dir, "predict.tf_record")
+        #filed_based_convert_examples_to_features(predict_examples, label_list, 512 , tokenizer,predict_file,mode="test")
+        filed_based_convert_examples_to_features(predict_examples, label_list,FLAGS.max_seq_length_predict, tokenizer,predict_file,mode="predict")
+                            
+        tf.logging.info("***** Running prediction*****")
+        tf.logging.info("  Num examples = %d", len(predict_examples))
+        tf.logging.info("  Batch size = %d", FLAGS.predict_batch_size)
+        if FLAGS.use_tpu:
+            # Warning: According to tpu_estimator.py Prediction on TPU is an
+            # experimental feature and hence not supported here
+            raise ValueError("Prediction in TPU not supported")
+        predict_drop_remainder = True if FLAGS.use_tpu else False
+        
+        predict_input_fn = file_based_input_fn_builder(
+            input_file=predict_file,
+            seq_length=FLAGS.max_seq_length_predict,
+            is_training=False,
+            drop_remainder=predict_drop_remainder)
+
+        result = estimator.predict(input_fn=predict_input_fn)
+        output_predict_file = os.path.join(FLAGS.output_dir, FLAGS.type_name + "_predict_results.txt")
         with open(output_predict_file,'w') as writer:
             for prediction in result:
                 #print(prediction)

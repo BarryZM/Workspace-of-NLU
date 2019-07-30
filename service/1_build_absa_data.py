@@ -1,6 +1,14 @@
 # coding:utf-8
 # author:Apollo2Mars@gmail.com
 
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--entity_result_path', type=str) 
+parser.add_argument('--predict_text_path', type=str) 
+parser.add_argument('--output_path', type=str) 
+args = parser.parse_args()
+
 
 def replace_str(inputs:str, start:int, end:int, word:str):
     """
@@ -51,74 +59,75 @@ def find_slots(labels:list, texts:list):
             slots_list.append(tmp_dict.copy())
     return slots_list
 
-texts = []
-labels = []
-with open("/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/shaver/label_100test/test.txt", 'r', encoding='utf-8') as f:
-    lines = f.readlines()
-    texts = []
-    for item in lines:
-        texts.append(item.split('\t')[0])
-    
 
-with open("outputs/entity_test_results.txt", 'r', encoding='utf-8') as f:
-    labels = f.readlines()
+if __name__ == '__main__':
 
-print("texts", len(texts))
-print("labels", len(labels))
-assert len(texts) == len(labels)
+    texts, labels = [], []
 
-sentence_text_list = []
-sentence_label_list = []
-sentence_slots_list = []
+    with open(args.predict_text_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+        texts = []
+        for item in lines:
+            texts.append(item.split('\t')[0])
+        
 
-tmp_label_list = []
-tmp_text_list = []
-for label, text in zip(labels, texts):
-    if label.strip() != "":
-        tmp_label_list.append(label.strip('\n'))
-        tmp_text_list.append(text.strip('\n'))
-    else:
-        sentence_label_list.append(tmp_label_list.copy())
-        sentence_text_list.append(tmp_text_list.copy())
-        tmp_label_list = []
-        tmp_text_list = []
+    with open(args.entity_result_path, 'r', encoding='utf-8') as f:
+        labels = f.readlines()
 
-#print('sentence text:', sentence_text_list)  
-#print('sentence label:', sentence_label_list)  
+    print("texts", len(texts))
+    print("labels", len(labels))
+    assert len(texts) == len(labels)
 
-for text, label in zip(sentence_text_list, sentence_label_list):
-    #print('text', text)
-    slots = find_slots(label, text)
-    #print("slots", slots) 
-    sentence_slots_list.append(slots.copy())
+    sentence_text_list, sentence_label_list, sentence_slots_list = [], [], []
 
-print('sentence text is :', len(sentence_text_list))  
-print('sentence label is :', len(sentence_label_list))  
-print('sentence slots is :', len(sentence_slots_list))  
+    tmp_label_list, tmp_text_list = [], []
 
-print('sentence text is :', sentence_text_list)  
-print('sentence label is :', sentence_label_list)  
-print('sentence slots is :', sentence_slots_list)  
+    for label, text in zip(labels, texts):
+        if label.strip() != "":
+            tmp_label_list.append(label.strip('\n'))
+            tmp_text_list.append(text.strip('\n'))
+        else:
+            sentence_label_list.append(tmp_label_list.copy())
+            sentence_text_list.append(tmp_text_list.copy())
+            tmp_label_list = []
+            tmp_text_list = []
 
-assert len(sentence_text_list) == len(sentence_label_list) == len(sentence_slots_list)
+    #print('sentence text:', sentence_text_list)  
+    #print('sentence label:', sentence_label_list)  
 
-with open("result_absa_clf_training_data.txt", 'w', encoding='utf-8') as f:
-    for line_item, slots_item in zip(sentence_text_list, sentence_slots_list):
-        org_line = "".join(line_item)
+    for text, label in zip(sentence_text_list, sentence_label_list):
+        #print('text', text)
+        slots = find_slots(label, text)
+        #print("slots", slots) 
+        sentence_slots_list.append(slots.copy())
 
-        print("\n\n@@@@", org_line)
+    print('sentence text is :', len(sentence_text_list))  
+    print('sentence label is :', len(sentence_label_list))  
+    print('sentence slots is :', len(sentence_slots_list))  
 
-        for slots in slots_item:
-            term = org_line[slots['start']:slots['end']] 
-            if term is '':
-                continue
-            print("org_line", org_line)
-            print("term", term)
-            print('start', slots['start'])
-            print('end', slots['end'])
-            
-            #line = org_line.replace(term, "$T")
-            #print("new line", line)
-            line = replace_str(org_line, int(slots['start']), int(slots['end']), '$T$')
-            f.write(line+'\n'+term+'\n'+'配件'+'\n'+'0'+'\n')
+    print('sentence text is :', sentence_text_list)  
+    print('sentence label is :', sentence_label_list)  
+    print('sentence slots is :', sentence_slots_list)  
+
+    assert len(sentence_text_list) == len(sentence_label_list) == len(sentence_slots_list)
+
+    with open(args.output_path, 'w', encoding='utf-8') as f:
+        for line_item, slots_item in zip(sentence_text_list, sentence_slots_list):
+            org_line = "".join(line_item)
+
+            print("\n\n@@@@", org_line)
+
+            for slots in slots_item:
+                term = org_line[slots['start']:slots['end']] 
+                if term is '':
+                    continue
+                print("org_line", org_line)
+                print("term", term)
+                print('start', slots['start'])
+                print('end', slots['end'])
+                
+                #line = org_line.replace(term, "$T")
+                #print("new line", line)
+                line = replace_str(org_line, int(slots['start']), int(slots['end']), '$T$')
+                f.write(line+'\n'+term+'\n'+'售后其他'+'\n'+'0'+'\n')
 

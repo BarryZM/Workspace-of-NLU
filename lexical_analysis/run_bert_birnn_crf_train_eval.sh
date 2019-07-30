@@ -1,7 +1,7 @@
 dataset_name="electric-toothbrush"
 type_name='entity'
 gpu='3'
-epoch=10
+epoch=20
 max_seq_len=128
 max_seq_len_predict=512
 learning_rate=5e-5
