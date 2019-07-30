@@ -15,8 +15,11 @@ from __future__ import print_function
 import collections
 import os
 import sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+print(sys.path)
 
 from resources.bert import modeling
 from resources.bert import optimization  
@@ -46,9 +49,11 @@ flags.DEFINE_integer( "max_seq_length", 128, "The maximum sequence length for tr
 flags.DEFINE_integer( "max_seq_length_predict", 512, "The maximum sequence length for predict in char-level")
 flags.DEFINE_bool("do_train", False, "Whether to run training.")
 flags.DEFINE_bool("do_eval", False, "Whether to run eval on the dev set.")
+flags.DEFINE_bool("do_test", False, "Whether to run the model in inference mode on test set.")
 flags.DEFINE_bool("do_predict", False,"Whether to run the model in inference mode on the test set.")
 flags.DEFINE_integer("train_batch_size", 8, "Total batch size for training.")
 flags.DEFINE_integer("eval_batch_size", 8, "Total batch size for eval.")
+flags.DEFINE_integer("test_batch_size", 8, "Total batch size for test.")
 flags.DEFINE_integer("predict_batch_size", 8, "Total batch size for predict.")
 flags.DEFINE_float("learning_rate", 5e-5, "The initial learning rate for Adam.")
 flags.DEFINE_float("num_train_epochs", 100.0, "Total number of training epochs to perform.")
@@ -153,10 +158,6 @@ class NerProcessor(DataProcessor):
     def get_test_examples(self,data_dir):
         return self._create_example(
             self._read_data(os.path.join(data_dir, "test.txt")), "test")
-
-    def get_predict_examples(self,data_dir):
-        return self._create_example(
-            self._read_data(os.path.join(data_dir, "predict.txt")), "predict")
 
     @staticmethod
     def get_labels():
@@ -546,7 +547,7 @@ def main(_):
             label2id = pickle.load(rf)
             id2label = {value:key for key,value in label2id.items()}
             print("id2label", id2label)
-        predict_examples = processor.get_predict_examples(FLAGS.data_dir)
+        predict_examples = processor.get_test_examples(FLAGS.data_dir)
 
         print(predict_examples[0].text)
         print(predict_examples[1].text)

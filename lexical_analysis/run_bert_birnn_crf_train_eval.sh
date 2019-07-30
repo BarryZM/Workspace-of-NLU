@@ -1,16 +1,15 @@
-dataset_name="shaver"
+dataset_name="electric-toothbrush"
 type_name='entity'
-gpu='1'
-
-epoch=20
+gpu='3'
+epoch=10
 max_seq_len=128
-max_seq_len_predict=128
+max_seq_len_predict=512
 learning_rate=5e-5
 hidden_layer=6
-target_folder="./outputs/"${dataset_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len}_gpu_${gpu} 
-train_flag=False # whether to train model on trainset
+target_folder=./outputs/${dataset_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len}_gpu_${gpu} 
+train_flag=True # whether to train model on trainset
 eval_flag=False # whether to eval trained model on devset, default is False 
-predict_flag=False # whether to predict result on testset by trained model
+predict_flag=True # whether to predict result on testset by trained model
 metric_flag=True # whether run eval.py to calculate metric
 
 if [ "$type_name" == 'emotion' ] ;then
@@ -43,7 +42,7 @@ python models/BERT_BIRNN_CRF.py \
     --do_train=${train_flag}   \
     --do_eval=${eval_flag}   \
     --do_predict=${predict_flag} \
-    --data_dir=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/label   \
+    --data_dir=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/slot \
     --vocab_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/vocab.txt  \
     --bert_config_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_config.json \
     --init_checkpoint=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_model.ckpt   \
@@ -61,6 +60,6 @@ sed -i '/SEP/d' ${target_folder}/${type_name}_test_results.txt
 sed -i '/CLS/d' ${target_folder}/${type_name}_test_results.txt
 
 python evals/evaluate.py \
-    --ground_text_path=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/label/test.txt \
+    --ground_text_path=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/slot/test.txt \
     --predict_label_path=${target_folder}/${type_name}_test_results.txt 
 fi
