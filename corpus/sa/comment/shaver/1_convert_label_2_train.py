@@ -120,6 +120,7 @@ def write_data(total_label_data, mode=''):
     
 train_folder = 'train_csv'
 test_folder = 'test_csv'
+predict_folder = 'predict_text'
 
 train_text_list, train_slot_list = read_data_by_folder(train_folder)
 test_text_list, test_slot_list = read_data_by_folder(test_folder)
