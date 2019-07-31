@@ -247,6 +247,7 @@
         + test and predict max length : max test length of corpus, now is  512
     + result save to logger
     + 个别的末尾标点符号处理的有问题
+    + estimator early stopping
 + Unified Preprocessing
   
     + whitespace

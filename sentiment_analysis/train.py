@@ -48,6 +48,8 @@ class Instructor:
 
         self.trainset = ABSADataset(opt.dataset_file['train'], tokenizer)
         self.testset = ABSADataset(opt.dataset_file['test'], tokenizer)
+        self.predictset = ABSADataset(opt.dataset_file['predict'], tokenizer)
+
         assert 0 <= opt.valset_ratio < 1
         if opt.valset_ratio > 0:
             valset_len = int(len(self.trainset) * opt.valset_ratio)
@@ -198,6 +200,28 @@ class Instructor:
             test_acc, test_p, test_r, test_f1 = self._evaluate_acc_f1(test_data_loader)
             logger.info('>> test_acc: {:.4f}, test_p: {:.4f}, test_r: {:.4f}, test_f1: {:.4f}'.format(test_acc, test_p, test_r, test_f1))
 
+        if self.opt.do_predict is True:    
+            predict_data_loader = DataLoader(dataset=self.predictset, batch_size=self.opt.batch_size, shuffle=False)
+            best_model_path = self.opt.load_model_path 
+            self.model.load_state_dict(torch.load(best_model_path))
+            self.model.eval()
+            t_targets_all, t_outputs_all = None, None
+            with torch.no_grad():
+                for t_batch, t_sample_batched in enumerate(predict_data_loader):
+                    t_inputs = [t_sample_batched[col].to(self.opt.device) for col in self.opt.inputs_cols]
+                    t_targets = t_sample_batched['polarity'].to(self.opt.device)
+                    t_outputs = self.model(t_inputs)
+
+                    if t_targets_all is None:
+                        t_targets_all = t_targets
+                        t_outputs_all = t_outputs
+                    else:
+                        t_targets_all = torch.cat((t_targets_all, t_targets), dim=0)
+                        t_outputs_all = torch.cat((t_outputs_all, t_outputs), dim=0)
+
+            with open(self.opt.results_file, mode='w', encoding='utf-8') as f:
+                for item in t_outputs_all:
+                    f.write(str(item) + '\n')
 
 def main():
     # Hyper Parameters
@@ -225,6 +249,7 @@ def main():
 
     parser.add_argument('--do_train', action='store_true')
     parser.add_argument('--do_test', action='store_true')
+    parser.add_argument('--do_predict', action='store_true')
 
     parser.add_argument('--results_file', type=str)
     parser.add_argument('--load_model_path', type=str)
@@ -271,20 +296,19 @@ def main():
             'test':'./datasets/comment/refrigerator/test-term.txt'
         },
         'air-purifier':{
-            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/air-purifier/clf/train-term-category.txt',
-            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/air-purifier/clf/test-term-category.txt'
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/air-purifier/absa_clf/train-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/air-purifier/absa_clf/test-term-category.txt',
+            'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/air-purifier/absa_clf/predict-term-category.txt'
         }, 
-        'air-purifier-100-test':{
-            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/result_absa_clf_training_data.txt',
-            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/result_absa_clf_training_data.txt'
-        },
         'shaver':{
-            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/shaver/clf/train-term-category.txt',
-            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/shaver/clf/test-term-category.txt'
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/shaver/absa_clf/train-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/shaver/absa_clf/test-term-category.txt',
+            'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/shaver/absa_clf/predict-term-category.txt'
         },
-        'shaver-100-test':{
-            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/result_absa_clf_training_data.txt',
-            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/result_absa_clf_training_data.txt'
+        'electric-toothbrush':{
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/electric-toothbrush/absa_clf/train-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/electric-toothbrush/absa_clf/test-term-category.txt',
+            'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/electric-toothbrush/absa_clf/predict-term-category.txt'
         }
     }
     input_colses = {

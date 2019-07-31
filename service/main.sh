@@ -47,42 +47,42 @@ fi
 
 
 ## Just Predict
-#python ../lexical_analysis/models/BERT_BIRNN_CRF.py \
-#    --task_name="NER"  \
-#    --type_name=${type_name} \
-#    --label_list=${label_list} \
-#    --gpu=${gpu} \
-#    --do_lower_case=False \
-#    --do_train=False   \
-#    --do_eval=False   \
-#    --do_predict=True \
-#    --data_dir=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/slot   \
-#    --vocab_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/vocab.txt  \
-#    --bert_config_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_config.json \
-#    --init_checkpoint=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_model.ckpt   \
-#    --max_seq_length=$max_seq_len   \
-#    --train_batch_size=16   \
-#    --learning_rate=${learning_rate}   \
-#    --num_train_epochs=$epoch   \
-#    --output_dir=$target_folder
-#
-## delete lines which contain [CLS], [SEP]
-#cp ${target_folder}/${type_name}_predict_results.txt ${ner_result_path}
-#sed -i '/SEP/d' ${ner_result_path}
-#sed -i '/CLS/d' ${ner_result_path} 
-#
-### load NER result, make input format file for ABSA and Multi-Level CLF
-#
-#python 1_build_absa_data.py \
-#    --predict_text_path $corpus_predict_path \
-#    --entity_result_path ${ner_result_path} \
-#    --output_path ${corpus_format_path}
+python ../lexical_analysis/models/BERT_BIRNN_CRF.py \
+    --task_name="NER"  \
+    --type_name=${type_name} \
+    --label_list=${label_list} \
+    --gpu=${gpu} \
+    --do_lower_case=False \
+    --do_train=False   \
+    --do_eval=False   \
+    --do_predict=True \
+    --data_dir=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/slot   \
+    --vocab_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/vocab.txt  \
+    --bert_config_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_config.json \
+    --init_checkpoint=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_model.ckpt   \
+    --max_seq_length=$max_seq_len   \
+    --train_batch_size=16   \
+    --learning_rate=${learning_rate}   \
+    --num_train_epochs=$epoch   \
+    --output_dir=$target_folder
+
+# delete lines which contain [CLS], [SEP]
+cp ${target_folder}/${type_name}_predict_results.txt ${ner_result_path}
+sed -i '/SEP/d' ${ner_result_path}
+sed -i '/CLS/d' ${ner_result_path} 
+
+## load NER result, make input format file for ABSA and Multi-Level CLF
+
+python 1_build_absa_data.py \
+    --predict_text_path $corpus_predict_path \
+    --entity_result_path ${ner_result_path} \
+    --output_path ${corpus_format_path}
 
 ##########
 ## CLF 
 ##########
 CUDA_VISIBLE_DEVICES=2 python ../classification/train.py  \
-    --dataset_name "$dataset_name" \
+    --dataset_name ${dataset_name} \
     --model_name text_cnn \
     --epoch 5 \
     --batch_size 64 \
@@ -95,7 +95,7 @@ CUDA_VISIBLE_DEVICES=2 python ../classification/train.py  \
 ## absa
 ##########
 cuda_visible_device=2 python ../sentiment_analysis/train.py \
-    --dataset '$dataset_name' \
+    --dataset ${dataset_name} \
     --model_name 'bert_spc' \
     --batch_size 64 \
     --do_predict \

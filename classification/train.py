@@ -163,8 +163,30 @@ class Instructor:
             ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
             if ckpt and ckpt.model_checkpoint_path:
                 self.saver.restore(self.session, ckpt.model_checkpoint_path)
-                predict_p, predict_r, predict_f1 = self._evaluate_metric(predict_data_loader)
-                logger.info('>> predict_p: {:.4f}, predict_r:{:.4f}, predict_f1: {:.4f}'.format(predict_p, predict_r, predict_f1))
+                
+                t_targets_all, t_outputs_all = [], []
+                iterator = predict_data_loader.make_one_shot_iterator()
+                one_element = iterator.get_next()
+
+                while True:
+                    try:
+                        sample_batched = self.session.run(one_element)    
+                        inputs = sample_batched['text']
+                        terms = sample_batched['term']
+                        targets = sample_batched['aspect']
+                        targets_onehot = sample_batched['aspect_onehot']
+                        model = self.model
+                        outputs = self.session.run(model.outputs, feed_dict = {model.input_x : inputs, model.input_term:terms, model.input_y : targets_onehot, model.global_step : 1, model.keep_prob : 1.0})
+                        t_targets_all.extend(targets)
+                        t_outputs_all.extend(outputs)
+
+                    except tf.errors.OutOfRangeError:
+                        with open(self.opt.results_file,  mode='w', encoding='utf-8') as f:
+                            for item in t_outputs_all:
+                                f.write(str(item) + '\n')
+
+                        break
+
             else:
                 logger.info('@@@ Error:load ckpt error')
         else:
@@ -213,6 +235,11 @@ def main():
             'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/test-term-category.txt',
             'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/predict-term-category.txt'},
         'shaver':{
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/train-term-category.txt',
+            'eval':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/test-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/test-term-category.txt',
+            'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/predict-term-category.txt'},
+        'electric-toothbrush':{
             'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/train-term-category.txt',
             'eval':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/test-term-category.txt',
             'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/test-term-category.txt',

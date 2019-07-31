@@ -27,7 +27,7 @@ def replace_str(inputs:str, start:int, end:int, word:str):
         pre_str = ''
 
     if end != len(list(inputs))-1:
-        post_str = inputs[end:len(list(inputs))-1]
+        post_str = inputs[end:]
         print("***", post_str)
     else:
         post_str = ''
