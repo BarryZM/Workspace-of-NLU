@@ -5,6 +5,7 @@ sys.path.append(path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from sklearn import metrics
 from utils.data_utils_clf import *
+from utils.DatasetCLF import CLFDataset
 from classification.models.cnn import TextCNN
 from classification.models.bert_cnn import BERTCNN
 logger = logging.getLogger()

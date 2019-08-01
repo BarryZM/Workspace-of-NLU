@@ -144,7 +144,7 @@
 
 | NLU API |      |      |
 | ------- | ---- | ---- |
-|         |      |      |
+| pytorch_pretrained_bert    |      |      |
 |         |      |      |
 |         |      |      |
 
@@ -289,6 +289,8 @@
 
 + Tensorboard
 
++ utils review
+
 # Open Issues
 
 + Reinforce Learning/Active Learning for NLU
@@ -396,5 +398,12 @@ You can raise an issue or submit a pull request, whichever is more convenient fo
 
 Apache License
 
+
+## NEXT
++ Util clean up
++ clf/sa algorithms extend
++ slot filling bi-gru-ctf
++ algorithms update
++ other algorithms extend
 
 
