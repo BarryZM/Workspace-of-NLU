@@ -13,12 +13,21 @@
 
 # Dataset
 
+## Embedding Corpus
+
+| Embedding                                                    | SOTA                                                         | Tips |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
+| [Project Gutenberg](https://www.gutenberg.org/)              |                                                              |      |
+| [Brown University Standard Corpus of Present-Day American English](https://en.wikipedia.org/wiki/Brown_Corpus) |                                                              |      |
+| [Google 1 Billion Word Corpus](https://github.com/ciprian-chelba/1-billion-word-language-modeling-benchmark) |                                                              |      |
+| [Microsoft Research entence Completion Challenge dataset]()  | A fast and simple algorithm for training neural probabilistic language models |      |
+
 ## Classification Dataset
 
 | Classification Dataset                                       | SOTA                                                     | Tips                                                         |
 | ------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------ |
 | IMDB                                                         | Learning Structured Text Representations                 | 25,000个高度差异化的电影评论用于训练，25,000个测试 二元情感分类，并具有比此领域以前的任何数据集更多的数据 除了训练和测试评估示例之外，还有更多未标记的数据可供使用 包括文本和预处理的词袋格式。 |
-| [Reuter](http://kdd.ics.uci.edu/databases/reuters21578/reuters21578.html) |                                                          | 一系列1987年在路透上发布的按分类索引的文档。同样可以看RCV1，RCV2，以及TRC2 |
+| [Reuter](http://kdd.ics.uci.edu/databases/reuters21578/reuters21578.html) |                                                          | 一系列1987年在路透上发布的按分类索引的文档(RCV1，RCV2，以及TRC2) |
 | THUCTC                                                       |                                                          |                                                              |
 | Twenty Newsgroups                                            | Very Deep Convolutional Networks for Text Classification |                                                              |
 | [SogouTCE(文本分类评价)](http://www.sogou.com/labs/resource/tce.php) |                                                          |                                                              |
@@ -72,7 +81,7 @@
 | NYT10                       |      | https://github.com/thunlp/NRE |
 |                             |      |                               |
 
-## Semantic Role Labeling
+## Semantic Role Labeling Dataset
 
 | Semantic Role Labeling | SOTA | Tips |
 | ---------------------- | ---- | ---- |
@@ -92,7 +101,7 @@
 
 
 
-## Summarization
+## Summarization Dataset
 
 | Summarization                                                | SOTA | Tips |
 | ------------------------------------------------------------ | ---- | ---- |
@@ -100,16 +109,7 @@
 | [The AQUAINT Corpus of English News Text](https://catalog.ldc.upenn.edu/LDC2002T31) |      |      |
 | [4000法律案例以及摘要的集合 TIPSTER](http://www-nlpir.nist.gov/related_projects/tipster_summac/cmp_lg.html) |      |      |
 
-## Embedding
-
-| Embedding                                                    | SOTA                                                         | Tips |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
-| [Project Gutenberg](https://www.gutenberg.org/)              |                                                              |      |
-| [Brown University Standard Corpus of Present-Day American English](https://en.wikipedia.org/wiki/Brown_Corpus) |                                                              |      |
-| [Google 1 Billion Word Corpus](https://github.com/ciprian-chelba/1-billion-word-language-modeling-benchmark) |                                                              |      |
-| [Microsoft Research entence Completion Challenge dataset]()  | A fast and simple algorithm for training neural probabilistic language models |      |
-
-## Information Retrieval
+## Information Retrieval Dataset
 
 | Information Retrieval                                        | SOTA | Tips |
 | ------------------------------------------------------------ | ---- | ---- |
@@ -119,13 +119,44 @@
 
 
 
+# Resource
+
+## Stop words
+
+| Stop Words |      |
+| ---------- | ---- |
+|            |      |
+|            |      |
+|            |      |
+
+
+
+## Pretrained Embedding
+
+| Pretrained Embedding | SOTA | Tips |
+| -------------------- | ---- | ---- |
+| Word2Vec             |      |      |
+| Glove                |      |      |
+| Fasttext             |      |      |
+| BERT                 |      |      |
+
+## NLU APIs
+
+| NLU API |      |      |
+| ------- | ---- | ---- |
+| pytorch_pretrained_bert    |      |      |
+|         |      |      |
+|         |      |      |
+
+
+
 # Metric
 
 + Classification/Sentiment Analysis
-    + 正确率，召回率，F-score
-    + 微平均
+    + Precision, Recall，F-score
+    + Micro-Average
         - 根据总数据计算 P R F
-    + 宏平均
+    + Marco-Average
         - 计算出每个类得，再求平均值
     + 平衡点
     + 11点平均正确率
@@ -145,35 +176,25 @@
 + Relation Extraction
 + Natural Language Inference
 
-# General Architecture
-
-+ Embedding
-  + One-hot
-  + Static Embedding
-      + Word2Vec
-      + Glove
-  + Dynamic Embedding(Contextualized based)
-      + Cove
-      + ELMo
-      + GPT
-      + BERT
-      + MASS
-      + UniLM
-      + XLNET
-  + Multiple Granularity
-      + Character Embedding
-      + POS
-      + NER
-      + Binary Feature of Exact Match (EM)
-      + Query-Category    
-+ Feature Extraction
-    + CNN
-    + RNN
-    + Transformer
-+ Output Prediction
-    + pass
-
 # Solutions
+
+## Embedding
+
+| Model    | Tips | Result |
+| -------- | ---- | ------ |
+| Word2Vec |      |        |
+| Glove    |      |        |
+| Fastext  |      |        |
+| Cove     |      |        |
+| ELMo     |      |        |
+| GPT      |      |        |
+| BERT     |      |        |
+| MASS     |      |        |
+| UniLM    |      |        |
+| XLNET    |      |        |
+| ERINE    |      |        |
+
+
 
 ## Classification
 
@@ -234,11 +255,6 @@
 
 ## Joint Learning for NLU
 
-# Training settings
-
-+ paramenters
-+ sample number, data max/average length
-
 # Problems
 
 + Slot filling
@@ -248,15 +264,19 @@
     + result save to logger
     + 个别的末尾标点符号处理的有问题
     + estimator early stopping
+    
 + Unified Preprocessing
   
     + whitespace
+    
 + Corpus
   
     + download.sh
+    
 + Resoruce
   
     + Download.sh
+    
 + Code Fix
     - Unified Naming Convention
     - Combine Parser and FLAG
@@ -266,6 +286,10 @@
     + lexical_analysis/outputs/label_2id.pkl 根据任务不同，生成不同的文件，或者使用其他数据结构
     
 + slot filling with atteniton
+
++ Tensorboard
+
++ utils review
 
 # Open Issues
 
@@ -374,5 +398,13 @@ You can raise an issue or submit a pull request, whichever is more convenient fo
 
 Apache License
 
+
+## NEXT
++ Embedding clean up
++ Util clean up
++ clf/sa algorithms extend
++ slot filling bi-gru-ctf
++ algorithms update
++ other algorithms extend
 
 
