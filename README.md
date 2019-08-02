@@ -400,6 +400,7 @@ Apache License
 
 
 ## NEXT
++ Embedding clean up
 + Util clean up
 + clf/sa algorithms extend
 + slot filling bi-gru-ctf
