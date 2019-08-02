@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ # -*- coding: utf-8 -*-
 # file: train.py
 # author: songyouwei <youwei0314@gmail.com>
 # Copyright (C) 2018. All Rights Reserved.
@@ -48,7 +48,7 @@ class Instructor:
 
         self.trainset = ABSADataset(opt.dataset_file['train'], tokenizer)
         self.testset = ABSADataset(opt.dataset_file['test'], tokenizer)
-        self.predictset = ABSADataset(opt.dataset_file['predict'], tokenizer)
+        #self.predictset = ABSADataset(opt.dataset_file['predict'], tokenizer)
 
         assert 0 <= opt.valset_ratio < 1
         if opt.valset_ratio > 0:
