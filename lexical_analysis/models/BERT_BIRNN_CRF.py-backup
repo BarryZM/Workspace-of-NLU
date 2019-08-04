@@ -248,7 +248,8 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     if ex_index < 2:
         tf.logging.info("*** Example ***")
         tf.logging.info("guid: %s" % (example.guid))
-        tf.logging.info("tokens: %s" % " ".join([tokenization.printable_text(x) for x in tokens]))
+        tf.logging.info("tokens: %s" % " ".join(
+            [tokenization.printable_text(x) for x in tokens]))
         tf.logging.info("input_ids: %s" % " ".join([str(x) for x in input_ids]))
         tf.logging.info("input_mask: %s" % " ".join([str(x) for x in input_mask]))
         tf.logging.info("segment_ids: %s" % " ".join([str(x) for x in segment_ids]))
@@ -506,7 +507,7 @@ def main(_):
         eval_batch_size=FLAGS.eval_batch_size,
         predict_batch_size=FLAGS.predict_batch_size)
 
-    if FLAGS.do_train and FLAGS.do_eval:
+    if FLAGS.do_train:
         train_file = os.path.join(FLAGS.output_dir, "train.tf_record")
         filed_based_convert_examples_to_features(train_examples, label_list, FLAGS.max_seq_length, tokenizer, train_file)
         tf.logging.info("***** Running training *****")
@@ -522,22 +523,9 @@ def main(_):
         #summary_hook = tf.train.SummarySaverHook(int(len(train_examples)/FLAGS.train_batch_size), output_dir='./output/tensorboard', summary_op=tf.summary.merge_all())
 
         estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
+        #estimator.train(input_fn=train_input_fn, max_steps=num_train_steps, hooks=[summary_hook])
 
-    if FLAGS.do_train and not FLAGS.do_eval:
-        train_file = os.path.join(FLAGS.output_dir, "train.tf_record")
-        filed_based_convert_examples_to_features(train_examples, label_list, FLAGS.max_seq_length, tokenizer, train_file)
-        tf.logging.info("***** Running training *****")
-        tf.logging.info("  Num examples = %d", len(train_examples))
-        tf.logging.info("  Batch size = %d", FLAGS.train_batch_size)
-        tf.logging.info("  Num steps = %d", num_train_steps)
-        train_input_fn = file_based_input_fn_builder(
-            input_file=train_file,
-            seq_length=FLAGS.max_seq_length,
-            is_training=True,
-            drop_remainder=True)
-        estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
-
-    if FLAGS.do_eval and not FLAGS.do_train:
+    if FLAGS.do_eval:
         eval_examples = processor.get_dev_examples(FLAGS.data_dir)
         eval_file = os.path.join(FLAGS.output_dir, "eval.tf_record")
         filed_based_convert_examples_to_features(
@@ -614,19 +602,18 @@ def main(_):
                 writer.write(output_line)
 
     if FLAGS.do_predict:
-
         with open(os.path.join(os.path.dirname(FLAGS.output_dir), 'label2id_'+str(FLAGS.type_name)+'.pkl'),'rb') as rf:
             label2id = pickle.load(rf)
             id2label = {value:key for key,value in label2id.items()}
             print("id2label", id2label)
         predict_examples = processor.get_predict_examples(FLAGS.data_dir)
 
-        #print(predict_examples[0].text)
-        #print(predict_examples[1].text)
+        print(predict_examples[0].text)
+        print(predict_examples[1].text)
         
         predict_file = os.path.join(FLAGS.output_dir, "predict.tf_record")
         #filed_based_convert_examples_to_features(predict_examples, label_list, 512 , tokenizer,predict_file,mode="test")
-        filed_based_convert_examples_to_features(predict_examples, label_list, FLAGS.max_seq_length_predict, tokenizer,predict_file,mode="predict")
+        filed_based_convert_examples_to_features(predict_examples, label_list,FLAGS.max_seq_length_predict, tokenizer,predict_file,mode="predict")
                             
         tf.logging.info("***** Running prediction*****")
         tf.logging.info("  Num examples = %d", len(predict_examples))

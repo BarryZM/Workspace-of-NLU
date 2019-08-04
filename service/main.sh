@@ -94,7 +94,7 @@ CUDA_VISIBLE_DEVICES=2 python ../classification/train.py  \
 ##########
 ## absa
 ##########
-cuda_visible_device=2 python ../sentiment_analysis/train.py \
+CUDA_VISIBLE_DEVICES=2 python ../sentiment_analysis/train.py \
     --dataset ${dataset_name} \
     --model_name 'bert_spc' \
     --batch_size 64 \

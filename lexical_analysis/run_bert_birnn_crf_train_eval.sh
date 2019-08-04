@@ -1,15 +1,16 @@
 dataset_name="electric-toothbrush"
 type_name='entity'
-gpu='3'
-epoch=20
+gpu='2'
+epoch=10
 max_seq_len=128
 max_seq_len_predict=512
-learning_rate=2e-5
+learning_rate=5e-5
 hidden_layer=6
 target_folder=./outputs/${dataset_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len}_gpu_${gpu} 
 train_flag=True # whether to train model on trainset
 eval_flag=False # whether to eval trained model on devset, default is False 
-predict_flag=True # whether to predict result on testset by trained model
+test_flag=True # whether to eval trained model on devset, default is False 
+predict_flag=False # whether to predict result on testset by trained model
 metric_flag=True # whether run eval.py to calculate metric
 
 if [ "$type_name" == 'emotion' ] ;then
@@ -31,7 +32,7 @@ elif [ "$train_flag" == True -a  ! -d "$target_folder" ];then
 mkdir $target_folder
 fi
 
-if [ $train_flag == True -o $eval_flag == True -o $predict_flag == True ] ;then
+if [ $train_flag == True -o $eval_flag == True -o $test_flag == True ] ;then
 # Train or Predict
 python models/BERT_BIRNN_CRF.py \
     --task_name="NER"  \
@@ -41,6 +42,7 @@ python models/BERT_BIRNN_CRF.py \
     --do_lower_case=False \
     --do_train=${train_flag}   \
     --do_eval=${eval_flag}   \
+    --do_test=${test_flag}   \
     --do_predict=${predict_flag} \
     --data_dir=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/slot \
     --vocab_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/vocab.txt  \

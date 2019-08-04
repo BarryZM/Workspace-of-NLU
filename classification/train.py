@@ -35,7 +35,7 @@ class Instructor:
 
         self.trainset = CLFDataset(opt.dataset_file['train'], tokenizer, self.opt.label_list)
         self.testset = CLFDataset(opt.dataset_file['test'], tokenizer, self.opt.label_list)
-        self.predictset = CLFDataset(opt.dataset_file['predict'], tokenizer, self.opt.label_list)
+        #self.predictset = CLFDataset(opt.dataset_file['predict'], tokenizer, self.opt.label_list)
 
         self.saver = tf.train.Saver(max_to_keep=1)
 
@@ -137,7 +137,7 @@ class Instructor:
         
         train_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.trainset.text_list, 'term':self.trainset.term_list, 'aspect':self.trainset.aspect_list, 'aspect_onehot':self.trainset.aspect_onehot_list}).batch(self.opt.batch_size).shuffle(10000)
         test_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.testset.text_list, 'term':self.testset.term_list, 'aspect':self.testset.aspect_list, 'aspect_onehot':self.testset.aspect_onehot_list}).batch(self.opt.batch_size)
-        predict_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.predictset.text_list, 'term':self.predictset.term_list, 'aspect':self.predictset.aspect_list, 'aspect_onehot':self.predictset.aspect_onehot_list}).batch(self.opt.batch_size)
+        #predict_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.predictset.text_list, 'term':self.predictset.term_list, 'aspect':self.predictset.aspect_list, 'aspect_onehot':self.predictset.aspect_onehot_list}).batch(self.opt.batch_size)
         # val_data_loader = tf.data.Dataset.from_tensor_slices(self.testset.data).batch(self.opt.batch_size)
         logger.info('>> load data done')
 
@@ -250,7 +250,7 @@ def main():
     label_lists = {
         'air-purifier':"'指示灯', '味道', '运转音', '净化效果', '风量', '电源', '尺寸', '感应', '设计', '滤芯滤网', '模式', '操作', '包装', '显示', '功能', '价保', '发票', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '安装服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'",
         'shaver':"'剃须方式', '配件', '刀头刀片', '清洁方式', '剃须效果', '充电', '续航', '运转音', '包装', '显示', '尺寸', '价保', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '退货服务', '换货服务', '质保','退款服务', '售后其他'",
-        'electric-toothbrush':''
+        'electric-toothbrush':"'牙刷类型', '刷牙模式', '刷头', '配件', '智能功效', '牙刷功能', '刷牙效果', '充电', '续航', '动力', '运转音', '包装', '显示', '尺寸', '价保', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'"
     }
 
 
