@@ -401,6 +401,8 @@ Apache License
 
 ## NEXT
 + Embedding clean up
+    + word2vec
+    + ELMo
 + Util clean up
 + clf/sa algorithms extend
 + slot filling bi-gru-ctf

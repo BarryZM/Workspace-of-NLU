@@ -71,9 +71,13 @@
 
 # Word2Vec
 
++ Distributed Representations of Sentences and Documents
+
++ Efficient estimation of word representations in vector space
+
 + [Distributed Representations of Words and Phrases and their Compositionality](https://arxiv.org/pdf/1310.4546.pdf)
 
-+ 
++ https://zhuanlan.zhihu.com/p/26306795
 
 # Glove
 
@@ -96,6 +100,7 @@
     ![](https://images2018.cnblogs.com/blog/1181483/201804/1181483-20180413110133810-774587320.png)
 
 
+# Cove
 
 # ELMo
 
@@ -115,7 +120,7 @@
 
   - 词汇用法的复杂性，比如语法，语义
 
-  - ### 不同上下文情况下词汇的多义性
+  - 不同上下文情况下词汇的多义性
 
 ## Introduction
 
