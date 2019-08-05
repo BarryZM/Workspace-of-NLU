@@ -5,7 +5,7 @@ sys.path.append(path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from sklearn import metrics
 from utils.data_utils_clf import *
-from utils.DatasetCLF import CLFDataset
+#from utils.DatasetCLF import CLFDataset
 from classification.models.cnn import TextCNN
 from classification.models.bert_cnn import BERTCNN
 logger = logging.getLogger()
@@ -35,7 +35,7 @@ class Instructor:
 
         self.trainset = CLFDataset(opt.dataset_file['train'], tokenizer, self.opt.label_list)
         self.testset = CLFDataset(opt.dataset_file['test'], tokenizer, self.opt.label_list)
-        #self.predictset = CLFDataset(opt.dataset_file['predict'], tokenizer, self.opt.label_list)
+        self.predictset = CLFDataset(opt.dataset_file['predict'], tokenizer, self.opt.label_list)
 
         self.saver = tf.train.Saver(max_to_keep=1)
 
@@ -137,7 +137,7 @@ class Instructor:
         
         train_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.trainset.text_list, 'term':self.trainset.term_list, 'aspect':self.trainset.aspect_list, 'aspect_onehot':self.trainset.aspect_onehot_list}).batch(self.opt.batch_size).shuffle(10000)
         test_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.testset.text_list, 'term':self.testset.term_list, 'aspect':self.testset.aspect_list, 'aspect_onehot':self.testset.aspect_onehot_list}).batch(self.opt.batch_size)
-        #predict_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.predictset.text_list, 'term':self.predictset.term_list, 'aspect':self.predictset.aspect_list, 'aspect_onehot':self.predictset.aspect_onehot_list}).batch(self.opt.batch_size)
+        predict_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.predictset.text_list, 'term':self.predictset.term_list, 'aspect':self.predictset.aspect_list, 'aspect_onehot':self.predictset.aspect_onehot_list}).batch(self.opt.batch_size)
         # val_data_loader = tf.data.Dataset.from_tensor_slices(self.testset.data).batch(self.opt.batch_size)
         logger.info('>> load data done')
 

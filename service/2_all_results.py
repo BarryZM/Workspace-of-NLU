@@ -62,7 +62,7 @@ if __name__ == '__main__':
     print(len(clf_label))
     print(len(absa_idx))
     print(str(int(len(origin_lines)/4)))
-    assert len(clf_label) == len(absa_idx) == int(len(origin_lines)/4)
+#    assert len(clf_label) == len(absa_idx) == int(len(origin_lines)/4)
 
     for idx4, idx_clf, idx_absa in zip(range(0, len(origin_lines), 4), clf_label, absa_idx):
         new_results.append(origin_lines[idx4] + '\n')

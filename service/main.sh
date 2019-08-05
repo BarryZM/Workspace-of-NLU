@@ -4,7 +4,10 @@
 ##########
 #setting
 ##########
-dataset_name="shaver"
+dataset_name='electric-toothbrush'
+#dataset_name="shaver"
+type_name='entity'
+gpu='3'
 
 corpus_predict_path=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/slot/predict.txt
 corpus_format_path=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/absa_clf/predict-term-category.txt
@@ -15,6 +18,9 @@ absa_result_path=./outputs/${dataset_name}/result_absa.txt
 
 if [ $dataset_name = 'shaver' ];then
 absa_model='/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/outputs/bert_spc_shaver_val_f10.9156'  
+fi
+if [ $dataset_name = 'electric-toothbrush' ];then
+absa_model='/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/outputs/bert_spc_electric-toothbrush_val_f10.9211'  
 fi
 
 # build folder
@@ -29,10 +35,9 @@ fi
 #NER
 ##########
 # run ner script and post processing
-type_name='entity'
-gpu='1'
 
-epoch=20
+
+epoch=10
 max_seq_len=128
 max_seq_len_predict=512
 learning_rate=5e-5
@@ -45,7 +50,11 @@ label_list="O,[CLS],[SEP],B-3,I-3"
 echo $label_list
 fi
 
-
+if [ "$type_name" == 'emotion' ] ;then
+label_list="O,[CLS],[SEP],B-positive,I-positive,B-negative,I-negative,B-moderate,I-moderate"
+echo $label_list
+fi
+#
 ### Just Predict
 #python ../lexical_analysis/models/BERT_BIRNN_CRF.py \
 #    --task_name="NER"  \
@@ -76,16 +85,16 @@ fi
 #
 #echo $corpus_predict_path
 #echo $ner_result_path
-
-python 1_build_absa_data.py \
-    --predict_text_path $corpus_predict_path \
-    --entity_result_path ${ner_result_path} \
-    --output_path ${corpus_format_path}
+#
+#python 1_build_absa_data.py \
+#    --predict_text_path $corpus_predict_path \
+#    --entity_result_path ${ner_result_path} \
+#    --output_path ${corpus_format_path}
 
 ##########
 ## CLF 
 ##########
-CUDA_VISIBLE_DEVICES=2 python ../classification/train.py  \
+CUDA_VISIBLE_DEVICES=3 python ../classification/train.py  \
     --dataset_name ${dataset_name} \
     --model_name text_cnn \
     --epoch 5 \
@@ -98,7 +107,7 @@ CUDA_VISIBLE_DEVICES=2 python ../classification/train.py  \
 ##########
 ## absa
 ##########
-CUDA_VISIBLE_DEVICES=2 python ../sentiment_analysis/train.py \
+python ../sentiment_analysis/train.py \
     --dataset ${dataset_name} \
     --model_name 'bert_spc' \
     --batch_size 64 \
