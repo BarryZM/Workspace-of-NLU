@@ -76,7 +76,11 @@ if __name__ == '__main__':
 
     print("texts", len(texts))
     print("labels", len(labels))
-    assert len(texts) == len(labels)
+
+    print(len(texts))
+    print(len(labels))
+
+#    assert len(texts) == len(labels)
 
     sentence_text_list, sentence_label_list, sentence_slots_list = [], [], []
 
