@@ -1,7 +1,7 @@
 # coding:utf-8
 
-file_1 = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/shaver/label/test.txt'
-file_2 = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/lexical_analysis/outputs/shaver_entity_epoch_10_hidden_layer_4_max_seq_len_128_gpu_3/entity_test_results.txt'
+file_1 = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/shaver/slot/predict.txt'
+file_2 = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/service/outputs/shaver/result_ner.txt'
 
 lines_1 = []
 lines_2 = []

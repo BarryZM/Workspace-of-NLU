@@ -47,6 +47,7 @@ flags.DEFINE_bool( "do_lower_case", True, "Whether to lower case the input text.
 flags.DEFINE_string( "gpu", '0', "gpu card number")
 flags.DEFINE_integer( "max_seq_length", 128, "The maximum sequence length for train in char-level.")
 flags.DEFINE_integer( "max_seq_length_predict", 512, "The maximum sequence length for predict in char-level")
+flags.DEFINE_integer( "max_seq_length_test", 512, "The maximum sequence length for predict in char-level")
 flags.DEFINE_bool("do_train", False, "Whether to run training.")
 flags.DEFINE_bool("do_eval", False, "Whether to run eval on the dev set.")
 flags.DEFINE_bool("do_test", False, "Whether to run the model in inference mode on test set.")
@@ -571,37 +572,36 @@ def main(_):
             label2id = pickle.load(rf)
             id2label = {value:key for key,value in label2id.items()}
             print("id2label", id2label)
-        predict_examples = processor.get_test_examples(FLAGS.data_dir)
+        test_examples = processor.get_test_examples(FLAGS.data_dir)
 
-        print(predict_examples[0].text)
-        print(predict_examples[1].text)
+        print(test_examples[0].text)
+        print(test_examples[1].text)
         
-        predict_file = os.path.join(FLAGS.output_dir, "predict.tf_record")
+        test_file = os.path.join(FLAGS.output_dir, "test.tf_record")
         #filed_based_convert_examples_to_features(predict_examples, label_list, 512 , tokenizer,predict_file,mode="test")
-        filed_based_convert_examples_to_features(predict_examples, label_list,FLAGS.max_seq_length_predict, tokenizer,predict_file,mode="test")
+        filed_based_convert_examples_to_features(test_examples, label_list, FLAGS.max_seq_length_test, tokenizer, test_file,mode="test")
                             
-        tf.logging.info("***** Running prediction*****")
-        tf.logging.info("  Num examples = %d", len(predict_examples))
-        tf.logging.info("  Batch size = %d", FLAGS.predict_batch_size)
+        tf.logging.info("***** Running test*****")
+        tf.logging.info("  Num examples = %d", len(test_examples))
+        tf.logging.info("  Batch size = %d", FLAGS.test_batch_size)
         if FLAGS.use_tpu:
             # Warning: According to tpu_estimator.py Prediction on TPU is an
             # experimental feature and hence not supported here
             raise ValueError("Prediction in TPU not supported")
-        predict_drop_remainder = True if FLAGS.use_tpu else False
+        test_drop_remainder = True if FLAGS.use_tpu else False
         
-        predict_input_fn = file_based_input_fn_builder(
-            input_file=predict_file,
-            seq_length=FLAGS.max_seq_length_predict,
+        test_input_fn = file_based_input_fn_builder(
+            input_file=test_file,
+            seq_length=FLAGS.max_seq_length_test,
             is_training=False,
-            drop_remainder=predict_drop_remainder)
+            drop_remainder=test_drop_remainder)
 
-        result = estimator.predict(input_fn=predict_input_fn)
-        output_predict_file = os.path.join(FLAGS.output_dir, FLAGS.type_name + "_test_results.txt")
-        with open(output_predict_file,'w') as writer:
-            for prediction in result:
-                #print(prediction)
+        result = estimator.predict(input_fn=test_input_fn)
+        output_test_file = os.path.join(FLAGS.output_dir, FLAGS.type_name + "_test_results.txt")
+        with open(output_test_file,'w') as writer:
+            for test in result:
                 output_line = ""
-                for item in prediction:
+                for item in test:
                     try:
                         if item != 0 and item != 3:
                             output_line = output_line + str(id2label[item]) + '\n'

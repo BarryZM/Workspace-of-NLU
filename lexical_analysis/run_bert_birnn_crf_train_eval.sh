@@ -1,7 +1,7 @@
 dataset_name="shaver"
 type_name='emotion'
-gpu='3'
-epoch=1
+gpu='2'
+epoch=10
 max_seq_len=128
 max_seq_len_predict=512
 learning_rate=5e-5

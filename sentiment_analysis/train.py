@@ -16,8 +16,9 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
 
-from utils.data_utils_sa import build_tokenizer, build_embedding_matrix, Tokenizer4Bert
-from utils.DatasetSA import ABSADataset
+from utils.data_utils_sa import *
+#from utils.data_utils_sa import build_tokenizer, build_embedding_matrix, Tokenizer4Bert
+#from utils.DatasetSA import ABSADataset
 
 from models import LSTM, IAN, MemNet, RAM, TD_LSTM, Cabasc, ATAE_LSTM, TNet_LF, AOA, MGAN
 from models.aen import CrossEntropyLoss_LSR, AEN_BERT
@@ -49,7 +50,7 @@ class Instructor:
 
         self.trainset = ABSADataset(opt.dataset_file['train'], tokenizer)
         self.testset = ABSADataset(opt.dataset_file['test'], tokenizer)
-        #self.predictset = ABSADataset(opt.dataset_file['predict'], tokenizer)
+        self.predictset = ABSADataset(opt.dataset_file['predict'], tokenizer)
 
         assert 0 <= opt.valset_ratio < 1
         if opt.valset_ratio > 0:
