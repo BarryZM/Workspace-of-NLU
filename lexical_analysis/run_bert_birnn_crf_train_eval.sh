@@ -1,17 +1,18 @@
-dataset_name="shaver"
-type_name='emotion'
+#dataset_name="vacuum-cleaner"
+dataset_name="electric-toothbrush"
+type_name='entity'
 gpu='2'
 epoch=10
-max_seq_len=128
+max_seq_len=256
 max_seq_len_predict=512
 learning_rate=5e-5
 hidden_layer=6
 target_folder=./outputs/${dataset_name}_${type_name}_epoch_${epoch}_hidden_layer_${hidden_layer}_max_seq_len_${max_seq_len}_gpu_${gpu} 
-train_flag=True # whether to train model on trainset
+train_flag=False # whether to train model on trainset
 eval_flag=False # whether to eval trained model on devset, default is False 
 test_flag=False # whether to eval trained model on devset, default is False 
-predict_flag=True # whether to predict result on testset by trained model
-metric_flag=False # whether run eval.py to calculate metric
+predict_flag=False # whether to predict result on testset by trained model
+metric_flag=True # whether run eval.py to calculate metric
 
 if [ "$type_name" == 'emotion' ] ;then
 label_list="O,[CLS],[SEP],B-positive,I-positive,B-negative,I-negative,B-moderate,I-moderate"
