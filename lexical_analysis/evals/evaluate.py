@@ -53,8 +53,9 @@ def process_boundary(tag: list, sent: list):
                 entity_tag = None
 
         except Exception as e:
-            print(e)
-            print(tag, sent)
+            pass
+            #print(e)
+            #print(tag, sent)
     if len(entity_val) > 0:
         tup_list.append((entity_tag, entity_val))
 
@@ -72,9 +73,9 @@ def cut_resulst_2_sentence(text_list, ground_list, predict_list):
     idx = 0
 
     for item_t, item_g, item_p in zip(text_list, ground_list, predict_list):
-        print("item_t", item_t)
-        print("item_g", item_g)
-        print("item_p", item_p)
+        #print("item_t", item_t)
+        #print("item_g", item_g)
+        #print("item_p", item_p)
 
         #if len(item_g.strip()) == 0 and len(item_p.strip()) != 0:
         #    print('index', idx)
@@ -102,13 +103,15 @@ def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
     
     """
     entity_predict_list, entity_ground_list = process_boundary(tag_predict_list, char_list), process_boundary(tag_ground_list, char_list)
-    print("###")
-    print(char_list)
-    print(tag_predict_list)
-    print(tag_ground_list)
+
+    if entity_predict_list != entity_ground_list:
+        print("###")
+        print(char_list)
+        print(tag_predict_list)
+        print(tag_ground_list)
     
-    print('predict', entity_predict_list)
-    print('ground', entity_ground_list)
+        print('predict###', entity_predict_list)
+        print('ground###', entity_ground_list)
 
     text = ''.join(char_list)
 
@@ -120,7 +123,7 @@ if __name__  == '__main__':
     #ith open(args.label2id_path,'rb') as rf:
     #   label2tag = pickle.load(rf)
 
-    print("current path", os.getcwd())
+    #print("current path", os.getcwd())
 
     text_lines = []
     ground_lines = []
@@ -137,15 +140,15 @@ if __name__  == '__main__':
 
     with open(args.predict_label_path, mode='r', encoding='utf-8') as f:
         predict_lines = f.readlines()
-        print(len(predict_lines))    
+        #print(len(predict_lines))    
 
-    print(len(predict_lines))
-    print(len(ground_lines))
-    print(len(text_lines))
+    #print(len(predict_lines))
+    #print(len(ground_lines))
+    #print(len(text_lines))
 
-    print(predict_lines[:100])
-    print(ground_lines[:100])
-    print(text_lines[:100])
+    #print(predict_lines[:100])
+    #print(ground_lines[:100])
+    #print(text_lines[:100])
 
 #    assert len(predict_lines) == len(ground_lines) == len(text_lines), print('predict is {}, ground is {}, text is {}'.format(len(predict_lines), len(ground_lines), len(text_lines)))
 
@@ -162,13 +165,13 @@ if __name__  == '__main__':
 
     text_list, ground_list, predict_list = cut_resulst_2_sentence(text_lines, ground_lines, predict_lines) 
 
-    print(text_list[:3])
-    print(ground_list[:3])
-    print(predict_list[:3])
+    #print(text_list[:3])
+    #print(ground_list[:3])
+    #print(predict_list[:3])
    
-    print(len(text_list))
-    print(len(ground_list))
-    print(len(predict_list))
+    #print(len(text_list))
+    #print(len(ground_list))
+    #print(len(predict_list))
 
     for item_t, item_g, item_p in zip(text_list, ground_list, predict_list):
         sentence_evaluate(item_t, item_g, item_p)
@@ -177,4 +180,4 @@ if __name__  == '__main__':
     cnt_dict = {'NER': len(text_list)}
     overall_res = calc_overall_evaluation(cnt_dict)
     f1 = overall_res['NER']['strict']['f1_score']
-    print(f1)
+    #print(f1)

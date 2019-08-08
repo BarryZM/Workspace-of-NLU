@@ -70,7 +70,7 @@ fi
 #    --bert_config_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_config.json \
 #    --init_checkpoint=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_model.ckpt   \
 #    --max_seq_length=$max_seq_len   \
-#    --train_batch_size=16   \
+#    --predict_batch_size=32   \
 #    --learning_rate=${learning_rate}   \
 #    --num_train_epochs=$epoch   \
 #    --output_dir=$target_folder
@@ -90,32 +90,32 @@ fi
 #    --predict_text_path $corpus_predict_path \
 #    --entity_result_path ${ner_result_path} \
 #    --output_path ${corpus_format_path}
-
-##########
-## CLF 
-##########
-CUDA_VISIBLE_DEVICES=3 python ../classification/train.py  \
-    --dataset_name ${dataset_name} \
-    --model_name text_cnn \
-    --epoch 5 \
-    --batch_size 64 \
-    --do_predict \
-    --learning_rate 1e-3 \
-    --results_file ${clf_result_path} \
-    --outputs_folder /export/home/sunhongchao1/1-NLU/Workspace-of-NLU/classification/outputs/${dataset_name} 
-
+#
+###########
+### CLF 
+###########
+#python ../classification/train.py  \
+#    --dataset_name ${dataset_name} \
+#    --model_name text_cnn \
+#    --epoch 5 \
+#    --batch_size 128 \
+#    --do_predict \
+#    --learning_rate 1e-3 \
+#    --results_file ${clf_result_path} \
+#    --outputs_folder /export/home/sunhongchao1/1-NLU/Workspace-of-NLU/classification/outputs/${dataset_name} 
+#
 ##########
 ## absa
 ##########
-python ../sentiment_analysis/train.py \
-    --dataset ${dataset_name} \
-    --model_name 'bert_spc' \
-    --batch_size 64 \
-    --do_predict \
-    --device 'cuda:0' \
-    --epochs '30' \
-    --results_file ${absa_result_path} \
-    --load_model_path ${absa_model}
+#python ../sentiment_analysis/train.py \
+#    --dataset ${dataset_name} \
+#    --model_name 'bert_spc' \
+#    --batch_size 128 \
+#    --do_predict \
+#    --device 'cuda:0' \
+#    --epochs '30' \
+#    --results_file ${absa_result_path} \
+#    --load_model_path ${absa_model}
 
 python 2_all_results.py \
     --input_path ${corpus_format_path}\

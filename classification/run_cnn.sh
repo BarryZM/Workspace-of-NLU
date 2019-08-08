@@ -1,4 +1,5 @@
-dataset_name='electric-toothbrush'
+dataset_name='vacuum-cleaner'
+#dataset_name='electric-toothbrush'
 model_name='text_cnn'
 epoch='20'
 batch_size='64'
@@ -10,5 +11,5 @@ CUDA_VISIBLE_DEVICES=1 python train.py --model_name ${model_name} \
                 --do_test \
                 --epoch ${epoch} \
                 --batch_size ${batch_size} \
-                --outputs_folder ${output_floder}
+                --outputs_folder ${output_folder}
  

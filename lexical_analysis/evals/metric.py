@@ -33,6 +33,7 @@ def calc_partial_match_evaluation_per_line(prediction: list, goldenStandard: lis
     :param goldenStandard (list): (k, v) -> (slot tags, slot contents)
     :return: eval_results (dict)
     """
+
     # if no label and no prediction, reguard as all correct!
     if len(prediction) == 0 and len(goldenStandard) == 0:
         eval_metics = {"correct": 1,
@@ -208,7 +209,8 @@ def checkIfOverlap(true_val, pred_val, text):
         for i, j in rang_a:
             for k, m in rang_b:
                 intersec = set(range(i, j)).intersection(set(range(k, m)))
-                if len(intersec) > 0:
+                # if len(intersec) > 0:
+                if len(intersec) > 0 and len(intersec) < 2:
                     return True
                 else:
                     return False
