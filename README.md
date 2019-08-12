@@ -255,6 +255,16 @@
 
 ## Joint Learning for NLU
 
+## Summarization
+
+| Model    | Tips | Resule |
+| -------- | ---- | ------ |
+| TextRank |      |        |
+|          |      |        |
+|          |      |        |
+
+
+
 # Problems
 
 + Slot filling
@@ -291,6 +301,17 @@
 
 + utils review
 
++ NEXT
+
+    - Embedding clean up
+      - word2vec
+      - ELMo
+    - Util clean up
+    - clf/sa algorithms extend
+    - slot filling bi-gru-ctf
+    - algorithms update
+    - other algorithms extend
+
 # Open Issues
 
 + Reinforce Learning/Active Learning for NLU
@@ -323,6 +344,9 @@
 + https://www.zhihu.com/question/52756127
 
 ## Projects
+
++ https://snips-nlu.readthedocs.io/
++ https://github.com/crownpku/Rasa_NLU_Chi
 
 + <https://github.com/jiangxinyang227/textClassifier>
 + <https://github.com/brightmart/text_classification>
@@ -388,25 +412,14 @@
 
 
 
-## Contributions
+# Contributions
 
 Feel free to contribute!
 
 You can raise an issue or submit a pull request, whichever is more convenient for you.
 
-## Licence
+# Licence
 
 Apache License
-
-
-## NEXT
-+ Embedding clean up
-    + word2vec
-    + ELMo
-+ Util clean up
-+ clf/sa algorithms extend
-+ slot filling bi-gru-ctf
-+ algorithms update
-+ other algorithms extend
 
 
