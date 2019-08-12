@@ -210,7 +210,7 @@ def checkIfOverlap(true_val, pred_val, text):
             for k, m in rang_b:
                 intersec = set(range(i, j)).intersection(set(range(k, m)))
                 # if len(intersec) > 0:
-                if len(intersec) > 0 and len(intersec) < 2:
+                if len(intersec) > 0:
                     return True
                 else:
                     return False

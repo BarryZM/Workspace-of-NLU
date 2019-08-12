@@ -119,11 +119,6 @@ def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
 
 
 if __name__  == '__main__':
-    #label2tag = {}
-    #ith open(args.label2id_path,'rb') as rf:
-    #   label2tag = pickle.load(rf)
-
-    #print("current path", os.getcwd())
 
     text_lines = []
     ground_lines = []
@@ -142,16 +137,6 @@ if __name__  == '__main__':
         predict_lines = f.readlines()
         #print(len(predict_lines))    
 
-    #print(len(predict_lines))
-    #print(len(ground_lines))
-    #print(len(text_lines))
-
-    #print(predict_lines[:100])
-    #print(ground_lines[:100])
-    #print(text_lines[:100])
-
-#    assert len(predict_lines) == len(ground_lines) == len(text_lines), print('predict is {}, ground is {}, text is {}'.format(len(predict_lines), len(ground_lines), len(text_lines)))
-
     count_predict = 0
     count_ground = 0
     for item in predict_lines:
@@ -164,14 +149,6 @@ if __name__  == '__main__':
     assert count_predict == count_predict
 
     text_list, ground_list, predict_list = cut_resulst_2_sentence(text_lines, ground_lines, predict_lines) 
-
-    #print(text_list[:3])
-    #print(ground_list[:3])
-    #print(predict_list[:3])
-   
-    #print(len(text_list))
-    #print(len(ground_list))
-    #print(len(predict_list))
 
     for item_t, item_g, item_p in zip(text_list, ground_list, predict_list):
         sentence_evaluate(item_t, item_g, item_p)

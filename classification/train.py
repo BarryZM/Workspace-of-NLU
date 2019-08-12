@@ -138,7 +138,7 @@ class Instructor:
         
         train_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.trainset.text_list, 'term':self.trainset.term_list, 'aspect':self.trainset.aspect_list, 'aspect_onehot':self.trainset.aspect_onehot_list}).batch(self.opt.batch_size).shuffle(10000)
         test_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.testset.text_list, 'term':self.testset.term_list, 'aspect':self.testset.aspect_list, 'aspect_onehot':self.testset.aspect_onehot_list}).batch(self.opt.batch_size)
-        if self.opt.do_predict:
+        if self.opt.do_predict is True:
             predict_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.predictset.text_list, 'term':self.predictset.term_list, 'aspect':self.predictset.aspect_list, 'aspect_onehot':self.predictset.aspect_onehot_list}).batch(self.opt.batch_size)
         # val_data_loader = tf.data.Dataset.from_tensor_slices(self.testset.data).batch(self.opt.batch_size)
         logger.info('>> load data done')
@@ -162,7 +162,7 @@ class Instructor:
                 logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
             else:
                 logger.info('@@@ Error:load ckpt error')
-        elif self.opt.do_predict: 
+        elif self.opt.do_predict is True: 
             ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
             if ckpt and ckpt.model_checkpoint_path:
                 self.saver.restore(self.session, ckpt.model_checkpoint_path)
@@ -218,7 +218,7 @@ def main():
     parser.add_argument('--initializer', type=str, default='???')
     parser.add_argument('--optimizer', type=str, default='adam')
 
-    parser.add_argument('--learning_rate', type=float, default=1e-2)
+    parser.add_argument('--learning_rate', type=float, default=1e-4)
     parser.add_argument('--epoch', type=int, default=100)
     parser.add_argument('--do_train', action='store_true', default='false')
     parser.add_argument('--do_test', action='store_true', default='false')
@@ -232,6 +232,11 @@ def main():
     }
 
     dataset_files = {
+        'frying-pan':{
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/train-term-category.txt',
+            'eval':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/test-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/test-term-category.txt',
+            'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/predict-term-category.txt'},
         'vacuum-cleaner':{
             'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/train-term-category.txt',
             'eval':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/test-term-category.txt',
@@ -255,6 +260,7 @@ def main():
     }
 
     label_lists ={
+        'frying-pan':"'炸锅类型', '清洗', '配件', '操作', '炸锅功能', '可视化', '炸锅效果', '运转音', '包装', '显示', '尺寸', '价保', '关联品类', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'",
         'vacuum-cleaner':"'吸尘器类型', '运行模式', '吸头/吸嘴/刷头', '配件', '智能功能', '效果', '滤芯滤网', '充电', '续航', '吸力', '运转音', '包装', '显示', '尺寸', '价保', '商品用途', '商品使用环境场景', '商品复购', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'",
         'air-purifier':"'指示灯', '味道', '运转音', '净化效果', '风量', '电源', '尺寸', '感应', '设计', '滤芯滤网', '模式', '操作', '包装', '显示', '功能', '价保', '发票', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '安装服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'",
         'shaver':"'剃须方式', '配件', '刀头刀片', '清洁方式', '剃须效果', '充电', '续航', '运转音', '包装', '显示', '尺寸', '价保', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '退货服务', '换货服务', '质保','退款服务', '售后其他'",

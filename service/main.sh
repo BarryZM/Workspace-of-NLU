@@ -4,7 +4,8 @@
 ##########
 #setting
 ##########
-dataset_name='electric-toothbrush'
+dataset_name='vacuum-cleaner'
+#dataset_name='electric-toothbrush'
 #dataset_name="shaver"
 type_name='entity'
 gpu='3'
@@ -15,6 +16,14 @@ corpus_format_path=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/co
 ner_result_path=./outputs/${dataset_name}/result_ner.txt
 clf_result_path=./outputs/${dataset_name}/result_clf.txt
 absa_result_path=./outputs/${dataset_name}/result_absa.txt
+
+if [ $dataset_name = 'frying-pan' ];then
+absa_model=
+fi
+
+if [ $dataset_name = 'vacuum-cleaner' ];then
+absa_model='/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/outputs/bert_spc_vacuum-cleaner_val_f10.9159'
+fi
 
 if [ $dataset_name = 'shaver' ];then
 absa_model='/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/outputs/bert_spc_shaver_val_f10.9156'  
@@ -38,7 +47,7 @@ fi
 
 
 epoch=10
-max_seq_len=128
+max_seq_len=256
 max_seq_len_predict=512
 learning_rate=5e-5
 hidden_layer=6
@@ -54,68 +63,68 @@ if [ "$type_name" == 'emotion' ] ;then
 label_list="O,[CLS],[SEP],B-positive,I-positive,B-negative,I-negative,B-moderate,I-moderate"
 echo $label_list
 fi
-#
-### Just Predict
-#python ../lexical_analysis/models/BERT_BIRNN_CRF.py \
-#    --task_name="NER"  \
-#    --type_name=${type_name} \
-#    --label_list=${label_list} \
-#    --gpu=${gpu} \
-#    --do_lower_case=False \
-#    --do_train=False   \
-#    --do_eval=False   \
-#    --do_predict=True \
-#    --data_dir=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/slot   \
-#    --vocab_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/vocab.txt  \
-#    --bert_config_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_config.json \
-#    --init_checkpoint=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_model.ckpt   \
-#    --max_seq_length=$max_seq_len   \
-#    --predict_batch_size=32   \
-#    --learning_rate=${learning_rate}   \
-#    --num_train_epochs=$epoch   \
-#    --output_dir=$target_folder
-#
-## delete lines which contain [CLS], [SEP]
-#echo ${target_folder}/${type_name}_predict_results.txt
-#cp ${target_folder}/${type_name}_predict_results.txt ${ner_result_path}
-#sed -i '/SEP/d' ${ner_result_path}
-#sed -i '/CLS/d' ${ner_result_path} 
-#
-### load NER result, make input format file for ABSA and Multi-Level CLF
-#
-#echo $corpus_predict_path
-#echo $ner_result_path
-#
-#python 1_build_absa_data.py \
-#    --predict_text_path $corpus_predict_path \
-#    --entity_result_path ${ner_result_path} \
-#    --output_path ${corpus_format_path}
-#
+
+## Just Predict
+python ../lexical_analysis/models/BERT_BIRNN_CRF.py \
+    --task_name="NER"  \
+    --type_name=${type_name} \
+    --label_list=${label_list} \
+    --gpu=${gpu} \
+    --do_lower_case=False \
+    --do_train=False   \
+    --do_eval=False   \
+    --do_predict=True \
+    --data_dir=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/${dataset_name}/slot   \
+    --vocab_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/vocab.txt  \
+    --bert_config_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_config.json \
+    --init_checkpoint=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_model.ckpt   \
+    --max_seq_length=$max_seq_len   \
+    --predict_batch_size=32   \
+    --learning_rate=${learning_rate}   \
+    --num_train_epochs=$epoch   \
+    --output_dir=$target_folder
+
+# delete lines which contain [CLS], [SEP]
+echo ${target_folder}/${type_name}_predict_results.txt
+cp ${target_folder}/${type_name}_predict_results.txt ${ner_result_path}
+sed -i '/SEP/d' ${ner_result_path}
+sed -i '/CLS/d' ${ner_result_path} 
+
+## load NER result, make input format file for ABSA and Multi-Level CLF
+
+echo $corpus_predict_path
+echo $ner_result_path
+
+python 1_build_absa_data.py \
+    --predict_text_path $corpus_predict_path \
+    --entity_result_path ${ner_result_path} \
+    --output_path ${corpus_format_path}
+
 ###########
 ### CLF 
 ###########
-#python ../classification/train.py  \
-#    --dataset_name ${dataset_name} \
-#    --model_name text_cnn \
-#    --epoch 5 \
-#    --batch_size 128 \
-#    --do_predict \
-#    --learning_rate 1e-3 \
-#    --results_file ${clf_result_path} \
-#    --outputs_folder /export/home/sunhongchao1/1-NLU/Workspace-of-NLU/classification/outputs/${dataset_name} 
-#
-##########
-## absa
-##########
-#python ../sentiment_analysis/train.py \
-#    --dataset ${dataset_name} \
-#    --model_name 'bert_spc' \
-#    --batch_size 128 \
-#    --do_predict \
-#    --device 'cuda:0' \
-#    --epochs '30' \
-#    --results_file ${absa_result_path} \
-#    --load_model_path ${absa_model}
+python ../classification/train.py  \
+    --dataset_name ${dataset_name} \
+    --model_name text_cnn \
+    --epoch 5 \
+    --batch_size 128 \
+    --do_predict \
+    --learning_rate 1e-3 \
+    --results_file ${clf_result_path} \
+    --outputs_folder /export/home/sunhongchao1/1-NLU/Workspace-of-NLU/classification/outputs/${dataset_name} 
+
+#########
+# absa
+#########
+python ../sentiment_analysis/train.py \
+    --dataset ${dataset_name} \
+    --model_name 'bert_spc' \
+    --batch_size 128 \
+    --do_predict \
+    --device 'cuda:0' \
+    --epochs '30' \
+    --results_file ${absa_result_path} \
+    --load_model_path ${absa_model}
 
 python 2_all_results.py \
     --input_path ${corpus_format_path}\

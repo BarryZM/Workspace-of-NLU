@@ -50,7 +50,8 @@ class Instructor:
 
         self.trainset = ABSADataset(opt.dataset_file['train'], tokenizer)
         self.testset = ABSADataset(opt.dataset_file['test'], tokenizer)
-        self.predictset = ABSADataset(opt.dataset_file['predict'], tokenizer)
+        if self.opt.do_predict is True:
+            self.predictset = ABSADataset(opt.dataset_file['predict'], tokenizer)
 
         assert 0 <= opt.valset_ratio < 1
         if opt.valset_ratio > 0:
@@ -249,9 +250,9 @@ def main():
     parser.add_argument('--seed', default=None, type=int, help='set seed for reproducibility')
     parser.add_argument('--valset_ratio', default=0, type=float, help='set ratio between 0 and 1 for validation support')
 
-    parser.add_argument('--do_train', action='store_true')
-    parser.add_argument('--do_test', action='store_true')
-    parser.add_argument('--do_predict', action='store_true')
+    parser.add_argument('--do_train', action='store_true', default=False)
+    parser.add_argument('--do_test', action='store_true', default=False)
+    parser.add_argument('--do_predict', action='store_true', default=False)
 
     parser.add_argument('--results_file', type=str)
     parser.add_argument('--load_model_path', type=str)
@@ -311,6 +312,16 @@ def main():
             'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/electric-toothbrush/absa_clf/train-term-category.txt',
             'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/electric-toothbrush/absa_clf/test-term-category.txt',
             'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/electric-toothbrush/absa_clf/predict-term-category.txt'
+        },
+        'vacuum-cleaner':{
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/vacuum-cleaner/absa_clf/train-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/vacuum-cleaner/absa_clf/test-term-category.txt',
+            'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/vacuum-cleaner/absa_clf/predict-term-category.txt'
+        },
+        'frying-pan':{
+            'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/frying-pan/absa_clf/train-term-category.txt',
+            'test':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/frying-pan/absa_clf/test-term-category.txt',
+            'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/frying-pan/absa_clf/predict-term-category.txt'
         }
     }
     input_colses = {
