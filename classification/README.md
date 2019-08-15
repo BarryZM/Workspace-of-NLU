@@ -1,7 +1,5 @@
 [TOC]
 
-
-
 # Summary for Text Classification
 
 # Outline
@@ -311,7 +309,11 @@
 
 ## LightBGM
 
+# Anomaly Detection
 
++ Kaggle
++ [http://www.cnblogs.com/fengfenggirl/p/iForest.html](http://www.cnblogs.com/fengfenggirl/p/iForest.html)
++ https://github.com/yzhao062/anomaly-detection-resources
 
 # Reference
 
