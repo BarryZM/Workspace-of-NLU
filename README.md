@@ -291,15 +291,12 @@
     + estimator early stopping
     
 + Unified Preprocessing
-  
     + whitespace
     
 + Corpus
-  
     + download.sh
     
 + Resoruce
-  
     + Download.sh
     
 + Code Fix
