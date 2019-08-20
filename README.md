@@ -235,9 +235,9 @@
 
 | Model                                               | Tips | Result |
 | --------------------------------------------------- | ---- | ------ |
-| [Bi-LSTM CRF](https://arxiv.org/pdf/1508.01991.pdf) |      |        |
+| [Bi-LSTM-CRF](https://arxiv.org/pdf/1508.01991.pdf) |      |        |
 | IDCNN CRF                                           |      |        |
-| Seq2Seq + CRF                                       |      |        |
+| Seq2Seq CRF                                         |      |        |
 | DBN                                                 |      |        |
 | Lattice-LSTM CRF                                    |      |        |
 | BERT-BIGRU-CRF                                      | SOTA |        |
@@ -291,12 +291,15 @@
     + estimator early stopping
     
 + Unified Preprocessing
+  
     + whitespace
     
 + Corpus
+  
     + download.sh
     
 + Resoruce
+  
     + Download.sh
     
 + Code Fix
@@ -422,5 +425,87 @@ You can raise an issue or submit a pull request, whichever is more convenient fo
 # Licence
 
 Apache License
+
+
+
+# Summary
+
+## Part A : Introduction
+
+### Demo
+
++ 话术
+
+### SemEval 2014 Task 4
+
++ Aspect Level Sentiment Analysis
++ 提槽已经提好了
++ 截图
+
+## Part B : Algorithms Architecture
+
++ dataset
+  + tf.data.dataset 
+
++ 流程图与数据结构构建
+
+## Part C : Lexical Analysis(Named Entity Recognition)
+
++ Current solutions
++ Framework of BERT-BIGRU-CRF
+
+## Part D : Classification
+
++ Current solutions
++ Framework of A 
++ Framwork of B
++ Framework of C
+
+## Part E : Aspect Level Sentiment Analysis
+
++ Current solutions
++ Framework of A
++ Framework of B
++ Framework of C
+
+## Part F : Results of 5 categories
+
++ Air-purifier
++ Shaver
++ Electric-toothbrush
++ Vacuum-cleaner
++ Frying-pan
+
+## Part G : Service
+
++ Input : text file
++ Output : format result
+
+## Part H : Problem
+
++ NER 标注 交叉性
++ 标注时 情感和实体的映射
++ 短句限制
++ 线下 Service 脚本优化，方便线下使用
+  + 输出格式调整
++ 代码格式同统一
+  + tf session 
+  + estimator
+  + pytorch(bert)
+
+## Part I ：Next
+
++ Application
+  + 线上接口使用
+  + 自动化报表
++ Algorithm
+  + Relation Extraction
+  + Joint Learning
+  + 标注平台：Active Learning 实现
+  + 扩充品类，半监督
+
+## Reference
+
+
 
 
