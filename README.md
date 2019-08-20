@@ -182,19 +182,19 @@
 
 ### Model
 
-| Model    | Tips | Result |
-| -------- | ---- | ------ |
-| Word2Vec |      |        |
-| Glove    |      |        |
-| Fastext  |      |        |
-| Cove     |      |        |
-| ELMo     |      |        |
-| GPT      |      |        |
-| BERT     |      |        |
-| MASS     |      |        |
-| UniLM    |      |        |
-| XLNET    |      |        |
-| ERINE    |      |        |
+| Model                                                        | Tips                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Word2Vec                                                     |                                                              |
+| Glove                                                        |                                                              |
+| Fastext                                                      |                                                              |
+| Cove                                                         |                                                              |
+| ELMo                                                         |                                                              |
+| GPT2 [blog](https://openai.com/blog/better-language-models/) [code](https://github.com/openai/gpt-2) [paper](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) | Use unidirectional Transformer instead LSTM; unsupervised pertrained; supervised fine tune;Just Decoder |
+| BERT                                                         | Encoder; Predict the mask words                              |
+| MASS                                                         |                                                              |
+| UniLM                                                        |                                                              |
+| XLNET                                                        |                                                              |
+| ERINE                                                        |                                                              |
 
 ### [Metric](https://chinesenlp.xyz/#/docs/word_embedding)
 
@@ -357,8 +357,12 @@
 ## Links
 
 + [DiDi NLP](https://chinesenlp.xyz/#/)
-
 + https://www.zhihu.com/question/52756127
++ [xlnet](https://indexfziq.github.io/2019/06/21/XLNet/)
++ [self attention](https://www.cnblogs.com/robert-dlut/p/8638283.html)
++ [embedding summary blog](https://www.cnblogs.com/robert-dlut/p/9824346.html)
++ [ulm-fit](http://nlp.fast.ai/classification/2018/05/15/introducting-ulmfit.html)
++ [open gpt](https://blog.floydhub.com/gpt2/)
 
 ## Projects
 
