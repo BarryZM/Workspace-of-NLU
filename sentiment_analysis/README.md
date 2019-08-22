@@ -46,7 +46,7 @@
 - bert-based model
 - https://github.com/songyouwei/ABSA-PyTorch/tree/aen
 
-![](https://ws4.sinaimg.cn/large/006tNc79ly1g30zi9sgclj311f0u00wl.jpg)
+![](http://ww3.sinaimg.cn/large/006y8mN6ly1g68o0ntbrij311f0u0aeb.jpg)
 
 
 
@@ -91,13 +91,13 @@
 
   - 每一时刻输入word embedding，LSTM的状态更新，将隐层状态和aspect embedding结合起来，aspect embedding作为模型参数一起训练，得到句子在给定aspect下的权重表示r
 
-  ![](https://ws2.sinaimg.cn/large/006tNc79ly1g2w918hk3hj30k00amju8.jpg)
+  ![](http://ww2.sinaimg.cn/large/006y8mN6ly1g68m2nhfe6j30k00amdhh.jpg)
 
 - ATAE-LSTM
 
   - AT-LSTM在计算attention权重的过程中引入了aspect的信息，为了更充分的利用aspect的信息，作者在AT-LSTM模型的基础上又提出了ATAE-LSTM模型，在输入端将aspect embedding和word embedding结合起来
 
-  ![](https://ws1.sinaimg.cn/large/006tNc79ly1g2w9330v2qj30k00cead9.jpg)
+  ![](http://ww2.sinaimg.cn/large/006y8mN6ly1g68m2qjf4uj30k00ceq4t.jpg)
 
 
 
@@ -152,7 +152,7 @@
 - ABSA-Pytorch
 
   - pretrain embedding
-  - 使用retrain embedding
+  - 使用pretrain embedding
 
 ![](https://ws1.sinaimg.cn/large/006tNc79ly1g30ws8c9o9j30n30guwhd.jpg)
 
