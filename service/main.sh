@@ -7,6 +7,7 @@
 #dataset_name='frying-pan'
 #dataset_name='electric-toothbrush'
 dataset_name="shaver"
+#dataset_name="vacuum-cleaner"
 type_name='entity'
 gpu='3'
 

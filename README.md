@@ -259,14 +259,9 @@
 
 # Problems
 
-+ Slot filling
-    + max seq length
-        + training max seq length : 128
-        + test and predict max length : max test length of corpus, now is  512
-    + result save to logger
-    + 个别的末尾标点符号处理的有问题
-    + estimator early stopping
-    
++ Slot Filling
+	+ max sequence length
+
 + Unified Preprocessing
   
     + whitespace
