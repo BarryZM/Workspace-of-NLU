@@ -352,6 +352,7 @@
 + Zhang, Lei, Shuai Wang, and Bing Liu. "Deep Learning for Sentiment Analysis: A Survey." arXiv preprint arXiv:1801.07883 (2018). [[pdf\]](https://arxiv.org/pdf/1801.07883)
 + Young, Tom, et al. "Recent trends in deep learning based natural language processing." arXiv preprint arXiv:1708.02709 (2017). [[pdf\]](https://arxiv.org/pdf/1708.02709)
 + https://ieeexplore.ieee.org/document/8726353
++ [**ABSA solutions**](https://zhuanlan.zhihu.com/p/77656863)
 
 ### Named Entity Recognition
 
