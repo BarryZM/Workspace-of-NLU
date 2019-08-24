@@ -148,53 +148,25 @@
 |         |      |      |
 |         |      |      |
 
-
-
-# Metric
-
-+ Classification/Sentiment Analysis
-    + Precision, Recall，F-score
-    + Micro-Average
-        - 根据总数据计算 P R F
-    + Marco-Average
-        - 计算出每个类得，再求平均值
-    + 平衡点
-    + 11点平均正确率
-        - https://blog.csdn.net/u010367506/article/details/38777909
-+ Lexical analysis
-    + strict/type/partial/overlap/
-    + 准确率(Precision)和召回率(Recall)
-      + Precision = 正确切分出的词的数目/切分出的词的总数
-      + Recall = 正确切分出的词的数目/应切分出的词的总数
-    + 综合性能指标F-measure
-      + Fβ = (β2 + 1)*Precision*Recall/(β2*Precision + Recall)*
-      + *β为权重因子，如果将准确率和召回率同等看待，取β = 1，就得到最常用的F1-measure*
-      + *F1 = 2*Precisiton*Recall/(Precision+Recall)
-    + 未登录词召回率(R_OOV)和词典中词的召回率(R_IV)
-      + R_OOV = 正确切分出的未登录词的数目/标准答案中未知词的总数
-      + R_IV = 正确切分出的已知词的数目/标准答案中已知词的总数
-+ Relation Extraction
-+ Natural Language Inference
-
 # Solutions
 
 ## Embedding
 
 ### Model
 
-| Model    | Tips | Result |
-| -------- | ---- | ------ |
-| Word2Vec |      |        |
-| Glove    |      |        |
-| Fastext  |      |        |
-| Cove     |      |        |
-| ELMo     |      |        |
-| GPT      |      |        |
-| BERT     |      |        |
-| MASS     |      |        |
-| UniLM    |      |        |
-| XLNET    |      |        |
-| ERINE    |      |        |
+| Model                                                        | Tips                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Word2Vec                                                     |                                                              |
+| Glove                                                        |                                                              |
+| Fastext                                                      |                                                              |
+| Cove                                                         |                                                              |
+| ELMo                                                         |                                                              |
+| GPT2 [blog](https://openai.com/blog/better-language-models/) [code](https://github.com/openai/gpt-2) [paper](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) | Use unidirectional Transformer instead LSTM; unsupervised pertrained; supervised fine tune;Just Decoder |
+| BERT                                                         | Encoder; Predict the mask words                              |
+| MASS                                                         |                                                              |
+| UniLM                                                        |                                                              |
+| XLNET                                                        |                                                              |
+| ERINE                                                        |                                                              |
 
 ### [Metric](https://chinesenlp.xyz/#/docs/word_embedding)
 
@@ -215,48 +187,50 @@
 
 ## Classification
 
-| Model         | Tips                          | Result                   |
-| ------------- | ----------------------------- | ----------------------------- |
-| [TextCNN]((https://arxiv.org/abs/1408.5882))       | 短文本                        | THUnews:              |
-| RNN           | 长文本                        |                         |
-| [Fastext](https://fasttext.cc/)       | 多类别，大数据量              |               |
-| Capsule       | scalar to vector， 训练较慢   |    |
-| Bert + Dense  | 效果较好                      |                       |
-| Bert + DNNs   | 效果最好， 模型较大，延时较长 |  |
-| RCNN          |                               |                               |
-| Transformer   |                               |                               |
-| HAN           |                               |                               |
-| ABC           |                               |                               |
-| DMN           |                               |                               |
-| EntityNetwork |                               |                               |
-| AdversialLSTM |                               |                               |
+| Model         | Tips                          |
+| ------------- | ----------------------------- |
+| Feature Engineer + NBSVM | 可解释性 |
+| TextCNN [paper](https://arxiv.org/abs/1408.5882) | 短文本                        |
+| RNNs + Attention | 长文本                        |
+| Fastext [website](https://fasttext.cc/) | 多类别，大数据量              |
+| Capsule       | scalar to vector， 训练较慢   |
+| Bert + NNs   | 效果最好， 模型较大，延时较长 |
+| Seq2Seq with Attention |  |
+| RCNN [paper](https://arxiv.org/abs/1609.04243) [code](https://github.com/jiangxinyang227/textClassifier) | RNN + Max-pooling 降维 |
+| Transformer [paper](https://arxiv.org/abs/1706.03762) [code](https://github.com/jiangxinyang227/textClassifier) |                               |
+| HAN [paper](https://www.aclweb.org/anthology/N16-1174) | 层次注意力机制，长文本，{词向量, 句子向量， 文档向量} |
+| Attention based CNN [paper](https://arxiv.org/pdf/1512.05193.pdf) |                               |
+| DMN [paper](https://arxiv.org/pdf/1506.07285.pdf) [code](https://github.com/brightmart/text_classification) | Memory-Based |
+| EntityNetwork [source-code](https://github.com/siddk/entity-network) [code](https://github.com/brightmart/text_classification) | Memory-Based |
+| AdversialLSTM [paper](https://arxiv.org/abs/1605.07725) [blog](https://www.cnblogs.com/jiangxinyang/p/10208363.html) | 对抗样本，正则化，避免过拟合 |
 
-## Slot Filling
+## Lexical Analysis
 
-| Model                                               | Tips | Result |
-| --------------------------------------------------- | ---- | ------ |
-| [Bi-LSTM CRF](https://arxiv.org/pdf/1508.01991.pdf) |      |        |
-| IDCNN CRF                                           |      |        |
-| Seq2Seq + CRF                                       |      |        |
-| DBN                                                 |      |        |
-| Lattice-LSTM CRF                                    |      |        |
-| BERT-BIGRU-CRF                                      | SOTA |        |
+| Model                                                        | Tips                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| BiLSTM CRF [paper](https://arxiv.org/pdf/1508.01991.pdf) [code](https://github.com/Determined22/zh-NER-TF) | BiLSTM 进行表示学习，CRF解码                                 |
+| IDCNN CRF [paper](https://arxiv.org/abs/1511.07122) [source-code](https://github.com/iesl/dilated-cnn-ner) [code](https://github.com/crownpku/Information-Extraction-Chinese/tree/master/NER_IDCNN_CRF) [blog](https://www.cnblogs.com/pinking/p/9192546.html) | CNN in NLP Trick, 添加空洞，增加感受野                       |
+| Lattice-LSTM CRF [paper](https://arxiv.org/abs/1805.02023) [source-code](https://github.com/jiesutd/LatticeLSTM) [blog](https://new.qq.com/omn/20180630/20180630A0IH3X.html) | 中文 char-embedding 和 word embedding 的结合；SOTA with static embedding |
+| BERT-BIGRU CRF [code](https://github.com/macanv/BERT-BiLSTM-CRF-NER) | SOTA                                                         |
+| DBN CRF                                                      |                                                              |
 
 ## Sentiment Analysis
 
-| Model                                                        | Tips        | Result |
-| ------------------------------------------------------------ | ----------- | ------ |
-| [ATAE](Wang, Yequan, Minlie Huang, and Li Zhao. "Attention-based lstm for aspect-level sentiment classification." Proceedings of the 2016 conference on empirical methods in natural language processing. 2016) | EMNLP 2016  |        |
-| [MGAN](http://aclweb.org/anthology/D18-1380)                 | EMNLP 2018  |        |
-| AOA                                                          |             |        |
-| TNet                                                         |             |        |
-| Cabasc                                                       |             |        |
-| RAM                                                          | EMNLP 2017  |        |
-| MemNet                                                       | EMNLP 2016  |        |
-| IAN                                                          |             |        |
-| TD-LSTM                                                      | COLING 2016 |        |
-| AEN-BERT                                                     |             |        |
-| BERT-SPC                                                     |             |        |
+| Model                                                        | Tips                                                |
+| ------------------------------------------------------------ | --------------------------------------------------- |
+| TD-LSTM [paper](https://link.zhihu.com/?target=http%3A//www.aclweb.org/anthology/C16-1311) [code](https://link.zhihu.com/?target=https%3A//github.com/jimmyyfeng/TD-LSTM) | COLING 2016；两个LSTM 分别编码 context 和 target    |
+| TC-LSTM [paper]() [blog](https://zhuanlan.zhihu.com/p/43100493) | 两个LSTM 分别添加 target words 的 average embedding |
+| AT-LSTM                                                      | softmax 之前加入 aspect embedding                   |
+| ATAE-LSTM [paper](Wang, Yequan, Minlie Huang, and Li Zhao. "Attention-based lstm for aspect-level sentiment classification." Proceedings of the 2016 conference on empirical methods in natural language processing. 2016) [source-code](http://coai.cs.tsinghua.edu.cn/media/files/atae-lstm_uVgRmdb.rar) | EMNLP 2016；输入端加入 aspect embedding             |
+| BERT-SPC [paper](https://arxiv.org/pdf/1810.04805.pdf) [code](https://github.com/songyouwei/ABSA-PyTorch) |                                                     |
+| MGAN [paper](http://aclweb.org/anthology/D18-1380) [code](https://github.com/songyouwei/ABSA-PyTorch) | ACL 2018                                            |
+| AEN-BERT [paper](https://arxiv.org/pdf/1902.09314.pdf) [code](https://github.com/songyouwei/ABSA-PyTorch) | ACL 2019                                            |
+| AOA                                                          |                                                     |
+| TNet                                                         |                                                     |
+| Cabasc                                                       |                                                     |
+| RAM                                                          | EMNLP 2017                                          |
+| MemNet                                                       | EMNLP 2016                                          |
+| IAN                                                          |                                                     |
 
 ## Relation Extraction
 
@@ -266,20 +240,21 @@
 |                                             |                              |        |
 |                                             |                              |        |
 
-
-
 ## Natural Language Inference
+
++ Pass
 
 ## Joint Learning for NLU
 
++ Pass
+
 ## Summarization
 
-| Model    | Tips | Resule |
-| -------- | ---- | ------ |
-| TextRank |      |        |
-|          |      |        |
-|          |      |        |
-
+| Model                                                      | Tips | Resule |
+| ---------------------------------------------------------- | ---- | ------ |
+| TextRank                                                   |      |        |
+| https://github.com/crownpku/Information-Extraction-Chinese |      |        |
+|                                                            |      |        |
 
 
 # Problems
@@ -293,12 +268,15 @@
     + estimator early stopping
     
 + Unified Preprocessing
+  
     + whitespace
     
 + Corpus
+  
     + download.sh
     
 + Resoruce
+  
     + Download.sh
     
 + Code Fix
@@ -313,18 +291,9 @@
 
 + Tensorboard
 
-+ utils review
-
 + NEXT
 
-    - Embedding clean up
-      - word2vec
-      - ELMo
-    - Util clean up
     - clf/sa algorithms extend
-    - slot filling bi-gru-ctf
-    - algorithms update
-    - other algorithms extend
 
 # Open Issues
 
@@ -356,19 +325,25 @@
 ## Links
 
 + [DiDi NLP](https://chinesenlp.xyz/#/)
-
 + https://www.zhihu.com/question/52756127
++ [xlnet](https://indexfziq.github.io/2019/06/21/XLNet/)
++ [self attention](https://www.cnblogs.com/robert-dlut/p/8638283.html)
++ [embedding summary blog](https://www.cnblogs.com/robert-dlut/p/9824346.html)
++ [ulm-fit](http://nlp.fast.ai/classification/2018/05/15/introducting-ulmfit.html)
++ [open gpt](https://blog.floydhub.com/gpt2/)
 
 ## Projects
 
 + https://snips-nlu.readthedocs.io/
 + https://github.com/crownpku/Rasa_NLU_Chi
-
 + <https://github.com/jiangxinyang227/textClassifier>
 + <https://github.com/brightmart/text_classification>
 + <https://github.com/songyouwei/ABSA-PyTorch>
 + https://github.com/12190143/Deep-Learning-for-Aspect-Level-Sentiment-Classification-Baselines
 + https://github.com/guillaumegenthial/sequence_tagging
++ https://github.com/macanv/BERT-BiLSTM-CRF-NER
++ https://github.com/crownpku/Information-Extraction-Chinese/tree/master/NER_IDCNN_CRF
++ https://github.com/Determined22/zh-NER-TF
 
 ## Papers
 
@@ -377,6 +352,7 @@
 + Zhang, Lei, Shuai Wang, and Bing Liu. "Deep Learning for Sentiment Analysis: A Survey." arXiv preprint arXiv:1801.07883 (2018). [[pdf\]](https://arxiv.org/pdf/1801.07883)
 + Young, Tom, et al. "Recent trends in deep learning based natural language processing." arXiv preprint arXiv:1708.02709 (2017). [[pdf\]](https://arxiv.org/pdf/1708.02709)
 + https://ieeexplore.ieee.org/document/8726353
++ [**ABSA solutions**](https://zhuanlan.zhihu.com/p/77656863)
 
 ### Named Entity Recognition
 
@@ -415,7 +391,6 @@
 + Tang, Duyu, et al. "Effective LSTMs for Target-Dependent Sentiment Classification." Proceedings of COLING 2016, the 26th International Conference on Computational Linguistics: Technical Papers. 2016. [[pdf]](https://arxiv.org/pdf/1512.01100)
 
 
-
 # Contributions
 
 Feel free to contribute!
@@ -425,5 +400,7 @@ You can raise an issue or submit a pull request, whichever is more convenient fo
 # Licence
 
 Apache License
+
+
 
 

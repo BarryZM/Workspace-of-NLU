@@ -4,9 +4,9 @@
 ##########
 #setting
 ##########
-dataset_name='vacuum-cleaner'
+#dataset_name='frying-pan'
 #dataset_name='electric-toothbrush'
-#dataset_name="shaver"
+dataset_name="shaver"
 type_name='entity'
 gpu='3'
 
@@ -18,7 +18,7 @@ clf_result_path=./outputs/${dataset_name}/result_clf.txt
 absa_result_path=./outputs/${dataset_name}/result_absa.txt
 
 if [ $dataset_name = 'frying-pan' ];then
-absa_model=
+absa_model='/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/sentiment_analysis/outputs/bert_spc_frying-pan_val_f10.8639'
 fi
 
 if [ $dataset_name = 'vacuum-cleaner' ];then
@@ -47,8 +47,8 @@ fi
 
 
 epoch=10
-max_seq_len=256
-max_seq_len_predict=512
+max_seq_len=128
+max_seq_len_predict=1024
 learning_rate=5e-5
 hidden_layer=6
 
@@ -64,6 +64,7 @@ label_list="O,[CLS],[SEP],B-positive,I-positive,B-negative,I-negative,B-moderate
 echo $label_list
 fi
 
+### Just Predict
 ## Just Predict
 python ../lexical_analysis/models/BERT_BIRNN_CRF.py \
     --task_name="NER"  \
