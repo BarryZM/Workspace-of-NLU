@@ -234,11 +234,11 @@
 
 ## Relation Extraction
 
-| Model                                       | Tips                         | Result |
-| ------------------------------------------- | ---------------------------- | ------ |
-| [THUNLP/NRE](https://github.com/thunlp/NRE) | CNN, PCNN, CNN+ATT, PCNN+ATT |        |
-|                                             |                              |        |
-|                                             |                              |        |
+| Model                                       | Tips                         |
+| ------------------------------------------- | ---------------------------- |
+| [THUNLP/NRE](https://github.com/thunlp/NRE) | CNN, PCNN, CNN+ATT, PCNN+ATT |
+|                                             |                              |
+|                                             |                              |
 
 ## Natural Language Inference
 
@@ -247,6 +247,38 @@
 ## Joint Learning for NLU
 
 + Pass
+
+## Clustering
+
+| Methods                                                      |      |
+| ------------------------------------------------------------ | ---- |
+| K-means                                                      |      |
+| BIRCH（Balanced Iterative Reducing and Clustering Using Hierarchies） |      |
+| GMM（Gaussian mixture model）                                |      |
+| GAAC（Group-average Agglomerative Clustering）               |      |
+| 层次聚类                                                     |      |
+| FCM                                                          |      |
+| SOM                                                          |      |
+
+
+
+## Similarity
+
+| Short Text Similarity Methods                                | Tips |
+| ------------------------------------------------------------ | ---- |
+| 最长公共子序列                                               |      |
+| 编辑距离                                                     |      |
+| 相同单词个数/序列长度                                        |      |
+| word2vec+余弦相似度                                          |      |
+| Sentence2Vector [link](•https://blog.csdn.net/qjzcy/article/details/51882959?spm=0.0.0.0.zFx7Qk) |      |
+| DSSM(deep structured semantic models)(BOW/CNN/RNN) [link](https://www.cnblogs.com/qniguoym/p/7772561.html) |      |
+| lstm+topic [link](https://blog.csdn.net/qjzcy/article/details/52269382) |      |
+| Deep-siamese-text-similarity [paper](https://www.aclweb.org/anthology/W16-16#page=162) [code](https://github.com/dhwajraj/deep-siamese-text-similarity) |      |
+| 聚类                                                         |      |
+
+
+
+
 
 ## Summarization
 
