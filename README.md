@@ -180,6 +180,7 @@
 | XLNET [paper](https://arxiv.org/abs/1906.08237)              | Transformer-XL                                               |
 | ERINE [paper]() [code](https://link.zhihu.com/?target=https%3A//github.com/PaddlePaddle/LARK/tree/develop/ERNIE) | 支持中文；将BERT 中的一个字改成一个中文词                    |
 | BERT-www [paper]() [code](https://github.com/ymcui/Chinese-BERT-wwm) | 支持中文；与BERT base 结构一致，使用更大量的中文预料训练     |
+| MT-DNN                                                       |                                                              |
 
 ### [Metric](https://chinesenlp.xyz/#/docs/word_embedding)
 
@@ -195,6 +196,10 @@
 - Accuracy on Chinese sentiment analysis task
 - F1 score on Chinese named entity recognition task
 - Accuracy on part-of-speech tagging task
+
+### Reference
+
++ https://zhuanlan.zhihu.com/p/69290203
 
 
 
@@ -215,17 +220,19 @@
 | Attention based CNN [paper](https://arxiv.org/pdf/1512.05193.pdf) |                               |
 | DMN [paper](https://arxiv.org/pdf/1506.07285.pdf) [code](https://github.com/brightmart/text_classification) | Memory-Based |
 | EntityNetwork [source-code](https://github.com/siddk/entity-network) [code](https://github.com/brightmart/text_classification) | Memory-Based |
-| AdversialLSTM [paper](https://arxiv.org/abs/1605.07725) [blog](https://www.cnblogs.com/jiangxinyang/p/10208363.html) | 对抗样本，正则化，避免过拟合 |
+| Adversial-LSTM [paper](https://arxiv.org/abs/1605.07725) [blog](https://www.cnblogs.com/jiangxinyang/p/10208363.html) | 对抗样本，正则化，避免过拟合 |
+| VAT [paper](https://arxiv.org/abs/1605.07725) [blog](https://zhuanlan.zhihu.com/p/66389797) |  |
 
 ## Lexical Analysis
 
-| Model                                                        | Tips                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| BiLSTM CRF [paper](https://arxiv.org/pdf/1508.01991.pdf) [code](https://github.com/Determined22/zh-NER-TF) | BiLSTM 进行表示学习，CRF解码                                 |
-| IDCNN CRF [paper](https://arxiv.org/abs/1511.07122) [source-code](https://github.com/iesl/dilated-cnn-ner) [code](https://github.com/crownpku/Information-Extraction-Chinese/tree/master/NER_IDCNN_CRF) [blog](https://www.cnblogs.com/pinking/p/9192546.html) | CNN in NLP Trick;添加空洞，增加感受野;速度较快               |
-| Lattice-LSTM CRF [paper](https://arxiv.org/abs/1805.02023) [source-code](https://github.com/jiesutd/LatticeLSTM) [blog](https://new.qq.com/omn/20180630/20180630A0IH3X.html) | 中文 char-embedding 和 word embedding 的结合；SOTA with static embedding |
-| BERT-BIGRU CRF [code](https://github.com/macanv/BERT-BiLSTM-CRF-NER) | SOTA                                                         |
-| DBN CRF                                                      |                                                              |
+| Model                                                        | Tips                                                         | Results                      |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------- |
+| BiLSTM CRF [paper](https://arxiv.org/pdf/1508.01991.pdf) [code](https://github.com/Determined22/zh-NER-TF) | BiLSTM 进行表示学习，CRF解码                                 |                              |
+| IDCNN CRF [paper](https://arxiv.org/abs/1511.07122) [source-code](https://github.com/iesl/dilated-cnn-ner) [code](https://github.com/crownpku/Information-Extraction-Chinese/tree/master/NER_IDCNN_CRF) [blog](https://www.cnblogs.com/pinking/p/9192546.html) | CNN in NLP Trick;添加空洞，增加感受野;速度较快               |                              |
+| Lattice-LSTM CRF [paper](https://arxiv.org/abs/1805.02023) [source-code](https://github.com/jiesutd/LatticeLSTM) [blog](https://new.qq.com/omn/20180630/20180630A0IH3X.html) | 中文 char-embedding 和 word embedding 的结合；SOTA with static embedding |                              |
+| BERT-BIGRU CRF [code](https://github.com/macanv/BERT-BiLSTM-CRF-NER) | SOTA                                                         |                              |
+| DBN CRF                                                      |                                                              |                              |
+| NCRF++ [paper](https://arxiv.org/abs/1806.04470)             | Colling 2018                                                 | CoNLL2003 上能达到91.35的 F1 |
 
 ## Sentiment Analysis
 
