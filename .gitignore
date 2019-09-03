@@ -1,5 +1,6 @@
 *.pkl
 *.xlsx
+*.png
 __MACOSX/
 resust*/
 result*

@@ -2,7 +2,7 @@ count_dict = {}
 count = 0
 
 #with open('./absa_clf/train-term-category.txt', mode='r', encoding='utf-8') as f:
-with open('bolang_600.txt', mode='r', encoding='utf-8') as f:
+with open('result_all.txt', mode='r', encoding='utf-8') as f:
     lines = f.readlines()
     print(len(lines))
 
@@ -11,7 +11,7 @@ with open('bolang_600.txt', mode='r', encoding='utf-8') as f:
         category = lines[count+2].strip()
         polarity = lines[count+3].strip()
         #print(polarity)
-        if polarity is not '0': # 0 is negative
+        if polarity is not '2': # 0 is negative
             count = count + 4
             #print(">>> is not 0")
             continue
@@ -46,7 +46,7 @@ for key, value in new_dict.items():
 
 import xlsxwriter
 # Create an new Excel file and add a worksheet.
-workbook = xlsxwriter.Workbook('bolang_600_negative.xlsx')
+workbook = xlsxwriter.Workbook('xiao_T_positive.xlsx')
 worksheet = workbook.add_worksheet()
 # Widen the first column to make the text clearer.
 #worksheet.set_column('A:B', 20000)

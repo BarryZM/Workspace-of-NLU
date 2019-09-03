@@ -53,6 +53,7 @@
 | openTable                                                    |                                                              |                                                              |
 | [清华ATAE 源码及数据](http://coai.cs.tsinghua.edu.cn/media/files/atae-lstm_uVgRmdb.rar) |                                                              |                                                              |
 | [Kaggle Twitter Sentiment Analysis](https://www.kaggle.com/c/si650winter11/leaderboard) |                                                              |                                                              |
+| **ChnSentiCorp**                                             | 中文情感分析数据集                                           |                                                              |
 
 ## Lexical Analysis Dataset
 
@@ -70,7 +71,7 @@
 | [BosonNLP](https://link.zhihu.com/?target=http%3A//bosonnlp.com/dev/resource) |      |                                                              |
 | [CoNLL 2002）Annotated Corpus for Named Entity Recognition](https://link.zhihu.com/?target=https%3A//www.kaggle.com/abhinavwalia95/entity-annotated-corpus) |      |                                                              |
 | Weibo NER corpus                                             |      | 1890条, person, organization, location and geo-political entity |
-|                                                              |      |                                                              |
+| **MSRA-NER**                                                 |      |                                                              |
 
 ## Relation Extraction Dataset
 
@@ -93,11 +94,11 @@
 
 ## Natural Language Inference Dataset
 
-| Natural Language Inference Dataset                           | SOTA | Tips           |
-| ------------------------------------------------------------ | ---- | -------------- |
-| [XNLI](XNLI: Evaluating Cross-lingual Sentence Representations) |      | EMNLP2018:FAIR |
-|                                                              |      |                |
-|                                                              |      |                |
+| Natural Language Inference Dataset                           | SOTA | Tips               |
+| ------------------------------------------------------------ | ---- | ------------------ |
+| [XNLI](XNLI: Evaluating Cross-lingual Sentence Representations) |      | EMNLP2018:**FAIR** |
+|                                                              |      |                    |
+|                                                              |      |                    |
 
 
 
@@ -116,6 +117,15 @@
 | [LETOR](http://research.microsoft.com/en-us/um/beijing/projects/letor/) |      |      |
 | [Microsoft Learning to Rank Dataset](http://research.microsoft.com/en-us/projects/mslr/) |      |      |
 | [Yahoo Learning to Rank Challenge](http://webscope.sandbox.yahoo.com/) |      |      |
+
+## Similarity Dataset
+
+| Similarity |                                                              |      |
+| ---------- | ------------------------------------------------------------ | ---- |
+| **LCQMC**  | LCQMC 是哈尔滨工业大学在自然语言处理国际顶会 COLING2018 构建的问题语义匹配数据集，其目标是判断两个问题的语义是否相同 |      |
+|            |                                                              |      |
+|            |                                                              |      |
+|            |                                                              |      |
 
 
 
@@ -156,17 +166,21 @@
 
 | Model                                                        | Tips                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Word2Vec                                                     |                                                              |
-| Glove                                                        |                                                              |
-| Fastext                                                      |                                                              |
+| One-Hot                                                      | 一个数字代表一个字，one-hot 成向量                           |
+| Word2Vec [paper](https://arxiv.org/pdf/1310.4546.pdf)        | CBOW;Skip-gram;Negative-sampling;Hierachical softmax         |
+| Glove [paper](https://nlp.stanford.edu/pubs/glove.pdf) [website](https://nlp.stanford.edu/projects/glove/) | 词-词 共现矩阵进行分解                                       |
+| Tencent [paper](https://aclweb.org/anthology/N18-2028) [website](https://aclweb.org/anthology/N18-2028[]) | 支持中文; Directional Skip-Gram                              |
 | Cove                                                         |                                                              |
-| ELMo                                                         |                                                              |
-| GPT2 [blog](https://openai.com/blog/better-language-models/) [code](https://github.com/openai/gpt-2) [paper](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) | Use unidirectional Transformer instead LSTM; unsupervised pertrained; supervised fine tune;Just Decoder |
-| BERT                                                         | Encoder; Predict the mask words                              |
-| MASS                                                         |                                                              |
-| UniLM                                                        |                                                              |
-| XLNET                                                        |                                                              |
-| ERINE                                                        |                                                              |
+| ELMo [paper](https://allennlp.org/elmo) [source-code](https://github.com/allenai/bilm-tf) | Multi-layer Bi-LM                                            |
+| GPT2 [blog](https://openai.com/blog/better-language-models/) [code](https://github.com/openai/gpt-2) [paper](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) | 使用单向 Transformer Decoder 代替 LSTM; 无监督预训练，有监督微调 |
+| BERT [paper](https://arxiv.org/abs/1810.04805) [code](https://github.com/google-research/bert) | 支持中文; 双向 Encoder; Masked LM; Next sentence predict     |
+| MASS [paper](https://arxiv.org/pdf/1905.02450.pdf) [code](https://github.com/microsoft/MASS) | Mask Length K;                                               |
+| UniLM [paper](https://arxiv.org/pdf/1905.03197.pdf) [code]() | Multi-task learning; NLG                                     |
+| XLM [paper](https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1812.10464) |                                                              |
+| XLNET [paper](https://arxiv.org/abs/1906.08237)              | Transformer-XL                                               |
+| ERINE [paper]() [code](https://link.zhihu.com/?target=https%3A//github.com/PaddlePaddle/LARK/tree/develop/ERNIE) | 支持中文；将BERT 中的一个字改成一个中文词                    |
+| BERT-www [paper]() [code](https://github.com/ymcui/Chinese-BERT-wwm) | 支持中文；与BERT base 结构一致，使用更大量的中文预料训练     |
+| MT-DNN                                                       |                                                              |
 
 ### [Metric](https://chinesenlp.xyz/#/docs/word_embedding)
 
@@ -183,13 +197,17 @@
 - F1 score on Chinese named entity recognition task
 - Accuracy on part-of-speech tagging task
 
+### Reference
+
++ https://zhuanlan.zhihu.com/p/69290203
+
 
 
 ## Classification
 
 | Model         | Tips                          |
 | ------------- | ----------------------------- |
-| Feature Engineer + NBSVM | 可解释性 |
+| Feature Engineer + NBSVM [paper](http://nlp.stanford.edu/pubs/sidaw12_simple_sentiment.pdf) [code](https://github.com/mesnilgr/nbsvm) | 可解释性 |
 | TextCNN [paper](https://arxiv.org/abs/1408.5882) | 短文本                        |
 | RNNs + Attention | 长文本                        |
 | Fastext [website](https://fasttext.cc/) | 多类别，大数据量              |
@@ -198,21 +216,23 @@
 | Seq2Seq with Attention |  |
 | RCNN [paper](https://arxiv.org/abs/1609.04243) [code](https://github.com/jiangxinyang227/textClassifier) | RNN + Max-pooling 降维 |
 | Transformer [paper](https://arxiv.org/abs/1706.03762) [code](https://github.com/jiangxinyang227/textClassifier) |                               |
-| HAN [paper](https://www.aclweb.org/anthology/N16-1174) | 层次注意力机制，长文本，{词向量, 句子向量， 文档向量} |
+| HAN [paper](https://www.aclweb.org/anthology/N16-1174) [code](https://github.com/lc222/HAN-text-classification-tf) | 层次注意力机制，长文本，{词向量, 句子向量， 文档向量} |
 | Attention based CNN [paper](https://arxiv.org/pdf/1512.05193.pdf) |                               |
 | DMN [paper](https://arxiv.org/pdf/1506.07285.pdf) [code](https://github.com/brightmart/text_classification) | Memory-Based |
 | EntityNetwork [source-code](https://github.com/siddk/entity-network) [code](https://github.com/brightmart/text_classification) | Memory-Based |
-| AdversialLSTM [paper](https://arxiv.org/abs/1605.07725) [blog](https://www.cnblogs.com/jiangxinyang/p/10208363.html) | 对抗样本，正则化，避免过拟合 |
+| Adversial-LSTM [paper](https://arxiv.org/abs/1605.07725) [blog](https://www.cnblogs.com/jiangxinyang/p/10208363.html) | 对抗样本，正则化，避免过拟合 |
+| VAT [paper](https://arxiv.org/abs/1605.07725) [blog](https://zhuanlan.zhihu.com/p/66389797) |  |
 
 ## Lexical Analysis
 
-| Model                                                        | Tips                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| BiLSTM CRF [paper](https://arxiv.org/pdf/1508.01991.pdf) [code](https://github.com/Determined22/zh-NER-TF) | BiLSTM 进行表示学习，CRF解码                                 |
-| IDCNN CRF [paper](https://arxiv.org/abs/1511.07122) [source-code](https://github.com/iesl/dilated-cnn-ner) [code](https://github.com/crownpku/Information-Extraction-Chinese/tree/master/NER_IDCNN_CRF) [blog](https://www.cnblogs.com/pinking/p/9192546.html) | CNN in NLP Trick, 添加空洞，增加感受野                       |
-| Lattice-LSTM CRF [paper](https://arxiv.org/abs/1805.02023) [source-code](https://github.com/jiesutd/LatticeLSTM) [blog](https://new.qq.com/omn/20180630/20180630A0IH3X.html) | 中文 char-embedding 和 word embedding 的结合；SOTA with static embedding |
-| BERT-BIGRU CRF [code](https://github.com/macanv/BERT-BiLSTM-CRF-NER) | SOTA                                                         |
-| DBN CRF                                                      |                                                              |
+| Model                                                        | Tips                                                         | Results                      |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------- |
+| BiLSTM CRF [paper](https://arxiv.org/pdf/1508.01991.pdf) [code](https://github.com/Determined22/zh-NER-TF) | BiLSTM 进行表示学习，CRF解码                                 |                              |
+| IDCNN CRF [paper](https://arxiv.org/abs/1511.07122) [source-code](https://github.com/iesl/dilated-cnn-ner) [code](https://github.com/crownpku/Information-Extraction-Chinese/tree/master/NER_IDCNN_CRF) [blog](https://www.cnblogs.com/pinking/p/9192546.html) | CNN in NLP Trick;添加空洞，增加感受野;速度较快               |                              |
+| Lattice-LSTM CRF [paper](https://arxiv.org/abs/1805.02023) [source-code](https://github.com/jiesutd/LatticeLSTM) [blog](https://new.qq.com/omn/20180630/20180630A0IH3X.html) | 中文 char-embedding 和 word embedding 的结合；SOTA with static embedding |                              |
+| BERT-BIGRU CRF [code](https://github.com/macanv/BERT-BiLSTM-CRF-NER) | SOTA                                                         |                              |
+| DBN CRF                                                      |                                                              |                              |
+| NCRF++ [paper](https://arxiv.org/abs/1806.04470)             | Colling 2018                                                 | CoNLL2003 上能达到91.35的 F1 |
 
 ## Sentiment Analysis
 
@@ -234,11 +254,11 @@
 
 ## Relation Extraction
 
-| Model                                       | Tips                         | Result |
-| ------------------------------------------- | ---------------------------- | ------ |
-| [THUNLP/NRE](https://github.com/thunlp/NRE) | CNN, PCNN, CNN+ATT, PCNN+ATT |        |
-|                                             |                              |        |
-|                                             |                              |        |
+| Model                                       | Tips                         |
+| ------------------------------------------- | ---------------------------- |
+| [THUNLP/NRE](https://github.com/thunlp/NRE) | CNN, PCNN, CNN+ATT, PCNN+ATT |
+|                                             |                              |
+|                                             |                              |
 
 ## Natural Language Inference
 
@@ -247,6 +267,38 @@
 ## Joint Learning for NLU
 
 + Pass
+
+## Clustering
+
+| Methods                                                      |      |
+| ------------------------------------------------------------ | ---- |
+| K-means                                                      |      |
+| BIRCH（Balanced Iterative Reducing and Clustering Using Hierarchies） |      |
+| GMM（Gaussian mixture model）                                |      |
+| GAAC（Group-average Agglomerative Clustering）               |      |
+| 层次聚类                                                     |      |
+| FCM                                                          |      |
+| SOM                                                          |      |
+
+
+
+## Similarity
+
+| Short Text Similarity Methods                                | Tips |
+| ------------------------------------------------------------ | ---- |
+| 最长公共子序列                                               |      |
+| 编辑距离                                                     |      |
+| 相同单词个数/序列长度                                        |      |
+| word2vec+余弦相似度                                          |      |
+| Sentence2Vector [link](•https://blog.csdn.net/qjzcy/article/details/51882959?spm=0.0.0.0.zFx7Qk) |      |
+| DSSM(deep structured semantic models)(BOW/CNN/RNN) [link](https://www.cnblogs.com/qniguoym/p/7772561.html) |      |
+| lstm+topic [link](https://blog.csdn.net/qjzcy/article/details/52269382) |      |
+| Deep-siamese-text-similarity [paper](https://www.aclweb.org/anthology/W16-16#page=162) [code](https://github.com/dhwajraj/deep-siamese-text-similarity) |      |
+| 聚类                                                         |      |
+
+
+
+
 
 ## Summarization
 

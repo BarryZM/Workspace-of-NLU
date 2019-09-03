@@ -49,7 +49,7 @@ fi
 
 epoch=10
 max_seq_len=128
-max_seq_len_predict=1024
+max_seq_len_predict=512
 learning_rate=5e-5
 hidden_layer=6
 
@@ -81,7 +81,7 @@ python ../lexical_analysis/models/BERT_BIRNN_CRF.py \
     --bert_config_file=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_config.json \
     --init_checkpoint=/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/resources/chinese_L-12_H-768_A-12/bert_model.ckpt   \
     --max_seq_length=$max_seq_len   \
-    --predict_batch_size=32   \
+    --predict_batch_size=20   \
     --learning_rate=${learning_rate}   \
     --num_train_epochs=$epoch   \
     --output_dir=$target_folder
@@ -109,7 +109,7 @@ python ../classification/train.py  \
     --dataset_name ${dataset_name} \
     --model_name text_cnn \
     --epoch 5 \
-    --batch_size 128 \
+    --batch_size 10 \
     --do_predict \
     --learning_rate 1e-3 \
     --results_file ${clf_result_path} \
