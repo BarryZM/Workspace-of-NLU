@@ -12,7 +12,6 @@ class TextCNN(object):
         self.seq_len = args.max_seq_len
         self.emb_dim = args.emb_dim
         self.hidden_dim = args.hidden_dim
-        self.batch_size = args.batch_size
         self.filters_num = args.filters_num
         self.filters_size = args.filters_size
         self.class_num = len(str(args.label_list).split(','))

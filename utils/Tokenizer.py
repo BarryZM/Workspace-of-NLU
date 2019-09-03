@@ -87,17 +87,23 @@ class Tokenizer(object):
         :return: null
         """
 
-        # if file is exist, skip
-
         if self.lower:
             tmp_text = input_text.lower()
 
         from collections import Counter
         count = Counter(tmp_text)
 
+        # add <PAD> <UNK>
+
+        self.word2idx['<UNK>'] = 0
+        self.word2idx['<PAD>'] = 1
+
+        self.idx2word[0] = self.word2idx['<UNK>']
+        self.idx2word[1] = self.word2idx['<PAD>']
+
         for idx, item in enumerate(count):
-            self.word2idx[item] = idx + 1  # must + 1
-            self.idx2word[idx + 1] = item
+            self.word2idx[item] = idx + 2
+            self.idx2word[idx + 2] = item
 
     def __set_word2vec(self, embedding_path, word2idx=None):
         """
@@ -141,10 +147,10 @@ class Tokenizer(object):
             embedding_matrix = np.zeros((len(word2idx) + 2, 300))
         elif self.emb_type == 'tencent':
             embedding_matrix = np.zeros((len(word2idx) + 2, 200))
-            embedding_matrix[0] = np.zeros(200) # Padding 
             unknown_words_vector = np.random.rand(200)
-            embedding_matrix[len(word2idx)+1] = unknown_words_vector  # Unknown words 
-            
+            embedding_matrix[0] = unknown_words_vector  # Unknown words
+            embedding_matrix[1] = np.zeros(200) # Padding
+
             for word, idx in word2idx.items():
                 if word in self.word2vec.keys():
                     embedding_matrix[idx] = self.word2vec[word]
