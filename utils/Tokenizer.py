@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# file: data_utils.py
 # author: apollo2mars <apollo2mars@gmail.com>
 
 # problem: vocabulary and word2vec not saved
@@ -24,18 +23,16 @@ class Tokenizer(object):
         if embedding matrix exits, load from exit file
         else build new embedding matrix
     """
-    def __init__(self, corpus_files, max_seq_len, emb_type, dat_fname):
+    def __init__(self, corpus_files, max_seq_len, emb_type):
         """
 
         :param corpus_files:
         :param max_seq_len:
         :param emb_type:
-        :param dat_fname:
         """
 
         self.max_seq_len = max_seq_len
         self.emb_type = emb_type.lower()
-        self.dat_path = dat_fname
 
         self.lower = True
 
@@ -61,7 +58,7 @@ class Tokenizer(object):
         self.__set_vocabulary(input_text=self.fit_text)
         self.__set_word2vec(embedding_path=self.embedding_files['Static'][self.emb_type],
                             word2idx=self.word2idx)
-        self.__set_embedding_matrix(word2idx=self.word2idx, dat_fname=self.dat_path)
+        self.__set_embedding_matrix(word2idx=self.word2idx)
         
     def __set_embedding_info(self):
         """
@@ -135,18 +132,13 @@ class Tokenizer(object):
         
         self.word2vec = word2vec
 
-    def __set_embedding_matrix(self, word2idx, dat_fname):
+    def __set_embedding_matrix(self, word2idx):
         """
         :param word2idx: word2idx
-        :param dat_fname: embedding matrix file path
         :return:
         """
-        if os.path.exists(dat_fname):
-            print("use exist embedding file")
-            embedding_matrix = pickle.load(open(dat_fname, 'rb'))
-        elif self.emb_type == 'random':
+        if self.emb_type == 'random':
             embedding_matrix = np.zeros((len(word2idx) + 2, 300))
-            pickle.dump(embedding_matrix, open(dat_fname, 'wb'))
         elif self.emb_type == 'tencent':
             embedding_matrix = np.zeros((len(word2idx) + 2, 200))
             embedding_matrix[0] = np.zeros(200) # Padding 
@@ -159,7 +151,6 @@ class Tokenizer(object):
                 else:
                     embedding_matrix[idx] = unknown_words_vector
 
-            pickle.dump(embedding_matrix, open(dat_fname, 'wb'))
         elif self.emb_type == 'bert':
             pass
        
