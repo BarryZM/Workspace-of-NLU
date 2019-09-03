@@ -223,4 +223,4 @@ def build_tokenizer(corpus_files, max_seq_len, corpus_type, embedding_type):
 
 
 if __name__ == '__main__':
-    build_tokenizer(['a.txt', 32, 'demo', 'tencent'])
+    build_tokenizer(['a.txt'], 32, 'demo', 'tencent')
