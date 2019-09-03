@@ -1,9 +1,4 @@
-import os, time, sys
 import tensorflow as tf
-import tensorflow.contrib as tc
-from tensorflow.contrib.rnn import GRUCell
-from tensorflow.contrib.crf import crf_log_likelihood
-
 
 class BIRNN_CRF(object):
     def __init__(self, args, tokenizer):
