@@ -2,7 +2,7 @@
 # file: data_utils.py
 # author: apollo2mars <apollo2mars@gmail.com>
 
-# problem: vocabulary not saved
+# problem: vocabulary and word2vec not saved
 # pickle hdf5
 
 import pickle
@@ -24,12 +24,13 @@ class Tokenizer(object):
         if embedding matrix exits, load from exit file
         else build new embedding matrix
     """
-    def __init__(self, origin_file, max_seq_len, emb_type, dat_fname):
+    def __init__(self, corpus_files, max_seq_len, emb_type, dat_fname):
         """
-        :param origin_file: corpus for fit word2idx and idx2word
+
+        :param corpus_files:
         :param max_seq_len:
         :param emb_type:
-        :param dat_fname: embedding matrix file name
+        :param dat_fname:
         """
 
         self.max_seq_len = max_seq_len
@@ -38,8 +39,17 @@ class Tokenizer(object):
 
         self.lower = True
 
-        lines = open(origin_file, 'r', encoding='utf-8', newline='\n', errors='ignore')
-        self.fit_text = ' '.join(lines)
+        tmp_text = ''
+        for fname in corpus_files:
+            if fname.strip() == '':
+                continue
+            fin = open(fname, 'r', encoding='utf-8', newline='\n', errors='ignore')
+            lines = fin.readlines()
+            fin.close()
+            for i in range(0, len(lines), 3):
+                text_raw = lines[i].lower().strip()
+                tmp_text += text_raw + " "
+        self.fit_text = tmp_text
 
         self.embedding_info = {}
         self.word2idx = {}
@@ -198,19 +208,19 @@ class Tokenizer(object):
             sequence = sequence[::-1]
 
         tmp_list = self.__pad_and_truncate(sequence, self.max_seq_len, padding=padding, truncating=truncating)
-        return [ self.embedding_matrix[item] for item in tmp_list]
+        return [self.embedding_matrix[item] for item in tmp_list]
 
-    def encode_label():
-        pass
-    
-    def dataset():
-        pass
+
+def build_tokenizer(corpus_files, max_seq_len, corpus_type, embedding_type):
+    tokenizer_path = corpus_type + "_" + embedding_type + "_" + "tokenizer.dat"
+    if os.path.exists(tokenizer_path):
+        print('loading tokenizer:', tokenizer_path)
+        tokenizer = pickle.load(open(tokenizer_path, 'rb'))
+    else:
+        tokenizer = Tokenizer(corpus_files=corpus_files, max_seq_len=max_seq_len, emb_type=embedding_type)
+        pickle.dump(tokenizer, open(tokenizer_path, 'wb'))
+    return tokenizer
 
 
 if __name__ == '__main__':
-    emb_type = 'tencent'
-    tokenizer = Tokenizer(origin_file = "a.txt", max_seq_len=32, emb_type=emb_type, dat_fname=emb_type+"_tokenizer.dat")
-    text = "中文自然语言处理，Natural Language Process"
-    print(tokenizer.word2idx)
-    print(tokenizer.idx2word)
-    print(tokenizer.encode("中文"))
+    build_tokenizer(['a.txt', 32, 'demo', 'tencent'])

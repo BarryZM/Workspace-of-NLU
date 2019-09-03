@@ -66,6 +66,7 @@ tf.flags.DEFINE_string("master", None, "[Optional] TensorFlow master URL.")
 flags.DEFINE_bool("use_tpu", False, "Whether to use TPU or GPU/CPU.")
 flags.DEFINE_integer( "num_tpu_cores", 8, "Only used if `use_tpu` is True. Total number of TPU cores to use.")
 
+
 class InputExample(object):
     """A single training/test example for simple sequence classification."""
 
@@ -185,6 +186,7 @@ class NerProcessor(DataProcessor):
             examples.append(InputExample(guid=guid, text=line[0], label=line[1]))
         return examples
 
+
 def write_tokens(tokens,mode):
     if mode=="test":
         path = os.path.join(FLAGS.output_dir, "token_"+mode+".txt")
@@ -193,6 +195,7 @@ def write_tokens(tokens,mode):
             if token!="**NULL**":
                 wf.write(token+'\n')
         wf.close()
+
 
 def convert_single_example(ex_index, example, label_list, max_seq_length, tokenizer,mode):
     label_map = {}
@@ -660,6 +663,7 @@ def main(_):
                         print("item is ", item)
                         break
                 writer.write(output_line)
+
 
 if __name__ == "__main__":
     os.environ['CUDA_VISIBLE_DEVICES'] = FLAGS.gpu

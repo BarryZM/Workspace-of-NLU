@@ -80,7 +80,7 @@
 | SemEval 2010 Task 8         |      |                               |
 | FewRel                      |      | EMNLP2018，清华               |
 | NYT10                       |      | https://github.com/thunlp/NRE |
-|                             |      |                               |
+| 百度实体链接 CCKS2019                            |      |                               |
 
 ## Semantic Role Labeling Dataset
 
@@ -133,7 +133,7 @@
 
 ## Stop words
 
-| Stop Words |      |
+| Stop Words | Tips |
 | ---------- | ---- |
 |            |      |
 |            |      |
@@ -264,15 +264,12 @@
 
 + Pass
 
-## Joint Learning for NLU
-
-+ Pass
-
 ## Clustering
 
-| Methods                                                      |      |
+| Method                                                       | Tips |
 | ------------------------------------------------------------ | ---- |
-| K-means                                                      |      |
+| TF-IDF + K-means                                             |      |
+| Word2vec + K-means                                           |      |
 | BIRCH（Balanced Iterative Reducing and Clustering Using Hierarchies） |      |
 | GMM（Gaussian mixture model）                                |      |
 | GAAC（Group-average Agglomerative Clustering）               |      |
@@ -307,6 +304,25 @@
 | TextRank                                                   |      |        |
 | https://github.com/crownpku/Information-Extraction-Chinese |      |        |
 |                                                            |      |        |
+
+
+
+# Advance Solutions
+
+## Joint Learning for NLU
+
+- Pass
+
+## Semi-Supervised NLU
+
+| Model                                                        | Tips | Result |
+| ------------------------------------------------------------ | ---- | ------ |
+| [adversarial_text](https://github.com/aonotas/adversarial_text) |      |        |
+|                                                              |      |        |
+|                                                              |      |        |
+|                                                              |      |        |
+|                                                              |      |        |
+
 
 
 # Problems
@@ -371,6 +387,7 @@
 
 ## Links
 
++ [第四届语言与智能高峰论坛 报告](http://tcci.ccf.org.cn/summit/2019/dl.php)
 + [DiDi NLP](https://chinesenlp.xyz/#/)
 + https://www.zhihu.com/question/52756127
 + [xlnet](https://indexfziq.github.io/2019/06/21/XLNet/)
@@ -391,6 +408,7 @@
 + https://github.com/macanv/BERT-BiLSTM-CRF-NER
 + https://github.com/crownpku/Information-Extraction-Chinese/tree/master/NER_IDCNN_CRF
 + https://github.com/Determined22/zh-NER-TF
++ https://github.com/EOA-AILab/NER-Chinese
 
 ## Papers
 
@@ -406,6 +424,8 @@
 - Bidirectional LSTM-CRF Models for Sequence Tagging
 - Neural Architectures for Named Entity Recognition
 - Character-Based LSTM-CRF with Radical-Level Features for Chinese Named Entity Recognition
+- Cross-Domain and Semi-Supervised Named Entity Recognition in Chinese Social Media: A Unified Model 
+  - https://zhuanlan.zhihu.com/p/34694204
 
 ### Relation Extraction
 

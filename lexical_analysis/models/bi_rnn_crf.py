@@ -5,18 +5,12 @@ from tensorflow.contrib.rnn import GRUCell
 from tensorflow.contrib.crf import crf_log_likelihood
 from tensorflow.contrib.crf import viterbi_decode
 from tensorflow.python.framework.graph_util import convert_variables_to_constants
-from copy import deepcopy
 from tqdm import tqdm
-import logging
 
 """
 root path
 """
-abs_path = os.path.abspath(os.path.dirname(__file__))
-project_path = abs_path[:abs_path.find("NLU-SLOT/") + len("NLU-SLOT/")]
-sys.path.append(project_path)
 
-from util.utils import get_logger
 from util.data import pad_sequences, batch_yield
 from metric.sentence_level import calc_partial_match_evaluation_per_line, calc_overall_evaluation
 
@@ -81,7 +75,6 @@ class bi_rnn_crf(object):
         self.shuffle = args.shuffle
         self.model_path = paths['model_path']
         self.summary_path = paths['summary_path']
-        self.logger = get_logger(paths['log_path'])
         self.result_path = paths['result_path']
         self.log_path = paths['log_path']
         self.config = config
