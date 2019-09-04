@@ -64,7 +64,7 @@ class BIRNN_CRF(object):
                                                                                         dtype=tf.float64)
                     # sequence_length=tf.tile([self.seq_len], [self.args.batch_size]),
                     outputs = tf.concat([output_fw_seq, output_bw_seq], axis=-1)
-                    outputs = tf.cast(outputs, dtype=tf.float32)
+                    self.outputs = tf.cast(outputs, dtype=tf.float32)
                     # outputs = tf.nn.dropout(outputs, self.dropout_pl)
 
                 # lstm_cell_fw = tf.nn.rnn_cell.GRUCell(self.hidden_dim)
@@ -132,7 +132,7 @@ class BIRNN_CRF(object):
             #
 
             # linear
-            self.outputs = tf.reshape(outputs, [-1, self.hidden_dim * 2])
+            self.outputs = tf.reshape(self.outputs, [-1, self.hidden_dim * 2])
             self.softmax_w = tf.get_variable("softmax_w", [self.hidden_dim * 2, self.class_num], initializer=self.initializer, dtype=tf.float32)
             self.softmax_b = tf.get_variable("softmax_b", [self.class_num], initializer=self.initializer, dtype=tf.float32)
             self.logits = tf.matmul(self.outputs, self.softmax_w) + self.softmax_b
