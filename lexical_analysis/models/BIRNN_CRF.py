@@ -53,7 +53,15 @@ class BIRNN_CRF(object):
                 with tf.variable_scope("bi-lstm"):
                     cell_fw = tf.nn.rnn_cell.GRUCell(self.hidden_dim)
                     cell_bw = tf.nn.rnn_cell.GRUCell(self.hidden_dim)
-                    (output_fw_seq, output_bw_seq), _ = tf.nn.bidirectional_dynamic_rnn(cell_fw=cell_fw, cell_bw=cell_bw, inputs=inputs_emb, dtype=tf.float64)
+
+                    # get the length of each sample
+                    self.length = tf.reduce_sum(tf.sign(self.input_x), reduction_indices=1)
+                    self.length = tf.cast(self.length, tf.int32)
+
+                    (output_fw_seq, output_bw_seq), _ = tf.nn.bidirectional_dynamic_rnn(cell_fw=cell_fw,
+                                                                                        cell_bw=cell_bw,
+                                                                                        inputs=inputs_emb,
+                                                                                        dtype=tf.float64)
                     # sequence_length=tf.tile([self.seq_len], [self.args.batch_size]),
                     outputs = tf.concat([output_fw_seq, output_bw_seq], axis=-1)
                     outputs = tf.cast(outputs, dtype=tf.float32)
@@ -145,8 +153,8 @@ class BIRNN_CRF(object):
                 self.loss = tf.reduce_mean(losses)
             else:
                 # crf
-                log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(self.logits, self.targets)
-                self.batch_pred_sequence, self.batch_viterbi_score = tf.contrib.crf.crf_decode(self.logits, self.transition_params)
+                log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(self.logits, self.targets, self.length)
+                self.batch_pred_sequence, self.batch_viterbi_score = tf.contrib.crf.crf_decode(self.logits, self.transition_params, self.length)
                 self.loss = tf.reduce_mean(-log_likelihood)
 
             # summary
