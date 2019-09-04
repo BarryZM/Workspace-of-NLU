@@ -18,6 +18,7 @@ class BIRNN_CRF(object):
         self.num_layers = 1
 
         self.rnn_outputs = None
+        self.att_outputs = None
 
         self.seq_len = args.max_seq_len
         self.emb_dim = 200  # ???
@@ -38,7 +39,7 @@ class BIRNN_CRF(object):
         pass
 
     def birnn_crf(self):
-        tf.global_variables_initializer()
+        # tf.global_variables_initializer()
 
         with tf.device('/cpu:0'):
 
@@ -68,12 +69,12 @@ class BIRNN_CRF(object):
                 outputs = tf.cast(outputs, dtype=tf.float32)
 
                 if self.is_training:
-                    self.rnn_outputs = tf.nn.dropout(outputs, self.dropout_pl)
+                    self.rnn_outputs = tf.nn.dropout(outputs, 0.1)
+                else:
+                    self.rnn_outputs = outputs
 
                 # rnn multi cell
 
-        else:
-            pass
             # lstm_cell = self.cell
             # if self.is_training:
             #     lstm_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob=(1 - self.dropout_rate))
