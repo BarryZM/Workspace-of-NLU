@@ -38,13 +38,13 @@ class BIRNN_CRF(object):
 
         with tf.device('/cpu:0'):
             inputs_emb = tf.nn.embedding_lookup(self.embedding_matrix, self.input_x)
-            print(inputs_emb.get_shape())
-            inputs_emb = tf.transpose(inputs_emb, [1, 0, 2])
-            print(inputs_emb.get_shape())
-            inputs_emb = tf.reshape(inputs_emb, [-1, self.emb_dim])
-            print(inputs_emb.get_shape())
-            inputs_emb = tf.split(inputs_emb, self.seq_len, 0)
-            print(inputs_emb.get_shape())
+            # print(inputs_emb.get_shape())
+            # inputs_emb = tf.transpose(inputs_emb, [1, 0, 2])
+            # print(inputs_emb.get_shape())
+            # inputs_emb = tf.reshape(inputs_emb, [-1, self.emb_dim])
+            # print(inputs_emb.get_shape())
+            # inputs_emb = tf.split(inputs_emb, self.seq_len, 0)
+            # print(inputs_emb.get_shape())
 
             if self.biderectional:
 
