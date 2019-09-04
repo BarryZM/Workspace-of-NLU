@@ -13,7 +13,7 @@ class BIRNN_CRF(object):
         self.num_layers = 1
 
         self.seq_len = args.max_seq_len
-        self.emb_dim = args.emb_dim  # ???
+        self.emb_dim = 200  # ???
         self.hidden_dim = args.hidden_dim
         self.class_num = len(str(args.label_list).split(','))
         self.learning_rate = args.learning_rate
