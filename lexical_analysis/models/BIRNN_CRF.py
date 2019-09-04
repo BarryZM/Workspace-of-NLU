@@ -11,7 +11,7 @@ class BIRNN_CRF(object):
         self.batch_size = args.batch_size
         self.initializer = tf.random_uniform_initializer
         self.is_training = False
-        self.is_attention = True
+        self.is_attention = False
         self.is_crf = True
         self.biderectional = True
         self.dropout_rate = 0.1
@@ -70,9 +70,9 @@ class BIRNN_CRF(object):
                 outputs = tf.cast(outputs, dtype=tf.float32)
 
                 if self.is_training:
-                    self.rnn_outputs = tf.nn.dropout(outputs, 0.1)
+                    self.outputs = tf.nn.dropout(outputs, 0.1)
                 else:
-                    self.rnn_outputs = outputs
+                    self.outputs = outputs
 
                 # rnn multi cell
 
@@ -108,14 +108,14 @@ class BIRNN_CRF(object):
 
             # Array of weights for each time step
             A = tf.nn.softmax(u, name="attention")
-            self.att_outputs = tf.matmul(A, tf.reshape(tf.identity(self.rnn_outputs), [-1, self.seq_len, self.hidden_dim * 2]))
+            self.outputs = tf.matmul(A, tf.reshape(tf.identity(self.rnn_outputs), [-1, self.seq_len, self.hidden_dim * 2]))
 
         # linear
         # self.outputs = tf.reshape(self.outputs, [-1, self.hidden_dim * 2])
         self.softmax_w = tf.get_variable("softmax_w", [self.hidden_dim * 2, self.class_num], initializer=self.initializer, dtype=tf.float32)
         self.softmax_b = tf.get_variable("softmax_b", [self.class_num], initializer=self.initializer, dtype=tf.float32)
 
-        self.logits = tf.matmul(tf.reshape(self.att_outputs, [-1, 2*self.hidden_dim]), self.softmax_w) + self.softmax_b
+        self.logits = tf.matmul(tf.reshape(self.outputs, [-1, 2*self.hidden_dim]), self.softmax_w) + self.softmax_b
 
         self.logits = tf.reshape(self.logits, [-1, self.seq_len, self.class_num])
 
