@@ -82,20 +82,21 @@ class BIRNN_CRF(object):
                 #     outputs = tf.reshape(outputs, [self.batch_size, self.max_time_steps, self.hidden_dim * 2])
 
             else:
-                lstm_cell = self.cell
-                if self.is_training:
-                    lstm_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob=(1 - self.dropout_rate))
-                lstm_cell = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * self.num_layers)
-
-                outputs, _ = tf.contrib.rnn.static_rnn(
-                    lstm_cell,
-                    inputs_emb,
-                    dtype=tf.float32,
-                    sequence_length=self.seq_len * self.args.batch_size
-                )
-                # outputs: list_steps[batch, 2*dim]
-                outputs = tf.concat(outputs, 1)
-                outputs = tf.reshape(outputs, [self.batch_size, self.max_time_steps, self.hidden_dim * 2])
+                pass
+                # lstm_cell = self.cell
+                # if self.is_training:
+                #     lstm_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob=(1 - self.dropout_rate))
+                # lstm_cell = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * self.num_layers)
+                #
+                # outputs, _ = tf.contrib.rnn.static_rnn(
+                #     lstm_cell,
+                #     inputs_emb,
+                #     dtype=tf.float32,
+                #     sequence_length=self.seq_len * self.args.batch_size
+                # )
+                # # outputs: list_steps[batch, 2*dim]
+                # outputs = tf.concat(outputs, 1)
+                # outputs = tf.reshape(outputs, [self.batch_size, self.max_time_steps, self.hidden_dim * 2])
 
 
 
