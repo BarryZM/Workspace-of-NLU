@@ -8,6 +8,7 @@ class BIRNN_CRF(object):
         self.args = args
         self.tokenizer = tokenizer
 
+        self.initializer = tf.random_uniform_initializer
         self.is_training = False
         self.is_attention = True
         self.is_crf = True
@@ -121,12 +122,12 @@ class BIRNN_CRF(object):
 
             # linear
             self.outputs = tf.reshape(outputs, [-1, self.hidden_dim * 2])
-            self.softmax_w = tf.get_variable("softmax_w", [self.hidden_dim * 2, self.num_classes],
+            self.softmax_w = tf.get_variable("softmax_w", [self.hidden_dim * 2, self.class_num],
                                              initializer=self.initializer)
-            self.softmax_b = tf.get_variable("softmax_b", [self.num_classes], initializer=self.initializer)
+            self.softmax_b = tf.get_variable("softmax_b", [self.class_num], initializer=self.initializer)
             self.logits = tf.matmul(self.outputs, self.softmax_w) + self.softmax_b
 
-            self.logits = tf.reshape(self.logits, [self.batch_size, self.seq_len, self.num_classes])
+            self.logits = tf.reshape(self.logits, [self.batch_size, self.seq_len, self.class_num])
             # print(self.logits.get_shape().as_list())
 
             if not self.is_crf:
