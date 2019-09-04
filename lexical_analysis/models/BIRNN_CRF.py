@@ -168,7 +168,8 @@ class BIRNN_CRF(object):
             self.dev_summary = tf.summary.scalar("loss", self.loss)
 
             # optimize
-            self.opt_op = self.optimizer.minimize(self.loss, global_step=self.global_step)
+
+            self.trainer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.loss)
 
 
 
