@@ -8,6 +8,7 @@ class BIRNN_CRF(object):
         self.args = args
         self.tokenizer = tokenizer
 
+        self.batch_size = args.batch_size
         self.initializer = tf.random_uniform_initializer
         self.is_training = False
         self.is_attention = True
