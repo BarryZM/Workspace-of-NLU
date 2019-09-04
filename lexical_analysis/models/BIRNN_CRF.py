@@ -23,6 +23,7 @@ class BIRNN_CRF(object):
         self.seq_len = args.max_seq_len
         self.emb_dim = 200  # ???
         self.hidden_dim = args.hidden_dim
+        self.attention_dim = 256
         self.class_num = len(str(args.label_list).split(',')) * 2 + 1
         self.learning_rate = args.learning_rate
 
