@@ -20,7 +20,7 @@ class BIRNN_CRF(object):
         self.seq_len = args.max_seq_len
         self.emb_dim = 200  # ???
         self.hidden_dim = args.hidden_dim
-        self.class_num = len(str(args.label_list).split(','))
+        self.class_num = len(str(args.label_list).split(',')) * 2 + 1
         self.learning_rate = args.learning_rate
 
         self.input_x = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_x')
@@ -141,7 +141,7 @@ class BIRNN_CRF(object):
 
             self.logits = tf.matmul(tf.reshape(self.outputs, [-1, 2*self.hidden_dim]), self.softmax_w) + self.softmax_b
 
-            self.logits = tf.reshape(self.logits, [self.batch_size, self.seq_len, self.class_num])
+            self.logits = tf.reshape(self.logits, [-1, self.seq_len, self.class_num])
             # print(self.logits.get_shape().as_list())
 
             if not self.is_crf:
