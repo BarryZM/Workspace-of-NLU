@@ -157,6 +157,8 @@ class BIRNN_CRF(object):
                 self.loss = tf.reduce_mean(losses)
             else:
                 # crf
+                print(self.logits.shape)
+                pritn(self.targets.shape)
                 log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(self.logits, self.targets, self.length)
                 self.batch_pred_sequence, self.batch_viterbi_score = tf.contrib.crf.crf_decode(self.logits, self.transition_params, self.length)
                 self.loss = tf.reduce_mean(-log_likelihood)
