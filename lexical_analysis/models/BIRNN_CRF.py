@@ -108,7 +108,7 @@ class BIRNN_CRF(object):
 
             # Array of weights for each time step
             A = tf.nn.softmax(u, name="attention")
-            self.att_outputs = tf.matmul(A, tf.reshape(tf.identity(self.rnn_outputs), [self.batch_size, self.seq_len, self.hidden_dim * 2]))
+            self.att_outputs = tf.matmul(A, tf.reshape(tf.identity(self.rnn_outputs), [-1, self.seq_len, self.hidden_dim * 2]))
 
         # linear
         # self.outputs = tf.reshape(self.outputs, [-1, self.hidden_dim * 2])
