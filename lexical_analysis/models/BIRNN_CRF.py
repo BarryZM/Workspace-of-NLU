@@ -40,27 +40,42 @@ class BIRNN_CRF(object):
             inputs_emb = tf.reshape(inputs_emb, [-1, self.emb_dim])
             inputs_emb = tf.split(inputs_emb, self.seq_len, 0)
 
-            # lstm cell
             if self.biderectional:
-                lstm_cell_fw = tf.nn.rnn_cell.GRUCell(self.hidden_dim)
-                lstm_cell_bw = tf.nn.rnn_cell.GRUCell(self.hidden_dim)
 
-                # dropout
-                if self.is_training:
-                    lstm_cell_fw = tf.nn.rnn_cell.DropoutWrapper(lstm_cell_fw, output_keep_prob=(1 - self.dropout_rate))
-                    lstm_cell_bw = tf.nn.rnn_cell.DropoutWrapper(lstm_cell_bw, output_keep_prob=(1 - self.dropout_rate))
+                with tf.variable_scope("bi-lstm"):
+                    cell_fw = tf.nn.rnn_cell.GRUCell(self.hidden_dim)
+                    cell_bw = tf.nn.rnn_cell.GRUCell(self.hidden_dim)
+                    (output_fw_seq, output_bw_seq), _ = tf.nn.bidirectional_dynamic_rnn(
+                        cell_fw=cell_fw,
+                        cell_bw=cell_bw,
+                        inputs=inputs_emb,
+                        sequence_length=self.seq_len,
+                        dtype=tf.float32)
+                    outputs = tf.concat([output_fw_seq, output_bw_seq], axis=-1)
+                    outputs = tf.nn.dropout(outputs, self.dropout_pl)
 
-                lstm_cell_fw = tf.nn.rnn_cell.MultiRNNCell([lstm_cell_fw] * self.num_layers)
-                lstm_cell_bw = tf.nn.rnn_cell.MultiRNNCell([lstm_cell_bw] * self.num_layers)
-
-                # forward and backward
-                outputs, _, _ = tf.contrib.rnn.static_bidirectional_rnn(
-                    lstm_cell_fw,
-                    lstm_cell_bw,
-                    inputs_emb,
-                    dtype=tf.float32,
-                    sequence_length=[self.seq_len] * self.args.batch_size
-                )
+                # lstm_cell_fw = tf.nn.rnn_cell.GRUCell(self.hidden_dim)
+                # lstm_cell_bw = tf.nn.rnn_cell.GRUCell(self.hidden_dim)
+                #
+                # # dropout
+                # if self.is_training:
+                #     lstm_cell_fw = tf.nn.rnn_cell.DropoutWrapper(lstm_cell_fw, output_keep_prob=(1 - self.dropout_rate))
+                #     lstm_cell_bw = tf.nn.rnn_cell.DropoutWrapper(lstm_cell_bw, output_keep_prob=(1 - self.dropout_rate))
+                #
+                # lstm_cell_fw = tf.nn.rnn_cell.MultiRNNCell([lstm_cell_fw] * self.num_layers)
+                # lstm_cell_bw = tf.nn.rnn_cell.MultiRNNCell([lstm_cell_bw] * self.num_layers)
+                #
+                # # forward and backward
+                # outputs, _, _ = tf.contrib.rnn.static_bidirectional_rnn(
+                #     lstm_cell_fw,
+                #     lstm_cell_bw,
+                #     inputs_emb,
+                #     dtype=tf.float32,
+                #     sequence_length=[self.seq_len] * self.args.batch_size
+                # )
+                #     # outputs: list_steps[batch, 2*dim]
+                #     outputs = tf.concat(outputs, 1)
+                #     outputs = tf.reshape(outputs, [self.batch_size, self.max_time_steps, self.hidden_dim * 2])
 
             else:
                 lstm_cell = self.cell
@@ -74,10 +89,11 @@ class BIRNN_CRF(object):
                     dtype=tf.float32,
                     sequence_length=self.seq_len * self.args.batch_size
                 )
+                # outputs: list_steps[batch, 2*dim]
+                outputs = tf.concat(outputs, 1)
+                outputs = tf.reshape(outputs, [self.batch_size, self.max_time_steps, self.hidden_dim * 2])
 
-            # outputs: list_steps[batch, 2*dim]
-            outputs = tf.concat(outputs, 1)
-            outputs = tf.reshape(outputs, [self.batch_size, self.max_time_steps, self.hidden_dim * 2])
+
 
             # # self attention module
             # if self.is_attention:
@@ -135,15 +151,5 @@ class BIRNN_CRF(object):
             # optimize
             self.opt_op = self.optimizer.minimize(self.loss, global_step=self.global_step)
 
-        # with tf.variable_scope("bi-lstm"):
-        #     cell_fw = GRUCell(self.hidden_dim)
-        #     cell_bw = GRUCell(self.hidden_dim)
-        #     (output_fw_seq, output_bw_seq), _ = tf.nn.bidirectional_dynamic_rnn(
-        #         cell_fw=cell_fw,
-        #         cell_bw=cell_bw,
-        #         inputs=inputs,
-        #         sequence_length=self.seq_len,
-        #         dtype=tf.float32)
-        #     output = tf.concat([output_fw_seq, output_bw_seq], axis=-1)
-        #     output = tf.nn.dropout(output, self.dropout_pl)
+
 
