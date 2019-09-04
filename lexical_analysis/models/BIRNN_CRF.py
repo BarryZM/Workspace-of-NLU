@@ -119,8 +119,6 @@ class BIRNN_CRF(object):
 
         self.logits = tf.reshape(self.logits, [-1, self.seq_len, self.class_num])
 
-        print(self.logits.shape)
-        print(self.targets.shape)
         # self.targets = tf.reshape(self.targets, [-1, self.seq_len, self.class_num])
 
         if not self.is_crf:
@@ -138,7 +136,12 @@ class BIRNN_CRF(object):
             # crf
             print(self.logits.shape)
             print(self.targets.shape)
+            print(length.shape)
+
             log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(self.logits, self.targets, length)
+            print(log_likelihood.shape)
+            print(transition_params.shape)
+
             self.batch_pred_sequence, self.batch_viterbi_score = tf.contrib.crf.crf_decode(self.logits, transition_params, length)
             self.loss = tf.reduce_mean(-log_likelihood)
 
