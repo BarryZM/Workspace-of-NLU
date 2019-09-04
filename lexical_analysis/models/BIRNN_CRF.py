@@ -53,9 +53,10 @@ class BIRNN_CRF(object):
                 with tf.variable_scope("bi-lstm"):
                     cell_fw = tf.nn.rnn_cell.GRUCell(self.hidden_dim)
                     cell_bw = tf.nn.rnn_cell.GRUCell(self.hidden_dim)
-                    (output_fw_seq, output_bw_seq), _ = tf.nn.bidirectional_dynamic_rnn(cell_fw=cell_fw, cell_bw=cell_bw, inputs=inputs_emb, dtype=tf.float32)
+                    (output_fw_seq, output_bw_seq), _ = tf.nn.bidirectional_dynamic_rnn(cell_fw=cell_fw, cell_bw=cell_bw, inputs=inputs_emb, dtype=tf.float64)
                     # sequence_length=tf.tile([self.seq_len], [self.args.batch_size]),
                     outputs = tf.concat([output_fw_seq, output_bw_seq], axis=-1)
+                    outputs = tf.cast(outputs, dtype=tf.float32)
                     # outputs = tf.nn.dropout(outputs, self.dropout_pl)
 
                 # lstm_cell_fw = tf.nn.rnn_cell.GRUCell(self.hidden_dim)
