@@ -39,13 +39,18 @@ class BIRNN_CRF(object):
         tf.global_variables_initializer()
 
         with tf.device('/cpu:0'):
+
+            # get the length of each sample
+            self.length = tf.reduce_sum(tf.sign(self.input_x), reduction_indices=1)
+            self.length = tf.cast(self.length, tf.int32)
+
             inputs_emb = tf.nn.embedding_lookup(self.embedding_matrix, self.input_x)
             print(inputs_emb.get_shape())
             inputs_emb = tf.transpose(inputs_emb, [1, 0, 2])
             print(inputs_emb.get_shape())
             inputs_emb = tf.reshape(inputs_emb, [-1, self.emb_dim])
             print(inputs_emb.get_shape())
-            inputs_emb = tf.split(inputs_emb, self.seq_len, 0)
+            inputs_emb = tf.split(inputs_emb, self.length, 0)
             print(inputs_emb.get_shape())
 
             if self.biderectional:
@@ -53,10 +58,6 @@ class BIRNN_CRF(object):
                 with tf.variable_scope("bi-lstm"):
                     cell_fw = tf.nn.rnn_cell.GRUCell(self.hidden_dim)
                     cell_bw = tf.nn.rnn_cell.GRUCell(self.hidden_dim)
-
-                    # get the length of each sample
-                    self.length = tf.reduce_sum(tf.sign(self.input_x), reduction_indices=1)
-                    self.length = tf.cast(self.length, tf.int32)
 
                     (output_fw_seq, output_bw_seq), _ = tf.nn.bidirectional_dynamic_rnn(cell_fw=cell_fw,
                                                                                         cell_bw=cell_bw,
@@ -133,11 +134,8 @@ class BIRNN_CRF(object):
 
             # linear
             # self.outputs = tf.reshape(self.outputs, [-1, self.hidden_dim * 2])
-            self.softmax_w = tf.get_variable("softmax_w", [self.hidden_dim * 2, self.class_num], initializer=self.initializer, dtype=tf.float32)
-            self.softmax_b = tf.get_variable("softmax_b", [self.class_num], initializer=self.initializer, dtype=tf.float32)
-
-
-
+            self.softmax_w = tf.get_variable("softmax_w", [self.batch_size, self.hidden_dim * 2, self.class_num], initializer=self.initializer, dtype=tf.float32)
+            self.softmax_b = tf.get_variable("softmax_b", [self.batch_size, self.class_num], initializer=self.initializer, dtype=tf.float32)
 
             self.logits = tf.matmul(self.outputs, self.softmax_w) + self.softmax_b
 
