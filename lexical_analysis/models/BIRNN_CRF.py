@@ -44,14 +44,16 @@ class BIRNN_CRF(object):
             self.length = tf.reduce_sum(tf.sign(self.input_x), reduction_indices=1)
             self.length = tf.cast(self.length, tf.int32)
 
+            print(self.length.get_shape())
+
             inputs_emb = tf.nn.embedding_lookup(self.embedding_matrix, self.input_x)
             print(inputs_emb.get_shape())
-            inputs_emb = tf.transpose(inputs_emb, [1, 0, 2])
-            print(inputs_emb.get_shape())
-            inputs_emb = tf.reshape(inputs_emb, [-1, self.emb_dim])
-            print(inputs_emb.get_shape())
-            inputs_emb = tf.split(inputs_emb, self.length, 0)
-            print(inputs_emb.get_shape())
+            # inputs_emb = tf.transpose(inputs_emb, [1, 0, 2])
+            # print(inputs_emb.get_shape())
+            # inputs_emb = tf.reshape(inputs_emb, [-1, self.emb_dim])
+            # print(inputs_emb.get_shape())
+            # inputs_emb = tf.split(inputs_emb, self.length, 0)
+            # print(inputs_emb.get_shape())
 
             if self.biderectional:
 
