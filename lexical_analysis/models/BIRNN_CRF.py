@@ -40,13 +40,13 @@ class BIRNN_CRF(object):
 
         with tf.device('/cpu:0'):
             inputs_emb = tf.nn.embedding_lookup(self.embedding_matrix, self.input_x)
-            # print(inputs_emb.get_shape())
-            # inputs_emb = tf.transpose(inputs_emb, [1, 0, 2])
-            # print(inputs_emb.get_shape())
-            # inputs_emb = tf.reshape(inputs_emb, [-1, self.emb_dim])
-            # print(inputs_emb.get_shape())
-            # inputs_emb = tf.split(inputs_emb, self.seq_len, 0)
-            # print(inputs_emb.get_shape())
+            print(inputs_emb.get_shape())
+            inputs_emb = tf.transpose(inputs_emb, [1, 0, 2])
+            print(inputs_emb.get_shape())
+            inputs_emb = tf.reshape(inputs_emb, [-1, self.emb_dim])
+            print(inputs_emb.get_shape())
+            inputs_emb = tf.split(inputs_emb, self.seq_len, 0)
+            print(inputs_emb.get_shape())
 
             if self.biderectional:
 
@@ -135,6 +135,10 @@ class BIRNN_CRF(object):
             # self.outputs = tf.reshape(self.outputs, [-1, self.hidden_dim * 2])
             self.softmax_w = tf.get_variable("softmax_w", [self.hidden_dim * 2, self.class_num], initializer=self.initializer, dtype=tf.float32)
             self.softmax_b = tf.get_variable("softmax_b", [self.class_num], initializer=self.initializer, dtype=tf.float32)
+
+
+
+
             self.logits = tf.matmul(self.outputs, self.softmax_w) + self.softmax_b
 
             self.logits = tf.reshape(self.logits, [self.batch_size, self.seq_len, self.class_num])
