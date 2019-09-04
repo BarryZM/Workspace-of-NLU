@@ -6,6 +6,7 @@ class BIRNN_CRF(object):
         self.args = args
         self.tokenizer = tokenizer
 
+        self.is_training = True
         self.is_attention = True
         self.is_crf = True
         self.biderectional = True
