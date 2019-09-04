@@ -6,7 +6,7 @@ class BIRNN_CRF(object):
         self.args = args
         self.tokenizer = tokenizer
 
-        self.is_training = True
+        self.is_training = False
         self.is_attention = True
         self.is_crf = True
         self.biderectional = True
@@ -36,9 +36,9 @@ class BIRNN_CRF(object):
 
         with tf.device('/cpu:0'):
             inputs_emb = tf.nn.embedding_lookup(self.embedding_matrix, self.input_x)
-            # self.inputs_emb = tf.transpose(self.inputs_emb, [1, 0, 2])
-            # self.inputs_emb = tf.reshape(self.inputs_emb, [-1, self.emb_dim])
-            # self.inputs_emb = tf.split(self.inputs_emb, self.max_time_steps, 0)
+            self.inputs_emb = tf.transpose(self.inputs_emb, [1, 0, 2])
+            self.inputs_emb = tf.reshape(self.inputs_emb, [-1, self.emb_dim])
+            self.inputs_emb = tf.split(self.inputs_emb, self.seq_len, 0)
 
             # lstm cell
             if self.biderectional:
