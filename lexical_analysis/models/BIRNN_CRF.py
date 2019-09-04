@@ -49,7 +49,7 @@ class BIRNN_CRF(object):
                         cell_fw=cell_fw,
                         cell_bw=cell_bw,
                         inputs=inputs_emb,
-                        sequence_length=self.seq_len,
+                        sequence_length=tf.tile(self.seq_len, self.args.batch_size),
                         dtype=tf.float32)
                     outputs = tf.concat([output_fw_seq, output_bw_seq], axis=-1)
                     outputs = tf.nn.dropout(outputs, self.dropout_pl)
