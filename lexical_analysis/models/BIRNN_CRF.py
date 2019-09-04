@@ -59,7 +59,7 @@ class BIRNN_CRF(object):
                     lstm_cell_bw,
                     inputs_emb,
                     dtype=tf.float32,
-                    sequence_length=self.seq_len
+                    sequence_length=[self.seq_len] * self.arg.batch_size
                 )
 
             else:
@@ -72,7 +72,7 @@ class BIRNN_CRF(object):
                     lstm_cell,
                     inputs_emb,
                     dtype=tf.float32,
-                    sequence_length=self.seq_len
+                    sequence_length=self.seq_len * self.arg.batch_size
                 )
 
             # outputs: list_steps[batch, 2*dim]
