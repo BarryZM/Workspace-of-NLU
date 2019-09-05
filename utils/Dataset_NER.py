@@ -98,8 +98,6 @@ class Dataset_NER():
 			elif len(cut_list) == 1:
 				text_list.append(words.copy())
 				target_list.append(labels.copy())
-				global words
-				global labels
 				words = []
 				labels = []
 				continue

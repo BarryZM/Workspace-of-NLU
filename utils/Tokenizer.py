@@ -43,8 +43,8 @@ class Tokenizer(object):
             fin = open(fname, 'r', encoding='utf-8', newline='\n', errors='ignore')
             lines = fin.readlines()
             fin.close()
-            for i in range(0, len(lines), 3):
-                text_raw = lines[i].lower().strip()
+            for line in lines:
+                text_raw = line[0].lower().strip()
                 tmp_text += text_raw + " "
         self.fit_text = tmp_text
 
@@ -194,9 +194,7 @@ class Tokenizer(object):
         :return: convert text to numberical digital features with max length, paddding
         and truncating
         """
-        if self.lower:
-            text_lower = text.lower()
-        words = list(text_lower)
+        words = list(text)
         unknown_idx = 0
         sequence = [self.word2idx[w] if w in self.word2idx else unknown_idx for w in words]
         if len(sequence) == 0:
