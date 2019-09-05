@@ -103,16 +103,17 @@ class Dataset_NER():
         fin.close()
 
         text_list = []
-        target_list = []
+        label_list = []
         
         words = []
         labels = []
 
-        for line in lines:
+        for line in lines:  # B-I-O
             line = line.strip('\t')
             line = line.rstrip('\n')
             cut_list = line.split('\t')
 
+            # TODO
             if len(cut_list) == 3:
                 tmp_0 = cut_list[0]
                 if self.data_type == 'entity':
@@ -138,7 +139,7 @@ class Dataset_NER():
 
             elif len(cut_list) == 1:
                 text_list.append(words.copy())
-                target_list.append(labels.copy())
+                label_list.append(labels.copy())
                 words = []
                 labels = []
                 continue
@@ -146,22 +147,25 @@ class Dataset_NER():
                 raise Exception("Raise Exception")
 
         text_list = np.asarray(text_list)
-        target_list = np.asarray(target_list)
-        assert text_list.shape == target_list.shape
+        label_list = np.asarray(label_list)
+        assert text_list.shape == label_list.shape
 
         result_text = []
         result_label = []
 
         for text in text_list:
             tmp = self.encode(text, False, False)
+            print("encode", type(tmp))
             result_text.append(tmp)
 
-        for target in target_list:  # [[B, I, ..., I], [B, I, ..., O], [O, O, ..., O], [B, I, ..., O]]
+        for target in label_list:  # [[B, I, ..., I], [B, I, ..., O], [O, O, ..., O], [B, I, ..., O]]
             tmp_list = []
             for item in list(target):
                 tmp_list.append(self.label2id[item])
-            
+
+            print("label before", type(tmp_list))
             tmp_list = np.asarray(tmp_list)
+            print("label after", type(tmp_list))
             result_label.append(tmp_list.copy())
 
         result_text = np.asarray(result_text)
@@ -173,7 +177,7 @@ class Dataset_NER():
         print(result_label[1][1].shape)
 
         print(text_list.shape)
-        print(target_list.shape)
+        print(label_list.shape)
         print(result_text.shape)
         print(result_label.shape)
         assert result_text.shape == result_label.shape

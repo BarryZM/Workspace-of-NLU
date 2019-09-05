@@ -74,7 +74,9 @@ class Instructor:
                     model = self.model
                     _ = self.session.run(model.trainer,
                                          feed_dict={model.input_x: inputs,
-                                                    model.input_y: labels, model.global_step: _epoch, model.keep_prob: 1.0})
+                                                    model.input_y: labels,
+                                                    model.global_step: _epoch,
+                                                    model.keep_prob: 1.0})
                     self.model = model
 
                 except tf.errors.OutOfRangeError:
