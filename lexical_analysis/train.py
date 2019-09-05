@@ -245,7 +245,7 @@ def main():
 
 	label_lists = {
 		'promotion':"'商品名'，'品牌'，'店铺'，'颜色'，'价格'，'数量', '属性'",
-		'shaver':"'entity'",
+		'shaver':"'B-3','I-3', 'O'",
 		'vacuum-cleaner':"'entity'",
 		'air-purifier':"'entity'",
 		'electric-toothbrush':"'entity'",
