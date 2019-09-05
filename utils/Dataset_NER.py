@@ -12,19 +12,14 @@ class Dataset_NER():
         self.label_str = label_str
         self.data_type = data_type
         self.label_list = self.set_label_list()
-        self.target2id = self.set_target2id()
-        self.target2onehot = self.set_target2onehot()
+        self.label2id = self.set_label2id()
+        self.label2onehot = self.set_label2onehot()
 
         self.text_list = []
         self.label_list = []
 
         self.preprocess()
 
-        print(">>> label_list", self.label_list)
-        print(">>> target2id", self.target2id)
-        print(">>> target2onehot", self.target2onehot)
-
-        print(">>> result list 10", self.label_list[:10])
 
     def __getitem__(self, index):
         return self.text_list[index]
@@ -34,16 +29,17 @@ class Dataset_NER():
 
     def set_label_list(self):
         label_list = [item.strip().strip("'") for item in self.label_str.split(',')]
-        print("%%%, label list length", len(label_list))
+        print("%%%, label list length", label_list)
         return label_list
 
-    def set_target2id(self):
+    def set_label2id(self):
         label_dict = {}
         for idx, item in enumerate(self.label_list):
             label_dict[item] = idx
+        print("%%%,  label2id ", label_dict)
         return label_dict
 
-    def set_target2onehot(self):
+    def set_label2onehot(self):
         label_list = self.label_list
         from sklearn.preprocessing import LabelEncoder, OneHotEncoder
         onehot_encoder = OneHotEncoder(sparse=False)
@@ -52,6 +48,9 @@ class Dataset_NER():
         label_dict = {}
         for aspect, vector in zip(label_list, one_hot_df):
             label_dict[aspect] = vector
+        
+        print("%%%,  label2onehot ", label_dict)
+        
         return label_dict
 
     def preprocess(self):
@@ -70,8 +69,6 @@ class Dataset_NER():
             line = line.strip('\t')
             line = line.rstrip('\n')
             cut_list = line.split('\t')
-
-            print(">>> cut list", cut_list)
 
             if len(cut_list) == 3:
                 tmp_0 = cut_list[0]
@@ -97,16 +94,12 @@ class Dataset_NER():
                 labels.append(tmp_1)
 
             elif len(cut_list) == 1:
-                print('words', words)
-                print('labels', labels)
                 text_list.append(words.copy())
                 target_list.append(labels.copy())
                 words = []
                 labels = []
                 continue
             else:
-                print(line)
-                print(len(cut_list))
                 raise Exception("Raise Exception")
 
         text_list = np.asarray(text_list)
@@ -122,7 +115,7 @@ class Dataset_NER():
         for target in target_list:  # [[B, I, ..., I], [B, I, ..., O], [O, O, ..., O], [B, I, ..., O]]
             tmp_list = []
             for item in list(target):
-                tmp_list.append(self.target2onehot(item))
+                tmp_list.append(self.label2onehot[item])
 
             result_target.append(tmp_list.copy())
 
