@@ -28,7 +28,7 @@ class BIRNN_CRF(object):
         self.learning_rate = args.learning_rate
 
         self.input_x = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_x')
-        self.targets = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_y')
+        self.input_y = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_y')
         self.global_step = tf.placeholder(shape=(), dtype=tf.int32, name='global_step')
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
@@ -119,14 +119,14 @@ class BIRNN_CRF(object):
 
         self.logits = tf.reshape(self.logits, [-1, self.seq_len, self.class_num])
 
-        # self.targets = tf.reshape(self.targets, [-1, self.seq_len, self.class_num])
+        # self.input_y = tf.reshape(self.input_y, [-1, self.seq_len, self.class_num])
 
         if not self.is_crf:
             # softmax
             softmax_out = tf.nn.softmax(self.logits, axis=-1)
 
             self.batch_pred_sequence = tf.cast(tf.argmax(softmax_out, -1), tf.int32)
-            losses = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=self.logits, labels=self.targets)
+            losses = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=self.logits, labels=self.input_y)
             mask = tf.sequence_mask(self.seq_len)
 
             self.losses = tf.boolean_mask(losses, mask)
@@ -135,10 +135,10 @@ class BIRNN_CRF(object):
         else:
             # crf
             print(self.logits.shape)
-            print(self.targets.shape)
+            print(self.input_y.shape)
             print(length.shape)
 
-            log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(self.logits, self.targets, length)
+            log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(self.logits, self.input_y, length)
             print(log_likelihood.shape)
             print(transition_params.shape)
 

@@ -28,12 +28,14 @@ class Dataset_NER():
 
     def set_label_list(self):
         label_list = [item.strip().strip("'") for item in self.label_str.split(',')]
+        print(label_list)
         return label_list
 
     def set_label2id(self):
         label_dict = {}
         for idx, item in enumerate(self.label_list):
             label_dict[item] = idx
+        print(label_dict)
         return label_dict
 
     def set_label2onehot(self):
@@ -45,7 +47,7 @@ class Dataset_NER():
         label_dict = {}
         for aspect, vector in zip(label_list, one_hot_df):
             label_dict[aspect] = vector
-        
+        print(label_dict)
         return label_dict
 
     def preprocess(self):
@@ -99,24 +101,38 @@ class Dataset_NER():
 
         text_list = np.asarray(text_list)
         target_list = np.asarray(target_list)
+        assert text_list.shape == target_list.shape
 
         result_text = []
-        result_target = []
+        result_label = []
 
         for text in text_list:
-            tmp = self.tokenizer.encode(text)
+            tmp = self.tokenizer.encode(text, False, False)
             result_text.append(tmp)
 
         for target in target_list:  # [[B, I, ..., I], [B, I, ..., O], [O, O, ..., O], [B, I, ..., O]]
             tmp_list = []
             for item in list(target):
                 tmp_list.append(self.label2onehot[item])
+            
+            tmp_list = np.asarray(tmp_list)
+            result_label.append(tmp_list.copy())
 
-            result_target.append(tmp_list.copy())
+        result_text = np.asarray(result_text)
+        result_label = np.asarray(result_label)
 
-        assert len(result_text) == len(result_target)
+        print(result_text[:3])
+        print(result_label[:3])
+        print(result_label[1].shape)
+        print(result_label[1][1].shape)
+
+        print(text_list.shape)
+        print(target_list.shape)
+        print(result_text.shape)
+        print(result_label.shape)
+        assert result_text.shape == result_label.shape
 
         self.text_list = result_text
-        self.label_list = result_target
+        self.label_list = result_label
 
 

@@ -68,10 +68,13 @@ class Instructor:
                 try:
                     sample_batched = self.session.run(one_element)
                     inputs = sample_batched['text']
-                    targets = sample_batched['label']
-
+                    print(inputs)
+                    labels = sample_batched['label']
+                    print(labels)
                     model = self.model
-                    _ = self.session.run(model.trainer, feed_dict={model.input_x: inputs, model.input_y: targets, model.global_step: _epoch, model.keep_prob: 1.0})
+                    _ = self.session.run(model.trainer,
+                                         feed_dict={model.input_x: inputs,
+                                                    model.input_y: labels, model.global_step: _epoch, model.keep_prob: 1.0})
                     self.model = model
 
                 except tf.errors.OutOfRangeError:
@@ -131,16 +134,19 @@ class Instructor:
     def run(self):
         optimizer = tf.train.AdamOptimizer(learning_rate=self.opt.learning_rate)
         # tf.contrib.data.Dataset
-        #logger.info("text 3 {}".format(self.trainset.text_list[:3]))
-        #logger.info("label 3 {}".format(self.trainset.label_list[:3]))
+        
+        logger.info("text 3 {}".format(self.trainset.text_list[:3]))
+        logger.info("label 3 {}".format(self.trainset.label_list[:3]))
 
         train_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.trainset.text_list, 'label': self.trainset.label_list}).batch(self.opt.batch_size).shuffle(10000)
         test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list, 'label': self.testset.label_list}).batch(self.opt.batch_size)
+
         if self.opt.do_predict is True:
             predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.opt.batch_size)
         logger.info('>> load data done')
 
         if self.opt.do_train is True and self.opt.do_test is True:
+            print("go train")
             best_model_path = self._train(None, optimizer, train_data_loader, test_data_loader)
             self.saver.restore(self.session, best_model_path)
             test_p, test_r, test_f1 = self._evaluate_metric(test_data_loader)
@@ -167,7 +173,7 @@ class Instructor:
                     try:
                         sample_batched = self.session.run(one_element)
                         inputs = sample_batched['text']
-                        targets_onehot = sample_batched['label_onehot']
+                        targets_onehot = sample_batched['label']
                         model = self.model
                         outputs = self.session.run(model.outputs, feed_dict={model.input_x: inputs, model.input_y: targets_onehot, model.global_step: 1, model.keep_prob: 1.0})
                         t_outputs_all.extend(outputs)
@@ -204,9 +210,9 @@ def main():
 
     parser.add_argument('--learning_rate', type=float, default=1e-4)
     parser.add_argument('--epoch', type=int, default=100)
-    parser.add_argument('--do_train', action='store_true', default='false')
-    parser.add_argument('--do_test', action='store_true', default='false')
-    parser.add_argument('--do_predict', action='store_true', default='false')
+    parser.add_argument('--do_train', action='store_true', default=True)
+    parser.add_argument('--do_test', action='store_true', default=False)
+    parser.add_argument('--do_predict', action='store_true', default=False)
 
     args = parser.parse_args()
     
