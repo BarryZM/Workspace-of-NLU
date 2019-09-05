@@ -1,23 +1,13 @@
-import os, time, sys
-import tensorflow as tf
-import tensorflow.contrib as tc
-from tensorflow.contrib.rnn import GRUCell
-from tensorflow.contrib.crf import crf_log_likelihood
-from tensorflow.contrib.crf import viterbi_decode
-from tensorflow.python.framework.graph_util import convert_variables_to_constants
-from copy import deepcopy
-from tqdm import tqdm
-import pickle
 import argparse
 
 parser = argparse.ArgumentParser()
-#parser.add_argument('label2id_path', type='str')
 parser.add_argument('--ground_text_path', type=str)
 parser.add_argument('--predict_label_path', type=str)
 
 args = parser.parse_args()
 
 from metric  import calc_partial_match_evaluation_per_line, calc_overall_evaluation
+
 
 def process_boundary(tag: list, sent: list):
     """
@@ -54,12 +44,11 @@ def process_boundary(tag: list, sent: list):
 
         except Exception as e:
             pass
-            #print(e)
-            #print(tag, sent)
     if len(entity_val) > 0:
         tup_list.append((entity_tag, entity_val))
 
     return tup_list
+
 
 def cut_resulst_2_sentence(text_list, ground_list, predict_list):
     text_sentence_list = []
@@ -98,10 +87,8 @@ def cut_resulst_2_sentence(text_list, ground_list, predict_list):
 
     return text_sentence_list, ground_sentence_list, predict_sentence_list
 
+
 def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
-    """
-    
-    """
     entity_predict_list, entity_ground_list = process_boundary(tag_predict_list, char_list), process_boundary(tag_ground_list, char_list)
 
     if entity_predict_list != entity_ground_list:
@@ -118,24 +105,7 @@ def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
     calc_partial_match_evaluation_per_line(entity_predict_list, entity_ground_list, text, "NER")
 
 
-if __name__  == '__main__':
-
-    text_lines = []
-    ground_lines = []
-
-    with open(args.ground_text_path, mode='r', encoding='utf-8') as f:
-        for item in f.readlines():
-            cut_list = item.strip().split("\t")
-            if len(cut_list) is 3:
-                text_lines.append(cut_list[0])
-                ground_lines.append(cut_list[1])
-            else:
-                text_lines.append("")
-                ground_lines.append("")
-
-    with open(args.predict_label_path, mode='r', encoding='utf-8') as f:
-        predict_lines = f.readlines()
-        #print(len(predict_lines))    
+def get_results_by_line(ground_lines, predict_lines):
 
     count_predict = 0
     count_ground = 0
@@ -145,16 +115,66 @@ if __name__  == '__main__':
 
     for item in ground_lines:
         if len(item.strip()) == 0:
-            count_ground += 1   
+            count_ground += 1
     assert count_predict == count_predict
 
-    text_list, ground_list, predict_list = cut_resulst_2_sentence(text_lines, ground_lines, predict_lines) 
+    text_list, ground_list, predict_list = cut_resulst_2_sentence(text_lines, ground_lines, predict_lines)
 
     for item_t, item_g, item_p in zip(text_list, ground_list, predict_list):
         sentence_evaluate(item_t, item_g, item_p)
 
-     
     cnt_dict = {'NER': len(text_list)}
     overall_res = calc_overall_evaluation(cnt_dict)
+    p = overall_res['NER']['strict']['precision']
+    r = overall_res['NER']['strict']['recall']
     f1 = overall_res['NER']['strict']['f1_score']
-    #print(f1)
+
+    return p, r, f1
+
+
+def get_results_by_file(ground_text_path, predict_label_path):
+    text_lines = []
+    ground_lines = []
+
+    with open(ground_text_path, mode='r', encoding='utf-8') as f:
+        for item in f.readlines():
+            cut_list = item.strip().split("\t")
+            if len(cut_list) is 3:
+                text_lines.append(cut_list[0])
+                ground_lines.append(cut_list[1])
+            else:
+                text_lines.append("")
+                ground_lines.append("")
+
+    with open(predict_label_path, mode='r', encoding='utf-8') as f:
+        predict_lines = f.readlines()
+
+    count_predict = 0
+    count_ground = 0
+    for item in predict_lines:
+        if len(item.strip()) == 0:
+            count_predict += 1
+
+    for item in ground_lines:
+        if len(item.strip()) == 0:
+            count_ground += 1
+    assert count_predict == count_predict
+
+    text_list, ground_list, predict_list = cut_resulst_2_sentence(text_lines, ground_lines, predict_lines)
+
+    for item_t, item_g, item_p in zip(text_list, ground_list, predict_list):
+        sentence_evaluate(item_t, item_g, item_p)
+
+    cnt_dict = {'NER': len(text_list)}
+    overall_res = calc_overall_evaluation(cnt_dict)
+    p = overall_res['NER']['strict']['precision']
+    r = overall_res['NER']['strict']['recall']
+    f1 = overall_res['NER']['strict']['f1_score']
+
+    return p, r, f1
+
+
+if __name__ == '__main__':
+
+    p, r, f1 = get_results_by_file(args.ground_text_path, args.predict_label_path)
+    print('precision : {}, recall : {}, f1 score : {}'.format(p, r, f1))

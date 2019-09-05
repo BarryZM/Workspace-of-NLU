@@ -17,8 +17,8 @@ sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 
 from utils.Tokenizer import build_tokenizer
 from utils.Dataset_NER import Dataset_NER
-
 from lexical_analysis.models.BIRNN_CRF import BIRNN_CRF
+from lexical_analysis.evals.evaluate import get_results_by_line
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -32,14 +32,17 @@ class Instructor:
 		# build tokenizer
 		logger.info("parameters for programming :  {}".format(self.opt))
 		tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'], opt.dataset_file['test']], max_seq_len=128, corpus_type=opt.dataset_name, embedding_type='tencent')
+
 		# build model and session
 		self.model = BIRNN_CRF(self.opt, tokenizer)
 		self.session = self.model.session
+
 		# build dataset
 		self.trainset = Dataset_NER(opt.dataset_file['train'], tokenizer, 'entity', self.opt.label_list)
 		self.testset = Dataset_NER(opt.dataset_file['test'], tokenizer, 'entity', self.opt.label_list)
 		if self.opt.do_predict is True:
 			self.predictset = Dataset_NER(opt.dataset_file['predict'], tokenizer, 'entity', self.opt.label_list)
+
 		# build saver
 		self.saver = tf.train.Saver(max_to_keep=1)
 
@@ -74,63 +77,56 @@ class Instructor:
 				except tf.errors.OutOfRangeError:
 					break
 
-			# val_p, val_r, val_f1 = self._evaluate_metric(val_data_loader)
-			# logger.info('>>>>>> val_p: {:.4f}, val_r:{:.4f}, val_f1: {:.4f}'.format(val_p, val_r, val_f1))
-			#
-			# if val_f1 > max_f1:
-			# 	max_f1 = val_f1
-			# 	if not os.path.exists(self.opt.outputs_folder):
-			# 		os.mkdir(self.opt.outputs_folder)
-			# 	path = os.path.join(self.opt.outputs_folder, '{0}_{1}_val_f1{2}'.format(self.opt.model_name, self.opt.dataset_name, round(val_f1, 4)))
-			#
-			# 	last_improved = _epoch
-			# 	self.saver.save(sess=self.session, save_path=path)
-			# 	# pb output
-			# 	# convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=[os.path.join(self.opt.outputs_folder, 'model')])
-			#
-			# 	logger.info('>> saved: {}'.format(path))
+			val_p, val_r, val_f1 = self._evaluate_metric(val_data_loader)
+			logger.info('>>>>>> val_p: {:.4f}, val_r:{:.4f}, val_f1: {:.4f}'.format(val_p, val_r, val_f1))
+
+			if val_f1 > max_f1:
+				max_f1 = val_f1
+				if not os.path.exists(self.opt.outputs_folder):
+					os.mkdir(self.opt.outputs_folder)
+				path = os.path.join(self.opt.outputs_folder, '{0}_{1}_val_f1{2}'.format(self.opt.model_name, self.opt.dataset_name, round(val_f1, 4)))
+
+				last_improved = _epoch
+				self.saver.save(sess=self.session, save_path=path)
+				# pb output
+				# convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=[os.path.join(self.opt.outputs_folder, 'model')])
+
+				logger.info('>> saved: {}'.format(path))
 
 		return path
 
-	# def _evaluate_metric(self, data_loader):
-		# t_targets_all, t_outputs_all = [], []
-		# iterator = data_loader.make_one_shot_iterator()
-		# one_element = iterator.get_next()
-		#
-		# while True:
-		# 	try:
-		# 		sample_batched = self.session.run(one_element)
-		# 		inputs = sample_batched['text']
-		# 		terms = sample_batched['term']
-		# 		targets = sample_batched['aspect']
-		# 		targets_onehot = sample_batched['aspect_onehot']
-		# 		model = self.model
-		# 		outputs = self.session.run(model.outputs, feed_dict={model.input_x: inputs, model.input_term: terms,
-		# 															 model.input_y: targets_onehot,
-		# 															 model.global_step: 1, model.keep_prob: 1.0})
-		# 		t_targets_all.extend(targets)
-		# 		t_outputs_all.extend(outputs)
-		#
-		# 	except tf.errors.OutOfRangeError:
-		# 		if self.opt.do_test is True and self.opt.do_train is False:
-		# 			with open(self.opt.results_file, mode='w', encoding='utf-8') as f:
-		# 				for item in t_outputs_all:
-		# 					f.write(str(item) + '\n')
-		#
-		# 		break
-		#
-		# print("##", t_targets_all[:100])
-		# print("##", t_outputs_all[:100])
-		# print("##", self.trainset.label_list[:100])
-		# flag = 'weighted'
-		# p = metrics.precision_score(t_targets_all, t_outputs_all, average=flag)
-		# r = metrics.recall_score(t_targets_all, t_outputs_all, average=flag)
-		# f1 = metrics.f1_score(t_targets_all, t_outputs_all, average=flag)
-		# logger.info(
-		# 	metrics.classification_report(t_targets_all, t_outputs_all, labels=range(len(self.trainset.label_list)), target_names=self.trainset.label_list))
-		# logger.info(metrics.confusion_matrix(t_targets_all, t_outputs_all))
-		#
-		# return p, r, f1
+	def _evaluate_metric(self, data_loader):
+		t_texts_all, t_targets_all, t_outputs_all = [], []
+		iterator = data_loader.make_one_shot_iterator()
+		one_element = iterator.get_next()
+
+		while True:
+			try:
+				sample_batched = self.session.run(one_element)
+				inputs = sample_batched['text']
+				targets = sample_batched['label']
+				model = self.model
+				outputs = self.session.run(model.outputs, feed_dict={model.input_x: inputs, model.input_y:targets, model.global_step: 1, model.keep_prob: 1.0})
+
+				t_texts_all.extend(inputs)
+				t_targets_all.extend(targets)
+				t_outputs_all.extend(outputs)
+
+			except tf.errors.OutOfRangeError:
+				if self.opt.do_test is True and self.opt.do_train is False:
+					with open(self.opt.results_file, mode='w', encoding='utf-8') as f:
+						for item in t_outputs_all:
+							f.write(str(item) + '\n')
+
+				break
+
+		print("##", t_texts_all[:100])
+		print("##", t_targets_all[:100])
+		print("##", t_outputs_all[:100])
+
+		p, r, f1 = get_results_by_line(t_texts_all, t_targets_all, t_outputs_all)
+
+		return p, r, f1
 
 	def run(self):
 		optimizer = tf.train.AdamOptimizer(learning_rate=self.opt.learning_rate)
@@ -249,12 +245,11 @@ def main():
 
 	label_lists = {
 		'promotion':"'商品名'，'品牌'，'店铺'，'颜色'，'价格'，'数量', '属性'",
-		'shaver':"'entity'"
-		# 'frying-pan': "'炸锅类型', '清洗', '配件', '操作', '炸锅功能', '可视化', '炸锅效果', '运转音', '包装', '显示', '尺寸', '价保', '关联品类', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'",
-		# 'vacuum-cleaner': "'吸尘器类型', '运行模式', '吸头/吸嘴/刷头', '配件', '智能功能', '效果', '滤芯滤网', '充电', '续航', '吸力', '运转音', '包装', '显示', '尺寸', '价保', '商品用途', '商品使用环境场景', '商品复购', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'",
-		# 'air-purifier': "'指示灯', '味道', '运转音', '净化效果', '风量', '电源', '尺寸', '感应', '设计', '滤芯滤网', '模式', '操作', '包装', '显示', '功能', '价保', '发票', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '安装服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'",
-		# 'shaver': "'剃须方式', '配件', '刀头刀片', '清洁方式', '剃须效果', '充电', '续航', '运转音', '包装', '显示', '尺寸', '价保', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '退货服务', '换货服务', '质保','退款服务', '售后其他'",
-		# 'electric-toothbrush': "'牙刷类型', '刷牙模式', '刷头', '配件', '智能功效', '牙刷功能', '刷牙效果', '充电', '续航', '动力', '运转音', '包装', '显示', '尺寸', '价保', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'"
+		'shaver':"'entity'",
+		'vacuum-cleaner':"'entity'",
+		'air-purifier':"'entity'",
+		'electric-toothbrush':"'entity'",
+		'frying-pan':"'entity'",
 	}
 
 	model_classes = {
