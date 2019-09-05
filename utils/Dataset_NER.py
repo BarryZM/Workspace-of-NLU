@@ -29,14 +29,12 @@ class Dataset_NER():
 
     def set_label_list(self):
         label_list = [item.strip().strip("'") for item in self.label_str.split(',')]
-        print("%%%, label list length", label_list)
         return label_list
 
     def set_label2id(self):
         label_dict = {}
         for idx, item in enumerate(self.label_list):
             label_dict[item] = idx
-        print("%%%,  label2id ", label_dict)
         return label_dict
 
     def set_label2onehot(self):
@@ -48,8 +46,6 @@ class Dataset_NER():
         label_dict = {}
         for aspect, vector in zip(label_list, one_hot_df):
             label_dict[aspect] = vector
-        
-        print("%%%,  label2onehot ", label_dict)
         
         return label_dict
 
