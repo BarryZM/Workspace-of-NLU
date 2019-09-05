@@ -9,6 +9,9 @@ class Dataset_NER():
     def __init__(self, corpus, tokenizer, data_type, label_str):
         self.corpus = corpus
         self.tokenizer = tokenizer
+
+        self.word2idx = self.tokenizer.word2idx
+
         self.label_str = label_str
         self.data_type = data_type
         self.label_list = self.set_label_list()
