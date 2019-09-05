@@ -5,6 +5,7 @@ import os
 import pickle
 import numpy as np
 
+
 class Dataset_NER():
 	
 	def __init__(self, corpus, tokenizer, data_type, label_str):
