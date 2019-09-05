@@ -155,7 +155,6 @@ class Dataset_NER():
 
         for text in text_list:
             tmp = self.encode(text, False, False)
-            print("encode", type(tmp))
             result_text.append(tmp)
 
         for target in label_list:  # [[B, I, ..., I], [B, I, ..., O], [O, O, ..., O], [B, I, ..., O]]
@@ -163,23 +162,11 @@ class Dataset_NER():
             for item in list(target):
                 tmp_list.append(self.label2id[item])
 
-            print("label before", type(tmp_list))
-            tmp_list = np.asarray(tmp_list)
-            print("label after", type(tmp_list))
             result_label.append(tmp_list.copy())
 
         result_text = np.asarray(result_text)
         result_label = np.asarray(result_label)
 
-        print(result_text[:3])
-        print(result_label[:3])
-        print(result_label[1].shape)
-        print(result_label[1][1].shape)
-
-        print(text_list.shape)
-        print(label_list.shape)
-        print(result_text.shape)
-        print(result_label.shape)
         assert result_text.shape == result_label.shape
 
         self.text_list = result_text

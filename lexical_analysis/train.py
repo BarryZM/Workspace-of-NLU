@@ -9,6 +9,7 @@
 
 import os,sys,time,argparse,logging
 import tensorflow as tf
+import numpy as np
 from sklearn import metrics
 
 from os import path
@@ -42,6 +43,22 @@ class Instructor:
         self.testset = Dataset_NER(opt.dataset_file['test'], tokenizer, 'entity', self.opt.label_list)
         if self.opt.do_predict is True:
             self.predictset = Dataset_NER(opt.dataset_file['predict'], tokenizer, 'entity', self.opt.label_list)
+        
+        logger.info("text 3 {}".format(self.trainset.text_list[:3]))
+        logger.info("label 3 {}".format(self.trainset.label_list[:3]))
+
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices(
+            {'text': np.asarray(self.trainset.text_list), 
+             'label': np.asarray(self.trainset.label_list)}).batch(self.opt.batch_size).shuffle(10000)
+        self.test_data_loader = tf.data.Dataset.from_tensor_slices(
+            {'text': np.asarray(self.testset.text_list), 
+             'label': np.asarray(self.testset.label_list)}).batch(self.opt.batch_size)
+
+        if self.opt.do_predict is True:
+            self.predict_data_loader = tf.data.Dataset.from_tensor_slices(
+                {'text': self.predictset.text_list, 
+                 'label': self.predictset.label_list}).batch(self.opt.batch_size)
+        logger.info('>> load data done')
 
         # build saver
         self.saver = tf.train.Saver(max_to_keep=1)
@@ -137,15 +154,6 @@ class Instructor:
         optimizer = tf.train.AdamOptimizer(learning_rate=self.opt.learning_rate)
         # tf.contrib.data.Dataset
         
-        logger.info("text 3 {}".format(self.trainset.text_list[:3]))
-        logger.info("label 3 {}".format(self.trainset.label_list[:3]))
-
-        train_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.trainset.text_list, 'label': self.trainset.label_list}).batch(self.opt.batch_size).shuffle(10000)
-        test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list, 'label': self.testset.label_list}).batch(self.opt.batch_size)
-
-        if self.opt.do_predict is True:
-            predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.opt.batch_size)
-        logger.info('>> load data done')
 
         if self.opt.do_train is True and self.opt.do_test is True:
             print("go train")
