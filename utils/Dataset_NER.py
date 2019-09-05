@@ -20,7 +20,6 @@ class Dataset_NER():
 
         self.preprocess()
 
-
     def __getitem__(self, index):
         return self.text_list[index]
 

@@ -142,7 +142,7 @@ class BIRNN_CRF(object):
             print(log_likelihood.shape)
             print(transition_params.shape)
 
-            self.batch_pred_sequence, self.batch_viterbi_score = tf.contrib.crf.crf_decode(self.logits, transition_params, length)
+            self.outputs, self.batch_viterbi_score = tf.contrib.crf.crf_decode(self.logits, transition_params, length)
             self.loss = tf.reduce_mean(-log_likelihood)
 
         # summary
@@ -150,7 +150,6 @@ class BIRNN_CRF(object):
         self.dev_summary = tf.summary.scalar("loss", self.loss)
 
         # optimize
-
         self.trainer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.loss)
 
         config = tf.ConfigProto()
