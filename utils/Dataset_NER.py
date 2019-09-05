@@ -1,8 +1,6 @@
 # coding:utf-8
 # author:Apollo2Mars@gmail.com
 
-import os
-import pickle
 import numpy as np
 
 

@@ -209,13 +209,14 @@ class Tokenizer(object):
 def build_tokenizer(corpus_files, max_seq_len, corpus_type, embedding_type):
     tokenizer_path = corpus_type + "_" + embedding_type + "_" + "tokenizer.dat"
     if os.path.exists(tokenizer_path):
-        print('loading tokenizer:', tokenizer_path)
+        print('load exist tokenizer:', tokenizer_path)
         tokenizer = pickle.load(open(tokenizer_path, 'rb'))
     else:
+        print('build new tokenizer:', tokenizer_path)
         tokenizer = Tokenizer(corpus_files=corpus_files, max_seq_len=max_seq_len, emb_type=embedding_type)
         pickle.dump(tokenizer, open(tokenizer_path, 'wb'))
     return tokenizer
 
 
 if __name__ == '__main__':
-    build_tokenizer(['a.txt'], 32, 'demo', 'tencent')
+    build_tokenizer(['corpus.txt'], 32, 'demo', 'tencent')
