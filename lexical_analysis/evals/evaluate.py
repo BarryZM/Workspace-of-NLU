@@ -6,7 +6,7 @@ parser.add_argument('--predict_label_path', type=str)
 
 args = parser.parse_args()
 
-from metric  import calc_partial_match_evaluation_per_line, calc_overall_evaluation
+from .metric  import calc_partial_match_evaluation_per_line, calc_overall_evaluation
 
 
 def process_boundary(tag: list, sent: list):

@@ -1,14 +1,4 @@
-import os, time, sys
-import tensorflow as tf
-import tensorflow.contrib as tc
-from tensorflow.contrib.rnn import GRUCell
-from tensorflow.contrib.crf import crf_log_likelihood
-from tensorflow.contrib.crf import viterbi_decode
-from tensorflow.python.framework.graph_util import convert_variables_to_constants
-from utils.data import pad_sequences, batch_yield
 from copy import deepcopy
-from tqdm import tqdm
-import logging
 
 tmp_count = 0
 
