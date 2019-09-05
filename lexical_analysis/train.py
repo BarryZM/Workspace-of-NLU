@@ -145,8 +145,6 @@ class Instructor:
 		logger.info('>> load data done')
 
 		if self.opt.do_train is True and self.opt.do_test is True:
-			print("do train", self.opt.do_train)
-			print("do test", self.opt.do_test)
 			best_model_path = self._train(None, optimizer, train_data_loader, test_data_loader)
 			self.saver.restore(self.session, best_model_path)
 			test_p, test_r, test_f1 = self._evaluate_metric(test_data_loader)
