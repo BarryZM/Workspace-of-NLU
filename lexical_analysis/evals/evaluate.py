@@ -1,11 +1,5 @@
 import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--ground_text_path', type=str)
-parser.add_argument('--predict_label_path', type=str)
-
-args = parser.parse_args()
-
 from .metric  import calc_partial_match_evaluation_per_line, calc_overall_evaluation
 
 
@@ -175,6 +169,12 @@ def get_results_by_file(ground_text_path, predict_label_path):
 
 
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ground_text_path', type=str)
+    parser.add_argument('--predict_label_path', type=str)
+
+    args = parser.parse_args()
 
     p, r, f1 = get_results_by_file(args.ground_text_path, args.predict_label_path)
     print('precision : {}, recall : {}, f1 score : {}'.format(p, r, f1))
