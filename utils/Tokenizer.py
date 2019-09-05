@@ -160,49 +160,6 @@ class Tokenizer(object):
             pass
        
         self.embedding_matrix = embedding_matrix
-        
-    def __pad_and_truncate(self, sequence, maxlen, dtype='int64', padding='post', truncating='post', value=0):
-        """
-        :param sequence:
-        :param maxlen:
-        :param dtype:
-        :param padding:
-        :param truncating:
-        :param value:
-        :return: sequence after padding and truncate
-        """
-        x = (np.ones(maxlen) * value).astype(dtype)
-
-        if truncating == 'pre':
-            trunc = sequence[-maxlen:]
-        else:
-            trunc = sequence[:maxlen]
-            trunc = np.asarray(trunc, dtype=dtype)
-        if padding == 'post':
-            x[:len(trunc)] = trunc
-        else:
-            x[-len(trunc):] = trunc
-        return x
-
-    def encode(self, text, do_padding, do_reverse):
-        """
-        :param text:
-        :return: convert text to numberical digital features with max length, paddding
-        and truncating
-        """
-        words = list(text)
-        unknown_idx = 0
-        sequence = [self.word2idx[w] if w in self.word2idx else unknown_idx for w in words]
-        if len(sequence) == 0:
-            sequence = [0]
-        if do_reverse:
-            sequence = sequence[::-1]
-        
-        if do_padding:
-            sequence = self.__pad_and_truncate(sequence, self.max_seq_len)
-
-        return sequence
-        #return [self.embedding_matrix[item] for item in sequence]
 
 
 def build_tokenizer(corpus_files, max_seq_len, corpus_type, embedding_type):
