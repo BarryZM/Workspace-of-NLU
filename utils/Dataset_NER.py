@@ -167,13 +167,10 @@ class Dataset_NER():
         result_text = np.asarray(result_text)
         result_label = np.asarray(result_label)
 
-<<<<<<< Updated upstream
-=======
         print(text_list.shape)
         print(label_list.shape)
         print(result_text.shape)
         print(result_label.shape)
->>>>>>> Stashed changes
         assert result_text.shape == result_label.shape
 
         self.text_list = result_text
