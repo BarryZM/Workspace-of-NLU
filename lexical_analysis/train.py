@@ -11,7 +11,7 @@ import os,sys,time,argparse,logging
 import tensorflow as tf
 import numpy as np
 from sklearn import metrics
-
+from pathlib import Path
 from os import path
 sys.path.append(path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -43,13 +43,12 @@ class Instructor:
         self.testset = Dataset_NER(opt.dataset_file['test'], tokenizer, 'entity', self.opt.label_list)
         if self.opt.do_predict is True:
             self.predictset = Dataset_NER(opt.dataset_file['predict'], tokenizer, 'entity', self.opt.label_list)
-        
+
         logger.info("text 3 {}".format(self.trainset.text_list[:3]))
         logger.info("label 3 {}".format(self.trainset.label_list[:3]))
-
         self.train_data_loader = tf.data.Dataset.from_tensor_slices(
-            {'text': np.asarray(self.trainset.text_list),
-             'label': np.asarray(self.trainset.label_list)}).batch(self.opt.batch_size).shuffle(10000)
+            {'text': np.array(self.trainset.text_list),
+             'label': np.array(self.trainset.label_list)}).batch(self.opt.batch_size).shuffle(10000)
         self.test_data_loader = tf.data.Dataset.from_tensor_slices(
             {'text': np.asarray(self.testset.text_list),
              'label': np.asarray(self.testset.label_list)}).batch(self.opt.batch_size)
@@ -154,7 +153,7 @@ class Instructor:
     def run(self):
         optimizer = tf.train.AdamOptimizer(learning_rate=self.opt.learning_rate)
         # tf.contrib.data.Dataset
-        
+
 
         if self.opt.do_train is True and self.opt.do_test is True:
             print("go train")
@@ -226,9 +225,9 @@ def main():
     parser.add_argument('--do_predict', action='store_true', default=False)
 
     args = parser.parse_args()
-    
+
     prefix_path = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/'
-    train_path = '/slot/train.txt' 
+    train_path = '/slot/train.txt'
     test_path = '/slot/test.txt'
     predict_path = '/slot/predict.txt'
 
@@ -297,7 +296,10 @@ def main():
     args.inputs_cols = inputs_cols[args.model_name]
     args.label_list = label_lists[args.dataset_name]
     args.optimizer = optimizers[args.optimizer]
-    log_file = 'outputs/logs/{}-{}-{}.log'.format(args.model_name, args.dataset_name, time.strftime("%y%m%d-%H%M", time.localtime(time.time())))
+    log_dir = Path('outputs/logs')
+    if not log_dir.exists():
+        Path.mkdir(log_dir, parents=True)
+    log_file = log_dir/'{}-{}-{}.log'.format(args.model_name, args.dataset_name, time.strftime("%y%m%d-%H%M", time.localtime(time.time())))
     logger.addHandler(logging.FileHandler(log_file))
     ins = Instructor(args)
     ins.run()
