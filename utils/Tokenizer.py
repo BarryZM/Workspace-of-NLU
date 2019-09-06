@@ -53,6 +53,12 @@ class Tokenizer(object):
         self.word2vec = {}  # {"Apple":[1,2,2,3,5], "Book":"1,2,1,1,1"}
         self.embedding_matrix = []
 
+        # add <PAD> <UNK>
+        self.word2idx['<UNK>'] = 0
+        self.word2idx['<PAD>'] = 1
+        self.idx2word[0] = self.word2idx['<UNK>']
+        self.idx2word[1] = self.word2idx['<PAD>']
+
         self.__set_embedding_info()
         self.__set_vocabulary(input_text=self.fit_text)
         self.__set_word2vec(embedding_path=self.embedding_files['Static'][self.emb_type],
@@ -91,14 +97,6 @@ class Tokenizer(object):
 
         from collections import Counter
         count = Counter(tmp_text)
-
-        # add <PAD> <UNK>
-
-        self.word2idx['<UNK>'] = 0
-        self.word2idx['<PAD>'] = 1
-
-        self.idx2word[0] = self.word2idx['<UNK>']
-        self.idx2word[1] = self.word2idx['<PAD>']
 
         for idx, item in enumerate(count):
             self.word2idx[item] = idx + 2

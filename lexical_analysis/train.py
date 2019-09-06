@@ -44,20 +44,20 @@ class Instructor:
         if self.opt.do_predict is True:
             self.predictset = Dataset_NER(opt.dataset_file['predict'], tokenizer, 'entity', self.opt.label_list)
         
-        logger.info("text 3 {}".format(self.trainset.text_list[:3]))
-        logger.info("label 3 {}".format(self.trainset.label_list[:3]))
+        text_list = np.asarray(self.trainset.text_list)
+        label_list = np.asarray(self.trainset.label_list)
 
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices(
-            {'text': np.asarray(self.trainset.text_list),
-             'label': np.asarray(self.trainset.label_list)}).batch(self.opt.batch_size).shuffle(10000)
-        self.test_data_loader = tf.data.Dataset.from_tensor_slices(
-            {'text': np.asarray(self.testset.text_list),
-             'label': np.asarray(self.testset.label_list)}).batch(self.opt.batch_size)
+        logger.info("text list top 3 {}".format(text_list[:3]))
+        logger.info("label list top 3 {}".format(label_list[:3]))
 
-        if self.opt.do_predict is True:
-            self.predict_data_loader = tf.data.Dataset.from_tensor_slices(
-                {'text': self.predictset.text_list,
-                 'label': self.predictset.label_list}).batch(self.opt.batch_size)
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size).shuffle(10000)
+        self.test_data_loader = self.train_data_loader
+        self.predict_data_loader = self.train_data_loader
+
+        #self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list,'label': label_list}).batch(self.opt.batch_size)
+
+        #if self.opt.do_predict is True:
+        #    self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size)
 
         logger.info('>> load data done')
 
