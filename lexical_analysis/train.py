@@ -48,16 +48,29 @@ class Instructor:
         logger.info("label 3 {}".format(self.trainset.label_list[:3]))
 
         self.train_data_loader = tf.data.Dataset.from_tensor_slices(
-            {'text': np.asarray(self.trainset.text_list), 
-             'label': np.asarray(self.trainset.text_list)}).batch(self.opt.batch_size).shuffle(10000)
+            {'text': np.asarray(self.trainset.text_list),
+             'label': tf.random_uniform(4, 100)}).batch(self.opt.batch_size).shuffle(10000)
         self.test_data_loader = tf.data.Dataset.from_tensor_slices(
-            {'text': np.asarray(self.testset.text_list), 
-             'label': np.asarray(self.testset.text_list)}).batch(self.opt.batch_size)
+            {'text': np.asarray(self.testset.text_list),
+             'label': tf.random_uniform(4, 100)}).batch(self.opt.batch_size)
 
         if self.opt.do_predict is True:
             self.predict_data_loader = tf.data.Dataset.from_tensor_slices(
-                {'text': self.predictset.text_list, 
+                {'text': self.predictset.text_list,
                  'label': self.predictset.text_list}).batch(self.opt.batch_size)
+
+        # self.train_data_loader = tf.data.Dataset.from_tensor_slices(
+        #     {'text': np.asarray(self.trainset.text_list),
+        #      'label': np.asarray(self.trainset.text_list)}).batch(self.opt.batch_size).shuffle(10000)
+        # self.test_data_loader = tf.data.Dataset.from_tensor_slices(
+        #     {'text': np.asarray(self.testset.text_list),
+        #      'label': np.asarray(self.testset.text_list)}).batch(self.opt.batch_size)
+        #
+        # if self.opt.do_predict is True:
+        #     self.predict_data_loader = tf.data.Dataset.from_tensor_slices(
+        #         {'text': self.predictset.text_list,
+        #          'label': self.predictset.text_list}).batch(self.opt.batch_size)
+
         logger.info('>> load data done')
 
         # build saver
