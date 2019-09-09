@@ -83,9 +83,9 @@ class BLSTM_CRF(object):
             cell_bw = rnn.DropoutWrapper(cell_bw, output_keep_prob=self.droupout_rate)
             cell_fw = rnn.DropoutWrapper(cell_fw, output_keep_prob=self.droupout_rate)
         return cell_fw, cell_bw
+
     def blstm_layer(self, embedding_chars):
         """
-                
         :return: 
         """
         with tf.variable_scope('rnn_layer'):

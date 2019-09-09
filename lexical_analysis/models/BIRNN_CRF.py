@@ -39,16 +39,28 @@ class BIRNN_CRF(object):
     def char_embedding(self):
         pass
 
+    def convert(self, input_list):
+        result = []
+        for item in input_list:
+            if item > 1 :
+                tmp = 1
+            else:
+                tmp = 0
+            result.append(tmp)
+        return result
+
     def birnn_crf(self):
         # tf.global_variables_initializer()
 
         with tf.device('/cpu:0'):
 
             # get the length of each sample
-            length = tf.reduce_sum(tf.sign(self.input_x), reduction_indices=1)
+            # length = tf.reduce_sum(tf.sign(tf.substract(self.input_x - tf.ones(len(self.input_x)))), reduction_indices=1)
+
+            length = tf.reduce_sum(tf.sign(self.convert(self.input_x)), reduction_indices=1)
             length = tf.cast(length, tf.int32)
 
-            print(length.get_shape())
+            print(" &&&& length ", length.get_shape())
 
             inputs_emb = tf.nn.embedding_lookup(self.embedding_matrix, self.input_x)  # 维度增加
 
