@@ -52,10 +52,10 @@ class Tokenizer(object):
         self.embedding_matrix = []
 
         # add <PAD> <UNK>
-        self.word2idx['<UNK>'] = 0
-        self.word2idx['<PAD>'] = 1
-        self.idx2word[0] = self.word2idx['<UNK>']
-        self.idx2word[1] = self.word2idx['<PAD>']
+        self.word2idx['<PAD>'] = 0
+        self.word2idx['<UNK>'] = 1
+        self.idx2word[0] = self.word2idx['<PAD>']
+        self.idx2word[1] = self.word2idx['<UNK>']
 
         self.__set_embedding_info()
         self.__set_vocabulary(input_text=self.fit_text)
@@ -143,8 +143,8 @@ class Tokenizer(object):
         elif self.emb_type == 'tencent':
             embedding_matrix = np.zeros((len(word2idx) + 2, 200))
             unknown_words_vector = np.random.rand(200)
-            embedding_matrix[0] = unknown_words_vector  # Unknown words
-            embedding_matrix[1] = np.zeros(200) # Padding
+            embedding_matrix[self.word2idx['<UNK>']] = unknown_words_vector  # Unknown words
+            embedding_matrix[self.word2idx['<PAD>']] = np.zeros(200) # Padding
 
             for word, idx in word2idx.items():
                 if word in self.word2vec.keys():

@@ -13,9 +13,6 @@ def process_boundary(tag: list, sent: list):
     print(">>>>>>>>> tag", tag)
     print(">>>>>>>>> sent", sent)
 
-    if len(tag) != len(sent):
-        return []
-
     entity_val = ""
     tup_list = []
     entity_tag = None
@@ -88,11 +85,14 @@ def cut_result_2_sentence_for_file(text_list, ground_list, predict_list):
 def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
 
     print('='*200)
-    print(char_list)
-    print(tag_ground_list)
-    print(tag_predict_list)
+    print(">>> char list", char_list)
+    print(">>> tag ground list", tag_ground_list)
+    print(">>> tag predcit list", tag_predict_list)
 
     entity_predict_list, entity_ground_list = process_boundary(tag_predict_list, char_list), process_boundary(tag_ground_list, char_list)
+
+    print("entity ground list", entity_ground_list)
+    print("entity predict list", entity_predict_list)
 
     if entity_predict_list != entity_ground_list:
         print("###")
@@ -102,6 +102,8 @@ def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
     
         print('predict###', entity_predict_list)
         print('ground###', entity_ground_list)
+    
+    char_list = [ item for item in char_list if type(item) is str]
 
     text = ''.join(char_list)
 
@@ -123,12 +125,10 @@ def get_results_by_line(text_lines, ground_lines, predict_lines):
             count_ground += 1
     assert count_predict == count_predict
 
-
-    #print(len(text_lines), len(ground_lines), len(predict_lines))
-    #text_list, ground_list, predict_list = cut_result_2_sentence_for_line(text_lines, ground_lines, predict_lines)
-    #print(len(text_list), len(ground_list), len(predict_list))
-
     for item_t, item_g, item_p in zip(text_lines, ground_lines, predict_lines):
+        print(" item text", item_t)
+        print(" item ground", item_g)
+        print(" item predict", item_p)
         sentence_evaluate(item_t, item_g, item_p)
 
     cnt_dict = {'NER': len(text_lines)}

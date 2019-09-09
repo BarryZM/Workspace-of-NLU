@@ -20,12 +20,6 @@ class Dataset_NER():
         self.set_label2id()
         self.set_label2onehot()
 
-        # add <PAD> <UNK>
-        self.label2idx['<UNK>'] = 0
-        self.label2idx['<PAD>'] = 1
-        self.idx2label[0] = ['<UNK>'] 
-        self.idx2label[1] = ['<PAD>']
-
         self.text_list = []
         self.label_list = []
 
@@ -48,8 +42,8 @@ class Dataset_NER():
         label2idx = {}
         idx2label = {}
         for idx, item in enumerate(self.label_list):
-            label2idx[item] = idx + 2
-            idx2label[idx+2] = item
+            label2idx[item] = idx + 1
+            idx2label[idx + 1] = item
 
         self.label2idx = label2idx
         self.idx2label = idx2label
@@ -67,7 +61,7 @@ class Dataset_NER():
 
     def __pad_and_truncate(self, sequence, maxlen, dtype='int64',
                            padding='post', truncating='post',
-                           value=1):
+                           value=0):
         """
         :param sequence:
         :param maxlen:
@@ -77,7 +71,7 @@ class Dataset_NER():
         :param value:
         :return: sequence after padding and truncate
         """
-        x = (np.ones(maxlen) * value).astype(dtype)
+        x = (np.ones(maxlen) * self.tokenizer.word2idx["<PAD>"]).astype(dtype)
 
         if truncating == 'pre':
             trunc = sequence[-maxlen:]

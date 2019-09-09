@@ -39,29 +39,18 @@ class BIRNN_CRF(object):
     def char_embedding(self):
         pass
 
-    def convert(self, input_list):
-        result = []
-        for item in input_list:
-            if item > 1 :
-                tmp = 1
-            else:
-                tmp = 0
-            result.append(tmp)
-        return result
 
     def birnn_crf(self):
         # tf.global_variables_initializer()
 
         with tf.device('/cpu:0'):
 
-            # get the length of each sample
-            # length = tf.reduce_sum(tf.sign(tf.substract(self.input_x - tf.ones(len(self.input_x)))), reduction_indices=1)
+            mask = tf.reduce_sum(tf.sign(self.input_x), reduction_indices=1)
+            mask = tf.cast(mask, tf.int32)
 
-            length = tf.reduce_sum(tf.sign(self.convert(self.input_x)), reduction_indices=1)
-            length = tf.cast(length, tf.int32)
-
-            print(" &&&& length ", length.get_shape())
-
+            #self.input_x = tf.boolean_mask(self.input_x, mask)
+            #self.input_y = tf.boolean_mask(self.input_y, mask)
+            
             inputs_emb = tf.nn.embedding_lookup(self.embedding_matrix, self.input_x)  # 维度增加
 
         if self.biderectional:
@@ -134,27 +123,24 @@ class BIRNN_CRF(object):
         # self.input_y = tf.reshape(self.input_y, [-1, self.seq_len, self.class_num])
 
         if not self.is_crf:
+            pass
             # softmax
-            softmax_out = tf.nn.softmax(self.logits, axis=-1)
-
-            self.batch_pred_sequence = tf.cast(tf.argmax(softmax_out, -1), tf.int32)
-            losses = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=self.logits, labels=self.input_y)
-            mask = tf.sequence_mask(self.seq_len)
-
-            self.losses = tf.boolean_mask(losses, mask)
-
-            self.loss = tf.reduce_mean(losses)
+            #softmax_out = tf.nn.softmax(self.logits, axis=-1)
+            #self.batch_pred_sequence = tf.cast(tf.argmax(softmax_out, -1), tf.int32)
+            #losses = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=self.logits, labels=self.input_y)
+            #mask = tf.sequence_mask(self.seq_len)
+            #self.losses = tf.boolean_mask(losses, mask)
+            #self.loss = tf.reduce_mean(losses)
         else:
             # crf
-            print(self.logits.shape)
-            print(self.input_y.shape)
-            print(length.shape)
+            print("logits", self.logits.shape)
+            print("input_y", self.input_y.shape)
 
-            log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(self.logits, self.input_y, length)
-            print(log_likelihood.shape)
-            print(transition_params.shape)
+            log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(self.logits, self.input_y, mask)
+            print("log_likehood", log_likelihood.shape)
+            print("trasition", transition_params.shape)
 
-            self.outputs, self.batch_viterbi_score = tf.contrib.crf.crf_decode(self.logits, transition_params, length)
+            self.outputs, self.batch_viterbi_score = tf.contrib.crf.crf_decode(self.logits, transition_params, mask)
             self.loss = tf.reduce_mean(-log_likelihood)
 
         # summary

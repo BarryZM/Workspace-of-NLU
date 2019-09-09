@@ -37,24 +37,40 @@ class Instructor:
         self.tokenizer = tokenizer
         self.max_seq_len = self.opt.max_seq_len
 
+
+
         # build model and session
         self.model = BIRNN_CRF(self.opt, tokenizer)
         self.session = self.model.session
 
-        # build dataset
+        # train
         self.trainset = Dataset_NER(opt.dataset_file['train'],
                                     tokenizer, self.max_seq_len, 'entity', self.opt.label_list)
+        text_list = np.asarray(self.trainset.text_list)
+        label_list = np.asarray(self.trainset.label_list)
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size).shuffle(10000)
+
+        # test
         self.testset = Dataset_NER(opt.dataset_file['test'], tokenizer, self.max_seq_len, 'entity', self.opt.label_list)
+        text_list = np.asarray(self.testset.text_list)
+        label_list = np.asarray(self.testset.label_list)
+        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size).shuffle(10000)
+
+        # eval
+        self.eval_data_loader = self.test_data_loader
+
+         # predict
         if self.opt.do_predict is True:
             self.predictset = Dataset_NER(opt.dataset_file['predict'],
                                           tokenizer, self.max_seq_len, 'entity', self.opt.label_list)
-        
-        text_list = np.asarray(self.trainset.text_list)
-        label_list = np.asarray(self.trainset.label_list)
 
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size).shuffle(10000)
-        self.test_data_loader = self.train_data_loader
-        self.predict_data_loader = self.train_data_loader
+            text_list = np.asarray(self.predictset.text_list)
+            label_list = np.asarray(self.predictset.label_list)
+            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size).shuffle(10000)
+        
+        print(self.tokenizer.word2idx)
+        print(self.trainset.label2idx)
+        print(self.trainset.idx2label)
 
         logger.info('>> load data done')
 
@@ -130,6 +146,15 @@ class Instructor:
         return path
 
     def _evaluate_metric(self, data_loader):
+
+        def convert_text(encode_list):
+            return [self.tokenizer.idx2word[item] for item in encode_list if item not in
+                    [self.tokenizer.word2idx["<UNK>"], self.tokenizer.word2idx["<PAD>"] ]]
+
+        def convert_label(encode_list):
+            return [self.trainset.idx2label[item] for item in encode_list if
+                    item != 0 ]
+
         t_texts_all, t_targets_all, t_outputs_all = [], [], []
         iterator = data_loader.make_one_shot_iterator()
         one_element = iterator.get_next()
@@ -139,12 +164,14 @@ class Instructor:
                 sample_batched = self.session.run(one_element)
                 inputs = sample_batched['text']
                 targets = sample_batched['label']
+                print(">>> eval inputs", inputs)
+                print(">>> eval labels", targets)
+
                 model = self.model
                 outputs = self.session.run(model.outputs, feed_dict={model.input_x: inputs, model.input_y: targets, model.global_step: 1, model.keep_prob: 1.0})
+                
+                print(">>> eval outputs", outputs)
 
-                print("predict inputs", inputs)
-                print("predict targets", targets)
-                print("predict outputs", outputs)
                 t_texts_all.extend(inputs)
                 t_targets_all.extend(targets)
                 t_outputs_all.extend(outputs)
@@ -156,16 +183,9 @@ class Instructor:
                             f.write(str(item) + '\n')
 
                 break
-
-        text_dict = self.tokenizer.idx2word
-        label_dict = self.trainset.idx2label
-
-        def convert_text(encode_list):
-            return [text_dict[item] for item in encode_list if item not in [0,1]]
-
-        def convert_label(encode_list):
-            return [label_dict[item] for item in encode_list if item not in [0,1]]
-
+        
+        # idx 2 word and label
+        
         t_texts_all = list(map(convert_text, t_texts_all))
         t_targets_all = list(map(convert_label, t_targets_all))
         t_outputs_all = list(map(convert_label, t_outputs_all))
