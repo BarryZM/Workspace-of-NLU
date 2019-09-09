@@ -6,27 +6,33 @@ import numpy as np
 
 class Dataset_NER():
     
-    def __init__(self, corpus, tokenizer, data_type, label_str):
+    def __init__(self, corpus, tokenizer, max_seq_len, data_type, label_str):
         self.corpus = corpus
         self.tokenizer = tokenizer
 
         self.word2idx = self.tokenizer.word2idx
-        self.max_seq_len = self.tokenizer.max_seq_len
+        self.max_seq_len = max_seq_len
 
         self.label_str = label_str
         self.data_type = data_type
-        self.label_list = self.set_label_list()
-        self.label2idx = self.set_label2id()
-        self.label2onehot = self.set_label2onehot()
+
+        self.set_label_list()
+        self.set_label2id()
+        self.set_label2onehot()
 
         # add <PAD> <UNK>
         self.label2idx['<UNK>'] = 0
         self.label2idx['<PAD>'] = 1
+        self.idx2label[0] = ['<UNK>'] 
+        self.idx2label[1] = ['<PAD>']
 
         self.text_list = []
         self.label_list = []
 
         self.preprocess()
+
+        print(self.label2idx)
+        print(self.idx2label)
 
     def __getitem__(self, index):
         return self.text_list[index]
@@ -36,15 +42,17 @@ class Dataset_NER():
 
     def set_label_list(self):
         label_list = [item.strip().strip("'") for item in self.label_str.split(',')]
-        print(label_list)
-        return label_list
+        self.label_list = label_list
 
     def set_label2id(self):
-        label_dict = {}
+        label2idx = {}
+        idx2label = {}
         for idx, item in enumerate(self.label_list):
-            label_dict[item] = idx + 2
-        print(label_dict)
-        return label_dict
+            label2idx[item] = idx + 2
+            idx2label[idx+2] = item
+
+        self.label2idx = label2idx
+        self.idx2label = idx2label
 
     def set_label2onehot(self):
         label_list = self.label_list
@@ -55,8 +63,7 @@ class Dataset_NER():
         label_dict = {}
         for aspect, vector in zip(label_list, one_hot_df):
             label_dict[aspect] = vector
-        print(label_dict)
-        return label_dict
+        self.label2onehot = label_dict
 
     def __pad_and_truncate(self, sequence, maxlen, dtype='int64',
                            padding='post', truncating='post',

@@ -23,14 +23,12 @@ class Tokenizer(object):
         if embedding matrix exits, load from exit file
         else build new embedding matrix
     """
-    def __init__(self, corpus_files, max_seq_len, emb_type):
+    def __init__(self, corpus_files, emb_type):
         """
         :param corpus_files:
-        :param max_seq_len:
         :param emb_type:
         """
 
-        self.max_seq_len = max_seq_len
         self.emb_type = emb_type.lower()
 
         self.lower = True
@@ -160,7 +158,7 @@ class Tokenizer(object):
         self.embedding_matrix = embedding_matrix
 
 
-def build_tokenizer(corpus_files, max_seq_len, corpus_type, embedding_type):
+def build_tokenizer(corpus_files, corpus_type, embedding_type):
     """
     corpus files and corpus type can merge
     """
@@ -171,11 +169,10 @@ def build_tokenizer(corpus_files, max_seq_len, corpus_type, embedding_type):
     else:
         print('build new tokenizer:', tokenizer_path)
         tokenizer = Tokenizer(corpus_files=corpus_files,
-                              max_seq_len=max_seq_len,
                               emb_type=embedding_type)
         pickle.dump(tokenizer, open(tokenizer_path, 'wb'))
     return tokenizer
 
 
 if __name__ == '__main__':
-    build_tokenizer(['corpus.txt'], 32, 'entity', 'tencent')
+    build_tokenizer(['corpus.txt'], 'entity', 'tencent')

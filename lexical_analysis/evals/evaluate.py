@@ -10,6 +10,12 @@ def process_boundary(tag: list, sent: list):
     :param sent: 字 的 list
     :return:
     """
+    print(">>>>>>>>> tag", tag)
+    print(">>>>>>>>> sent", sent)
+
+    if len(tag) != len(sent):
+        return []
+
     entity_val = ""
     tup_list = []
     entity_tag = None
@@ -44,7 +50,7 @@ def process_boundary(tag: list, sent: list):
     return tup_list
 
 
-def cut_resulst_2_sentence(text_list, ground_list, predict_list):
+def cut_result_2_sentence_for_file(text_list, ground_list, predict_list):
     text_sentence_list = []
     ground_sentence_list = []
     predict_sentence_list = []
@@ -56,9 +62,6 @@ def cut_resulst_2_sentence(text_list, ground_list, predict_list):
     idx = 0
 
     for item_t, item_g, item_p in zip(text_list, ground_list, predict_list):
-        #print("item_t", item_t)
-        #print("item_g", item_g)
-        #print("item_p", item_p)
 
         #if len(item_g.strip()) == 0 and len(item_p.strip()) != 0:
         #    print('index', idx)
@@ -66,7 +69,7 @@ def cut_resulst_2_sentence(text_list, ground_list, predict_list):
         #elif len(item_g.strip()) != 0 and len(item_p.strip()) == 0:
         #   print('index', idx)
         #   raise Exception("Error")
-        if len(item_g.strip()) == 0 and len(item_p.strip()) == 0:
+        if len(item_g) == 0 and len(item_p) == 0:
             text_sentence_list.append(tmp_t.copy())
             ground_sentence_list.append(tmp_g.copy())
             predict_sentence_list.append(tmp_p.copy())
@@ -74,15 +77,21 @@ def cut_resulst_2_sentence(text_list, ground_list, predict_list):
             tmp_g = []
             tmp_p = []
         else:
-            tmp_t.append(item_t.strip())
-            tmp_g.append(item_g.strip())
-            tmp_p.append(item_p.strip())
+            tmp_t.append(item_t)
+            tmp_g.append(item_g)
+            tmp_p.append(item_p)
         idx += 1 
 
     return text_sentence_list, ground_sentence_list, predict_sentence_list
 
 
 def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
+
+    print('='*200)
+    print(char_list)
+    print(tag_ground_list)
+    print(tag_predict_list)
+
     entity_predict_list, entity_ground_list = process_boundary(tag_predict_list, char_list), process_boundary(tag_ground_list, char_list)
 
     if entity_predict_list != entity_ground_list:
@@ -99,25 +108,30 @@ def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
     calc_partial_match_evaluation_per_line(entity_predict_list, entity_ground_list, text, "NER")
 
 
-def get_results_by_line(ground_lines, predict_lines):
+def get_results_by_line(text_lines, ground_lines, predict_lines):
+
+    assert len(text_lines) == len(ground_lines) == len(predict_lines)
 
     count_predict = 0
     count_ground = 0
     for item in predict_lines:
-        if len(item.strip()) == 0:
+        if len(item) == 0:
             count_predict += 1
 
     for item in ground_lines:
-        if len(item.strip()) == 0:
+        if len(item) == 0:
             count_ground += 1
     assert count_predict == count_predict
 
-    text_list, ground_list, predict_list = cut_resulst_2_sentence(text_lines, ground_lines, predict_lines)
 
-    for item_t, item_g, item_p in zip(text_list, ground_list, predict_list):
+    #print(len(text_lines), len(ground_lines), len(predict_lines))
+    #text_list, ground_list, predict_list = cut_result_2_sentence_for_line(text_lines, ground_lines, predict_lines)
+    #print(len(text_list), len(ground_list), len(predict_list))
+
+    for item_t, item_g, item_p in zip(text_lines, ground_lines, predict_lines):
         sentence_evaluate(item_t, item_g, item_p)
 
-    cnt_dict = {'NER': len(text_list)}
+    cnt_dict = {'NER': len(text_lines)}
     overall_res = calc_overall_evaluation(cnt_dict)
     p = overall_res['NER']['strict']['precision']
     r = overall_res['NER']['strict']['recall']
@@ -146,15 +160,15 @@ def get_results_by_file(ground_text_path, predict_label_path):
     count_predict = 0
     count_ground = 0
     for item in predict_lines:
-        if len(item.strip()) == 0:
+        if len(item) == 0:
             count_predict += 1
 
     for item in ground_lines:
-        if len(item.strip()) == 0:
+        if len(item) == 0:
             count_ground += 1
     assert count_predict == count_predict
 
-    text_list, ground_list, predict_list = cut_resulst_2_sentence(text_lines, ground_lines, predict_lines)
+    text_list, ground_list, predict_list = cut_result_2_sentence_for_file(text_lines, ground_lines, predict_lines)
 
     for item_t, item_g, item_p in zip(text_list, ground_list, predict_list):
         sentence_evaluate(item_t, item_g, item_p)

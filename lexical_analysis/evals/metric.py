@@ -226,6 +226,9 @@ def calc_overall_evaluation(count_by_type_dict: dict):
     :param count_by_type_dict: {k:v}  key->domain_name, value-> count number by domain name
     :return:
     """
+
+    print(count_by_type_dict)
+
     assert len(count_by_type_dict) > 0, "count by domain class should not be empty!"
     for domain_name, domain_cnt in count_by_type_dict.items():
         print('domain_cnt', domain_cnt)

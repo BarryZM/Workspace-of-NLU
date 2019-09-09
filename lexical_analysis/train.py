@@ -32,32 +32,29 @@ class Instructor:
 
         # build tokenizer
         logger.info("parameters for programming :  {}".format(self.opt))
-        tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'], opt.dataset_file['test']], max_seq_len=128, corpus_type=opt.dataset_name, embedding_type='tencent')
+        tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'], opt.dataset_file['test']],corpus_type=opt.dataset_name, embedding_type='tencent')
+
+        self.tokenizer = tokenizer
+        self.max_seq_len = self.opt.max_seq_len
 
         # build model and session
         self.model = BIRNN_CRF(self.opt, tokenizer)
         self.session = self.model.session
 
         # build dataset
-        self.trainset = Dataset_NER(opt.dataset_file['train'], tokenizer, 'entity', self.opt.label_list)
-        self.testset = Dataset_NER(opt.dataset_file['test'], tokenizer, 'entity', self.opt.label_list)
+        self.trainset = Dataset_NER(opt.dataset_file['train'],
+                                    tokenizer, self.max_seq_len, 'entity', self.opt.label_list)
+        self.testset = Dataset_NER(opt.dataset_file['test'], tokenizer, self.max_seq_len, 'entity', self.opt.label_list)
         if self.opt.do_predict is True:
-            self.predictset = Dataset_NER(opt.dataset_file['predict'], tokenizer, 'entity', self.opt.label_list)
+            self.predictset = Dataset_NER(opt.dataset_file['predict'],
+                                          tokenizer, self.max_seq_len, 'entity', self.opt.label_list)
         
         text_list = np.asarray(self.trainset.text_list)
         label_list = np.asarray(self.trainset.label_list)
 
-        logger.info("text list top 3 {}".format(text_list[:3]))
-        logger.info("label list top 3 {}".format(label_list[:3]))
-
         self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size).shuffle(10000)
         self.test_data_loader = self.train_data_loader
         self.predict_data_loader = self.train_data_loader
-
-        #self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list,'label': label_list}).batch(self.opt.batch_size)
-
-        #if self.opt.do_predict is True:
-        #    self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size)
 
         logger.info('>> load data done')
 
@@ -74,7 +71,7 @@ class Instructor:
 
         max_f1 = 0
         path = None
-        print("train begin")
+
         for _epoch in range(self.opt.epoch):
             logger.info('>' * 100)
             logger.info('epoch: {}'.format(_epoch))
@@ -82,13 +79,27 @@ class Instructor:
             iterator = train_data_loader.make_one_shot_iterator()
             one_element = iterator.get_next()
 
+            def convert(input_list):
+                return [item for item in input_list if item not in [0, 1]]
+
             while True:
                 try:
                     sample_batched = self.session.run(one_element)
                     inputs = sample_batched['text']
-                    print(inputs)
                     labels = sample_batched['label']
-                    print(labels)
+                    
+                    #print("inputs 0", inputs)
+                    #print("labels 0", labels)
+
+                    #inputs = list(map(convert, inputs))
+                    #labels = list(map(convert, labels))
+
+                    #print("inputs 1", inputs)
+                    #print("labels 1", labels)
+
+                    #inputs = np.asarray(inputs)
+                    #labels = np.asarray(labels)
+
                     model = self.model
                     _ = self.session.run(model.trainer,
                                          feed_dict={model.input_x: inputs,
@@ -99,7 +110,7 @@ class Instructor:
 
                 except tf.errors.OutOfRangeError:
                     break
-
+            
             val_p, val_r, val_f1 = self._evaluate_metric(val_data_loader)
             logger.info('>>>>>> val_p: {:.4f}, val_r:{:.4f}, val_f1: {:.4f}'.format(val_p, val_r, val_f1))
 
@@ -119,7 +130,7 @@ class Instructor:
         return path
 
     def _evaluate_metric(self, data_loader):
-        t_texts_all, t_targets_all, t_outputs_all = [], []
+        t_texts_all, t_targets_all, t_outputs_all = [], [], []
         iterator = data_loader.make_one_shot_iterator()
         one_element = iterator.get_next()
 
@@ -131,6 +142,9 @@ class Instructor:
                 model = self.model
                 outputs = self.session.run(model.outputs, feed_dict={model.input_x: inputs, model.input_y: targets, model.global_step: 1, model.keep_prob: 1.0})
 
+                print("predict inputs", inputs)
+                print("predict targets", targets)
+                print("predict outputs", outputs)
                 t_texts_all.extend(inputs)
                 t_targets_all.extend(targets)
                 t_outputs_all.extend(outputs)
@@ -143,9 +157,18 @@ class Instructor:
 
                 break
 
-        print("##", t_texts_all[:100])
-        print("##", t_targets_all[:100])
-        print("##", t_outputs_all[:100])
+        text_dict = self.tokenizer.idx2word
+        label_dict = self.trainset.idx2label
+
+        def convert_text(encode_list):
+            return [text_dict[item] for item in encode_list if item not in [0,1]]
+
+        def convert_label(encode_list):
+            return [label_dict[item] for item in encode_list if item not in [0,1]]
+
+        t_texts_all = list(map(convert_text, t_texts_all))
+        t_targets_all = list(map(convert_label, t_targets_all))
+        t_outputs_all = list(map(convert_label, t_outputs_all))
 
         p, r, f1 = get_results_by_line(t_texts_all, t_targets_all, t_outputs_all)
 
@@ -157,17 +180,18 @@ class Instructor:
         
 
         if self.opt.do_train is True and self.opt.do_test is True:
-            print("go train")
-            best_model_path = self._train(None, optimizer, train_data_loader, test_data_loader)
+
+            best_model_path = self._train(None, optimizer,
+                                          self.train_data_loader, self.test_data_loader)
             self.saver.restore(self.session, best_model_path)
-            test_p, test_r, test_f1 = self._evaluate_metric(test_data_loader)
+            test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
             logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
 
         elif self.opt.do_train is False and self.opt.do_test is True:
             ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
             if ckpt and ckpt.model_checkpoint_path:
                 self.saver.restore(self.session, ckpt.model_checkpoint_path)
-                test_p, test_r, test_f1 = self._evaluate_metric(test_data_loader)
+                test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
                 logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
             else:
                 logger.info('@@@ Error:load ckpt error')
@@ -209,7 +233,7 @@ def main():
     parser.add_argument('--results_file', type=str)
 
     parser.add_argument('--gpu', type=str, default='0')
-    parser.add_argument('--max_seq_len', type=str, default=80)
+    parser.add_argument('--max_seq_len', type=str, default=32)
     parser.add_argument('--batch_size', type=int, default=126)
     parser.add_argument('--hidden_dim', type=int, default=509, help='hidden dim of dense')
     parser.add_argument('--es', type=int, default=10, help='early stopping epochs')
