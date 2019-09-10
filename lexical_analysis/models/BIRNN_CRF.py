@@ -63,6 +63,7 @@ class BIRNN_CRF(object):
                 (output_fw_seq, output_bw_seq), _ = tf.nn.bidirectional_dynamic_rnn(cell_fw=cell_fw,
                                                                                     cell_bw=cell_bw,
                                                                                     inputs=inputs_emb,
+                                                                                    sequence_length=mask,
                                                                                     dtype=tf.float64)
                 outputs = tf.concat([output_fw_seq, output_bw_seq], axis=-1)
                 outputs = tf.cast(outputs, dtype=tf.float32)
@@ -138,7 +139,6 @@ class BIRNN_CRF(object):
             print("trasition", transition_params.shape)
 
             self.outputs, self.batch_viterbi_score = tf.contrib.crf.crf_decode(self.logits, transition_params, mask)
-            self.outputs = tf.boolean_mask(self.outputs, mask)
             self.loss = tf.reduce_mean(-log_likelihood)
 
         # summary

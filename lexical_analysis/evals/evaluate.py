@@ -6,12 +6,10 @@ from .metric  import calc_partial_match_evaluation_per_line, calc_overall_evalua
 def process_boundary(tag: list, sent: list):
     """
     将 按字 输入的 list 转化为 entity list
-    :param tag: tag 的 list
-    :param sent: 字 的 list
+    :param tag: [B,I,O,O,B,I,O]
+    :param sent:[外，观，不，错，手，感，好]
     :return:
     """
-    print(">>>>>>>>> tag", tag)
-    print(">>>>>>>>> sent", sent)
 
     entity_val = ""
     tup_list = []
@@ -34,14 +32,14 @@ def process_boundary(tag: list, sent: list):
                 entity_tag = tag[2:]
                 entity_val = tok
             elif tag in [0, 'O']:
-                if len(entity_val) > 0:
+                if len(str(entity_val)) > 0:
                     tup_list.append((entity_tag, entity_val))
                 entity_val = ""
                 entity_tag = None
 
         except Exception as e:
             pass
-    if len(entity_val) > 0:
+    if len(str(entity_val)) > 0:
         tup_list.append((entity_tag, entity_val))
 
     return tup_list
@@ -84,15 +82,11 @@ def cut_result_2_sentence_for_file(text_list, ground_list, predict_list):
 
 def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
 
-    print('='*200)
-    print(">>> char list", char_list)
-    print(">>> tag ground list", tag_ground_list)
-    print(">>> tag predcit list", tag_predict_list)
-
     entity_predict_list, entity_ground_list = process_boundary(tag_predict_list, char_list), process_boundary(tag_ground_list, char_list)
-
+    print("%" * 20)
     print("entity ground list", entity_ground_list)
     print("entity predict list", entity_predict_list)
+    print("%" * 20)
 
     if entity_predict_list != entity_ground_list:
         print("###")
@@ -113,6 +107,7 @@ def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
 def get_results_by_line(text_lines, ground_lines, predict_lines):
 
     assert len(text_lines) == len(ground_lines) == len(predict_lines)
+    assert len(text_lines[0]) == len(ground_lines[0]) == len(predict_lines[0])
 
     count_predict = 0
     count_ground = 0
@@ -126,6 +121,7 @@ def get_results_by_line(text_lines, ground_lines, predict_lines):
     assert count_predict == count_predict
 
     for item_t, item_g, item_p in zip(text_lines, ground_lines, predict_lines):
+        print("#" * 200)
         print(" item text", item_t)
         print(" item ground", item_g)
         print(" item predict", item_p)

@@ -26,6 +26,7 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 
 
+
 class Instructor:
     def __init__(self, opt):
         self.opt = opt
@@ -36,8 +37,6 @@ class Instructor:
 
         self.tokenizer = tokenizer
         self.max_seq_len = self.opt.max_seq_len
-
-
 
         # build model and session
         self.model = BIRNN_CRF(self.opt, tokenizer)
@@ -95,8 +94,17 @@ class Instructor:
             iterator = train_data_loader.make_one_shot_iterator()
             one_element = iterator.get_next()
 
-            def convert(input_list):
-                return [item for item in input_list if item not in [0, 1]]
+            def convert_text_idx(input_list):
+                return [item for item in input_list if item not in [0]]
+
+            def convert_label_idx(input_list):
+                return [item for item in input_list if item not in [-1]]
+
+            def convert_text(encode_list):
+                return [self.tokenizer.idx2word[item] for item in encode_list if item not in [self.tokenizer.word2idx["<PAD>"] ]]
+
+            def convert_label(encode_list):
+                return [self.trainset.idx2label[item] for item in encode_list if item != -1 ]
 
             while True:
                 try:
@@ -107,8 +115,8 @@ class Instructor:
                     #print("inputs 0", inputs)
                     #print("labels 0", labels)
 
-                    #inputs = list(map(convert, inputs))
-                    #labels = list(map(convert, labels))
+                    #inputs = list(map(convert_text_idx, inputs))
+                    #labels = list(map(convert_label_idx, labels))
 
                     #print("inputs 1", inputs)
                     #print("labels 1", labels)
@@ -147,29 +155,37 @@ class Instructor:
 
     def _evaluate_metric(self, data_loader):
 
-        def convert_text(encode_list):
-            return [self.tokenizer.idx2word[item] for item in encode_list if item not in
-                    [self.tokenizer.word2idx["<UNK>"], self.tokenizer.word2idx["<PAD>"] ]]
-
-        def convert_label(encode_list):
-            return [self.trainset.idx2label[item] for item in encode_list if
-                    item != -1 ]
-
         t_texts_all, t_targets_all, t_outputs_all = [], [], []
         iterator = data_loader.make_one_shot_iterator()
         one_element = iterator.get_next()
+
+
+        def convert_text_idx(input_list):
+            return [item for item in input_list if item not in [0]]
+
+        def convert_label_idx(input_list):
+            return [item for item in input_list if item not in [0]]
+
+        def convert_text(encode_list):
+            return [self.tokenizer.idx2word[item] for item in encode_list if item not in [self.tokenizer.word2idx["<PAD>"] ]]
+
+        def convert_label(encode_list):
+            return [self.trainset.idx2label[item] for item in encode_list if item not in [0] ]
 
         while True:
             try:
                 sample_batched = self.session.run(one_element)
                 inputs = sample_batched['text']
                 targets = sample_batched['label']
-                print(">>> eval inputs", inputs)
-                print(">>> eval labels", targets)
 
                 model = self.model
                 outputs = self.session.run(model.outputs, feed_dict={model.input_x: inputs, model.input_y: targets, model.global_step: 1, model.keep_prob: 1.0})
                 
+                inputs = list(map(convert_text, inputs))
+                targets = list(map(convert_label, targets))
+                print(">>> eval inputs", inputs)
+                print(">>> eval labels", targets)
+                outputs = list(map(convert_label, outputs))
                 print(">>> eval outputs", outputs)
 
                 t_texts_all.extend(inputs)
@@ -186,9 +202,9 @@ class Instructor:
         
         # idx 2 word and label
         
-        t_texts_all = list(map(convert_text, t_texts_all))
-        t_targets_all = list(map(convert_label, t_targets_all))
-        t_outputs_all = list(map(convert_label, t_outputs_all))
+        #t_texts_all = list(map(convert_text, t_texts_all))
+        #t_targets_all = list(map(convert_label, t_targets_all))
+        #t_outputs_all = list(map(convert_label, t_outputs_all))
 
         p, r, f1 = get_results_by_line(t_texts_all, t_targets_all, t_outputs_all)
 
@@ -263,8 +279,8 @@ def main():
     parser.add_argument('--initializer', type=str, default='???')
     parser.add_argument('--optimizer', type=str, default='adam')
 
-    parser.add_argument('--learning_rate', type=float, default=1e-4)
-    parser.add_argument('--epoch', type=int, default=100)
+    parser.add_argument('--learning_rate', type=float, default=1e-2)
+    parser.add_argument('--epoch', type=int, default=5)
     parser.add_argument('--do_train', action='store_true', default=True)
     parser.add_argument('--do_test', action='store_true', default=False)
     parser.add_argument('--do_predict', action='store_true', default=False)
@@ -306,7 +322,7 @@ def main():
 
     label_lists = {
         'promotion':"'商品名'，'品牌'，'店铺'，'颜色'，'价格'，'数量', '属性'",
-        'shaver':"'O', 'B-3','I-3'",
+        'shaver':"'<PAD>','O', 'B-3','I-3'",
         'vacuum-cleaner':"'entity'",
         'air-purifier':"'entity'",
         'electric-toothbrush':"'entity'",

@@ -100,7 +100,7 @@ class Dataset_NER():
 
         if do_padding:
             sequence = self.__pad_and_truncate(sequence, self.max_seq_len,
-                                               value=-1)
+                                               value=0)
         
         return sequence
 

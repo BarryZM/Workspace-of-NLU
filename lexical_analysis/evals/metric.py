@@ -193,6 +193,10 @@ def checkIfOverlap(true_val, pred_val, text):
     # method 1: check if index ranges have intersection (in index level)
     rang_a = findBoundary(true_val, text)
     rang_b = findBoundary(pred_val, text)
+
+    if rang_a is None or rang_b is None:
+        return False
+
     if len(rang_a) == 0 or len(rang_b) == 0:
         return False
     else:
