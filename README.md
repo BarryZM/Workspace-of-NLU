@@ -326,20 +326,24 @@
 
 
 # Problems
++ Tokenizer
+    + embedding update
+    + merge bert embedding(or other exist embedding)
 
-+ Slot Filling
-	+ max sequence length
++ Lexical Analysis
+    + select best model
+    + early stopping
+    + tensor board
+    + bert + cnn 改为 bert + lstm + crf （Not）
+    + Challenge (Not)
 
-+ Unified Preprocessing
-  
-    + whitespace
++ Classification
+    + 
     
 + Corpus
-  
     + download.sh
     
 + Resoruce
-  
     + Download.sh
     
 + Code Fix

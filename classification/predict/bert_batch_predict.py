@@ -27,7 +27,7 @@ from sklearn import metrics
 
 base_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(base_dir)  # 加载utils路径
-from utils import tokenization
+from utils import Tokenizer_bert
 from utils.data_helper import *
 
 flags = tf.flags
@@ -67,7 +67,7 @@ def process_unsgetext_for_batch(text_batch):
 
 
 def process_unsgetext(text: str, vocab_file, do_lower_case=True):
-    tokenizer = tokenization.FullTokenizer(
+    tokenizer = Tokenizer_bert.FullTokenizer(
         vocab_file=vocab_file, do_lower_case=do_lower_case)
     tokens_ = tokenizer.tokenize(text)
     if len(text) + 2 > seq_length:

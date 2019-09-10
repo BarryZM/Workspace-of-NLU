@@ -75,10 +75,9 @@ class Instructor:
                     inputs = sample_batched['text']
                     terms = sample_batched['term']
                     targets = sample_batched['aspect']
-                    targets_onehot = sample_batched['aspect_onehot']
-                    
+
                     model = self.model
-                    _ = self.session.run(model.trainer, feed_dict = {model.input_x : inputs, model.input_term : terms , model.input_y : targets_onehot, model.global_step : _epoch, model.keep_prob : 1.0})
+                    _ = self.session.run(model.trainer, feed_dict={model.input_x : inputs, model.input_term: terms, model.global_step : _epoch, model.keep_prob: 1.0})
                     self.model = model
 
                 except tf.errors.OutOfRangeError:
@@ -111,9 +110,11 @@ class Instructor:
             try:
                 sample_batched = self.session.run(one_element)    
                 inputs = sample_batched['text']
+                terms = sample_batched['term']
                 targets = sample_batched['label']
+
                 model = self.model
-                outputs = self.session.run(model.outputs, feed_dict={model.input_x: inputs, model.input_y: targets, model.global_step: 1, model.keep_prob: 1.0})
+                outputs = self.session.run(model.outputs, feed_dict={model.input_x: inputs, model.term: terms, model.input_y: targets, model.global_step: 1, model.keep_prob: 1.0})
                 t_targets_all.extend(targets)
                 t_outputs_all.extend(outputs)
 
@@ -258,7 +259,7 @@ def main():
     }
 
     label_lists ={
-        'promotion': "'1', '2', '3', '4'",
+        'promotion': "'negative', 'moderate', 'positive'",
         'frying-pan':"'炸锅类型', '清洗', '配件', '操作', '炸锅功能', '可视化', '炸锅效果', '运转音', '包装', '显示', '尺寸', '价保', '关联品类', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'",
         'vacuum-cleaner':"'吸尘器类型', '运行模式', '吸头/吸嘴/刷头', '配件', '智能功能', '效果', '滤芯滤网', '充电', '续航', '吸力', '运转音', '包装', '显示', '尺寸', '价保', '商品用途', '商品使用环境场景', '商品复购', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'",
         'air-purifier':"'指示灯', '味道', '运转音', '净化效果', '风量', '电源', '尺寸', '感应', '设计', '滤芯滤网', '模式', '操作', '包装', '显示', '功能', '价保', '发票', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '安装服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'",

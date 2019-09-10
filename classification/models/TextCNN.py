@@ -7,7 +7,7 @@ import tensorflow as tf
 
 
 class TextCNN(object):
-    def __init__(self, args, tokenizer, embedding_matrix):
+    def __init__(self, args, tokenizer):
         self.vocab_size = len(tokenizer.word2idx) + 2
         self.seq_len = args.max_seq_len
         self.emb_dim = args.emb_dim
@@ -18,12 +18,12 @@ class TextCNN(object):
         self.learning_rate = args.learning_rate
 
         self.input_x = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_x')
-        self.input_term = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_term')
+        #self.input_term = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_term')
         self.input_y = tf.placeholder(dtype=tf.float32, shape=[None, self.class_num], name='input_y')
         self.global_step = tf.placeholder(shape=(), dtype=tf.int32, name='global_step')
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
-        self.embedding_matrix = embedding_matrix
+        self.embedding_matrix = tokenizer.embedding_matrix
         self.cnn()
 
     def cnn(self):
@@ -33,18 +33,18 @@ class TextCNN(object):
             self.input_init = emb_input.assign(self.ph_input)
             inputs = tf.nn.embedding_lookup(emb_input, self.input_x)
 
-            emb_term = tf.Variable(tf.constant(0.0, shape=[self.vocab_size, self.emb_dim]), trainable=True, name="embedding_term")
-            self.ph_term = tf.placeholder(tf.float32, [self.vocab_size, self.emb_dim])
-            self.term_init = emb_term.assign(self.ph_term)
-            terms = tf.nn.embedding_lookup(emb_term, self.input_term)
+            #emb_term = tf.Variable(tf.constant(0.0, shape=[self.vocab_size, self.emb_dim]), trainable=True, name="embedding_term")
+            #self.ph_term = tf.placeholder(tf.float32, [self.vocab_size, self.emb_dim])
+            #self.term_init = emb_term.assign(self.ph_term)
+            #terms = tf.nn.embedding_lookup(emb_term, self.input_term)
 
-        inputs_with_terms = tf.concat([inputs, terms], -1)
+        #inputs_with_terms = tf.concat([inputs, terms], -1)
 
         with tf.name_scope('conv'):
             pooled_outputs = []
             for i, filter_size in enumerate(self.filters_size):
                 with tf.variable_scope("conv-maxpool-%s" % filter_size, reuse=False):
-                    conv = tf.layers.conv1d(inputs_with_terms, self.filters_num, filter_size, name='conv1d')
+                    conv = tf.layers.conv1d(inputs, self.filters_num, filter_size, name='conv1d')
                     pooled = tf.reduce_max(conv, axis=[1], name='gmp')
                     pooled_outputs.append(pooled)
             outputs = tf.concat(pooled_outputs, 1)
@@ -67,12 +67,11 @@ class TextCNN(object):
             self.trainer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss)
             tf.summary.scalar('loss', loss)
 
-
         config = tf.ConfigProto()  
         config.gpu_options.allow_growth = True  
         session = tf.Session(config=config)
         session.run(tf.global_variables_initializer())
         session.run(self.input_init, feed_dict={self.ph_input: self.embedding_matrix})
-        session.run(self.term_init, feed_dict={self.ph_term: self.embedding_matrix})
+        # session.run(self.term_init, feed_dict={self.ph_term: self.embedding_matrix})
         self.session = session
 
