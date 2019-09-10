@@ -421,15 +421,3 @@ def batch_iter_x_y(x, y, batch_size=64):
             continue
 
 
-def batch_iter_x(x, batch_size=64):
-    data_len = len(x)
-    num_batch = int(data_len / batch_size) + 1
-
-    # indices = np.random.permutation(np.arange(data_len))
-    # x_shuffle = x[indices]
-    # y_shuffle = y[indices]
-    # x = x_shuffle
-    # y = y_shuffle
-
-    for i in range(num_batch):
-
