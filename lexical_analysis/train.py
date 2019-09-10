@@ -11,7 +11,7 @@ import os,sys,time,argparse,logging
 import tensorflow as tf
 import numpy as np
 from sklearn import metrics
-
+from pathlib import Path
 from os import path
 sys.path.append(path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -53,7 +53,7 @@ class Instructor:
         self.testset = Dataset_NER(opt.dataset_file['test'], tokenizer, self.max_seq_len, 'entity', self.opt.label_list)
         text_list = np.asarray(self.testset.text_list)
         label_list = np.asarray(self.testset.label_list)
-        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size).shuffle(10000)
+        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size)
 
         # eval
         self.eval_data_loader = self.test_data_loader
@@ -65,7 +65,7 @@ class Instructor:
 
             text_list = np.asarray(self.predictset.text_list)
             label_list = np.asarray(self.predictset.label_list)
-            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size).shuffle(10000)
+            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size)
         
         print(self.tokenizer.word2idx)
         print(self.trainset.label2idx)
@@ -112,18 +112,6 @@ class Instructor:
                     inputs = sample_batched['text']
                     labels = sample_batched['label']
                     
-                    #print("inputs 0", inputs)
-                    #print("labels 0", labels)
-
-                    #inputs = list(map(convert_text_idx, inputs))
-                    #labels = list(map(convert_label_idx, labels))
-
-                    #print("inputs 1", inputs)
-                    #print("labels 1", labels)
-
-                    #inputs = np.asarray(inputs)
-                    #labels = np.asarray(labels)
-
                     model = self.model
                     _ = self.session.run(model.trainer,
                                          feed_dict={model.input_x: inputs,
@@ -200,11 +188,6 @@ class Instructor:
 
                 break
         
-        # idx 2 word and label
-        
-        #t_texts_all = list(map(convert_text, t_texts_all))
-        #t_targets_all = list(map(convert_label, t_targets_all))
-        #t_outputs_all = list(map(convert_label, t_outputs_all))
 
         p, r, f1 = get_results_by_line(t_texts_all, t_targets_all, t_outputs_all)
 
@@ -213,7 +196,6 @@ class Instructor:
     def run(self):
         optimizer = tf.train.AdamOptimizer(learning_rate=self.opt.learning_rate)
         # tf.contrib.data.Dataset
-        
 
         if self.opt.do_train is True and self.opt.do_test is True:
 
@@ -286,9 +268,9 @@ def main():
     parser.add_argument('--do_predict', action='store_true', default=False)
 
     args = parser.parse_args()
-    
+
     prefix_path = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/'
-    train_path = '/slot/train.txt' 
+    train_path = '/slot/train.txt'
     test_path = '/slot/test.txt'
     predict_path = '/slot/predict.txt'
 
@@ -357,7 +339,10 @@ def main():
     args.inputs_cols = inputs_cols[args.model_name]
     args.label_list = label_lists[args.dataset_name]
     args.optimizer = optimizers[args.optimizer]
-    log_file = 'outputs/logs/{}-{}-{}.log'.format(args.model_name, args.dataset_name, time.strftime("%y%m%d-%H%M", time.localtime(time.time())))
+    log_dir = Path('outputs/logs')
+    if not log_dir.exists():
+        Path.mkdir(log_dir, parents=True)
+    log_file = log_dir/'{}-{}-{}.log'.format(args.model_name, args.dataset_name, time.strftime("%y%m%d-%H%M", time.localtime(time.time())))
     logger.addHandler(logging.FileHandler(log_file))
     ins = Instructor(args)
     ins.run()
