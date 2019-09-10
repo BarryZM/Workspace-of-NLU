@@ -153,7 +153,7 @@ class Instructor:
 
         def convert_label(encode_list):
             return [self.trainset.idx2label[item] for item in encode_list if
-                    item != 0 ]
+                    item != -1 ]
 
         t_texts_all, t_targets_all, t_outputs_all = [], [], []
         iterator = data_loader.make_one_shot_iterator()
@@ -306,7 +306,7 @@ def main():
 
     label_lists = {
         'promotion':"'商品名'，'品牌'，'店铺'，'颜色'，'价格'，'数量', '属性'",
-        'shaver':"'B-3','I-3', 'O'",
+        'shaver':"'O', 'B-3','I-3'",
         'vacuum-cleaner':"'entity'",
         'air-purifier':"'entity'",
         'electric-toothbrush':"'entity'",

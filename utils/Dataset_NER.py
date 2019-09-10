@@ -42,8 +42,8 @@ class Dataset_NER():
         label2idx = {}
         idx2label = {}
         for idx, item in enumerate(self.label_list):
-            label2idx[item] = idx + 1
-            idx2label[idx + 1] = item
+            label2idx[item] = idx
+            idx2label[idx] = item
 
         self.label2idx = label2idx
         self.idx2label = idx2label
@@ -71,7 +71,7 @@ class Dataset_NER():
         :param value:
         :return: sequence after padding and truncate
         """
-        x = (np.ones(maxlen) * self.tokenizer.word2idx["<PAD>"]).astype(dtype)
+        x = (np.ones(maxlen) * value).astype(dtype)
 
         if truncating == 'pre':
             trunc = sequence[-maxlen:]
@@ -99,7 +99,8 @@ class Dataset_NER():
             sequence = sequence[::-1]
 
         if do_padding:
-            sequence = self.__pad_and_truncate(sequence, self.max_seq_len)
+            sequence = self.__pad_and_truncate(sequence, self.max_seq_len,
+                                               value=-1)
         
         return sequence
 
@@ -120,7 +121,8 @@ class Dataset_NER():
             sequence = sequence[::-1]
 
         if do_padding:
-            sequence = self.__pad_and_truncate(sequence, self.max_seq_len)
+            sequence = self.__pad_and_truncate(sequence, self.max_seq_len,
+                                               value=0)
 
         return sequence
         # return [self.embedding_matrix[item] for item in sequence]
