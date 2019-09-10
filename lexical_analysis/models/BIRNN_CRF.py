@@ -1,5 +1,3 @@
-# problem : tokenizer 变长 encode
-
 import tensorflow as tf
 
 
@@ -38,7 +36,6 @@ class BIRNN_CRF(object):
 
     def char_embedding(self):
         pass
-
 
     def birnn_crf(self):
         # tf.global_variables_initializer()
@@ -141,6 +138,7 @@ class BIRNN_CRF(object):
             print("trasition", transition_params.shape)
 
             self.outputs, self.batch_viterbi_score = tf.contrib.crf.crf_decode(self.logits, transition_params, mask)
+            self.outputs = tf.boolean_mask(self.outputs, mask)
             self.loss = tf.reduce_mean(-log_likelihood)
 
         # summary
