@@ -126,8 +126,8 @@ class Dataset_CLF():
 
 			# TODO
 			if len(cut_list) == 2:
-				words.append(cut_list[0])
-				labels.append(cut_list[1:])
+				words.append(cut_list[1:])
+				labels.append(cut_list[0])
 			else:
 				raise Exception("Raise Exception")
 
