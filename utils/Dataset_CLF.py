@@ -134,11 +134,12 @@ class Dataset_CLF():
 
         result_text = []
 
-        for text in text_list:
+        print(">>> words top 3", words[:3])
+
+        for text in words:
             tmp = self.encode_text_sequence(text, True, False)
             result_text.append(tmp)
 
-        print(self.label2idx)
         result_label = [self.label2idx[item] for item in labels]
 
         self.text_list = result_text
