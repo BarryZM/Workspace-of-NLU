@@ -223,12 +223,15 @@ def main():
         'bert_cnn':BERTCNN
     }
 
+    prefix_path = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/nlu'
+
+
     dataset_files = {
         'promotion':{
-            'train':'',
-            'eval':'',
-            'test':'',
-            'predict':''
+            'train':os.path.join(prefix_path, args.dataset_name, 'clf/train.txt',
+            'dev':os.path.join(prefix_path, args.dataset_name, 'clf/dev.txt',
+            'test':os.path.join(prefix_path, args.dataset_name, 'clf/test.txt',
+            'predict':os.path.join(prefix_path, args.dataset_name, 'clf/predict.txt',
         },
         'frying-pan':{
             'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/train-term-category.txt',
