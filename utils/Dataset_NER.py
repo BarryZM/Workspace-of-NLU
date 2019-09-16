@@ -173,9 +173,11 @@ class Dataset_NER():
             else:
                 raise Exception("Raise Exception")
 
-
         result_text = []
         result_label = []
+
+        print(">>> text list", text_list)
+        print(">>> label list", label_list)
 
         for text in text_list:
             tmp = self.encode_text_sequence(text, True, False)
