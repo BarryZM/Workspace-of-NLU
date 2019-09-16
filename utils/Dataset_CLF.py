@@ -114,9 +114,6 @@ class Dataset_CLF():
         lines = fin.readlines()
         fin.close()
 
-        text_list = []
-        label_list = []
-
         words = []
         labels = []
 
@@ -142,7 +139,7 @@ class Dataset_CLF():
 
         result_label = [self.label2idx[item] for item in labels]
 
-        self.text_list = result_text
-        self.label_list = result_label
+        self.text_list = np.asarray(result_text)
+        self.label_list = np.asarray(result_label)
 
 
