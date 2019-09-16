@@ -23,7 +23,7 @@ class Dataset_CLF():
 
         self.preprocess()
 
-        print(self.label_list)
+        print(label_list)
         print(self.label2idx)
         print(self.idx2label)
 
