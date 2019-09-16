@@ -16,7 +16,6 @@ class Dataset_CLF():
 		self.label_list = label_list
 		self.data_type = data_type
 
-		self.set_label_list()
 		self.set_label2id()
 
 		self.text_list = []
@@ -120,13 +119,13 @@ class Dataset_CLF():
 		words = []
 		labels = []
 
-		for line in lines:  # B-I-O
+		for line in lines:
 			line = line.strip('\t')
 			line = line.rstrip('\n')
 			cut_list = line.split('\t')
 
 			# TODO
-			if len(cut_list) > 2:
+			if len(cut_list) == 2:
 				words.append(cut_list[0])
 				labels.append(cut_list[1:])
 			else:
