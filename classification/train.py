@@ -40,17 +40,33 @@ class Instructor:
         self.session = model.session
 
         # trainset
-        self.trainset = Dataset_CLF(corpus=opt.dataset_file['train'], tokenizer=tokenizer, max_seq_len=self.opt.max_seq_len, data_type='normal', label_list=self.opt.label_list)
+        self.trainset = Dataset_CLF(corpus=opt.dataset_file['train'],
+                                    tokenizer=tokenizer,
+                                    max_seq_len=self.opt.max_seq_len,
+                                    data_type='normal', tag_list=self.opt.tag_list)
 
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.trainset.text_list, 'label': self.trainset.label_list}).batch(self.opt.batch_size).shuffle(10000)
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text':
+                                                                     self.trainset.text_list,
+                                                                     'label':
+                                                                     self.trainset.label_list}).batch(self.opt.batch_size).shuffle(10000)
 
         # testset
-        self.testset = Dataset_CLF(corpus=opt.dataset_file['test'], tokenizer=tokenizer, max_seq_len=self.opt.max_seq_len, data_type='normal', label_list=self.opt.label_list)
-        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list, 'label': self.testset.label_list}).batch(self.opt.batch_size)
+        self.testset = Dataset_CLF(corpus=opt.dataset_file['test'],
+                                   tokenizer=tokenizer,
+                                   max_seq_len=self.opt.max_seq_len,
+                                   data_type='normal', tag_list=self.opt.tag_list)
+        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text':
+                                                                    self.testset.text_list,
+                                                                    'label':
+                                                                    self.testset.label_list}).batch(self.opt.batch_size)
 
         # predict
         if self.opt.do_predict is True:
-            self.predictset = Dataset_CLF(corpus=opt.dataset_file['predict'], tokenizer=tokenizer, max_seq_len=self.opt.max_seq_len, data_type='normal', label_list=self.opt.label_list)
+            self.predictset = Dataset_CLF(corpus=opt.dataset_file['predict'],
+                                          tokenizer=tokenizer,
+                                          max_seq_len=self.opt.max_seq_len,
+                                          data_type='normal',
+                                          tag_list=self.opt.tag_list)
             self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.opt.batch_size)
 
         # dev dataset
@@ -146,12 +162,20 @@ class Instructor:
         print("target top 5",t_targets_all[:5])
         print("output top 5",t_outputs_all[:5])
 
-
         p = metrics.precision_score(t_targets_all, t_outputs_all,  average=flag)
         r = metrics.recall_score(t_targets_all, t_outputs_all,  average=flag)
         f1 = metrics.f1_score(t_targets_all, t_outputs_all,  average=flag)
-        #logger.info(metrics.classification_report(t_targets_all, t_outputs_all, labels=range(len(self.trainset.label_list)), target_names=self.trainset.label_list))        
-        #logger.info(metrics.confusion_matrix(t_targets_all, t_outputs_all))        
+
+        t_targets_all = [np.argmax(item) for item in t_targets_all]
+        t_outputs_all = [np.argmax(item) for item in t_outputs_all]
+
+        print(">>>target top 5",t_targets_all[:5])
+        print(">>>output top 5",t_outputs_all[:5])
+
+        logger.info(metrics.classification_report(t_targets_all, t_outputs_all,
+                                                  labels=[len(self.trainset.tag_list)],
+                                                  target_names=self.trainset.tag_list))        
+        logger.info(metrics.confusion_matrix(t_targets_all, t_outputs_all))        
         
         return p, r, f1
 
@@ -213,7 +237,7 @@ def main():
     parser.add_argument('--emb_dim', type=int, default='200')
     parser.add_argument('--emb_file', type=str, default='embedding.text')
     parser.add_argument('--vocab_file', type=str, default='vacab.txt')
-    parser.add_argument('--label_list', type=str)
+    parser.add_argument('--tag_list', type=str)
     parser.add_argument('--outputs_folder', type=str)
     parser.add_argument('--results_file', type=str)
 
@@ -280,7 +304,7 @@ def main():
             'predict':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/predict-term-category.txt'},
     }
 
-    label_lists ={
+    tag_lists ={
         'promotion': ['商品/品类', '搜优惠', '搜活动/会场', '闲聊', '其它属性', '看不懂的'],
         'frying-pan': ['炸锅类型', '清洗', '配件', '操作', '炸锅功能', '可视化', '炸锅效果', '运转音', '包装', '显示', '尺寸', '价保', '关联品类', '商品复购', '商品用途', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'],
         'vacuum-cleaner': ['吸尘器类型', '运行模式', '吸头/吸嘴/刷头', '配件', '智能功能', '效果', '滤芯滤网', '充电', '续航', '吸力', '运转音', '包装', '显示', '尺寸', '价保', '商品用途', '商品使用环境场景', '商品复购', '商品价格', '商品质量', '商品颜色', '商品外观', '商品营销', '商品品牌', '商品产地', '商品其他', '客服态度', '客服处理速度', '客服其他', '配送速度', '物流态度', '物流其他', '维修服务', '退货服务', '换货服务', '质保', '退款服务', '售后其他'],
@@ -311,7 +335,7 @@ def main():
     args.model_class = model_classes[args.model_name]
     args.dataset_file = dataset_files[args.dataset_name]
     args.inputs_cols = inputs_cols[args.model_name]
-    args.label_list = label_lists[args.dataset_name]
+    args.tag_list = tag_lists[args.dataset_name]
     #args.initializer = initializers[args.initializer]
     args.optimizer = optimizers[args.optimizer]
     log_file = 'outputs/logs/{}-{}-{}.log'.format(args.model_name, args.dataset_name, time.strftime("%y%m%d-%H%M", time.localtime(time.time())))

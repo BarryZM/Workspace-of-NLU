@@ -6,14 +6,14 @@ import numpy as np
 
 class Dataset_CLF():
 
-    def __init__(self, corpus, tokenizer, max_seq_len, data_type, label_list):
+    def __init__(self, corpus, tokenizer, max_seq_len, data_type, tag_list):
         self.corpus = corpus
         self.tokenizer = tokenizer
 
         self.word2idx = self.tokenizer.word2idx
         self.max_seq_len = max_seq_len
 
-        self.label_list = label_list
+        self.tag_list = tag_list
         self.data_type = data_type
 
         self.set_label2id()
@@ -24,7 +24,7 @@ class Dataset_CLF():
 
         self.preprocess()
 
-        print(label_list)
+        print(tag_list)
         print(self.label2idx)
         print(self.idx2label)
 
@@ -37,7 +37,7 @@ class Dataset_CLF():
     def set_label2id(self):
         label2idx = {}
         idx2label = {}
-        for idx, item in enumerate(self.label_list):
+        for idx, item in enumerate(self.tag_list):
             label2idx[item] = idx
             idx2label[idx] = item
 
@@ -45,13 +45,14 @@ class Dataset_CLF():
         self.idx2label = idx2label
  
     def set_label2onehot(self):
-        label_list = self.label_list
+        tag_list = self.tag_list
         from sklearn.preprocessing import LabelEncoder,OneHotEncoder
         onehot_encoder = OneHotEncoder(sparse=False)
-        one_hot_df = onehot_encoder.fit_transform( np.asarray(list(range(len(label_list)))).reshape(-1,1))
+        one_hot_df = onehot_encoder.fit_transform(
+            np.asarray(list(range(len(tag_list)))).reshape(-1,1))
 
         label_dict = {}
-        for aspect, vector in zip(label_list, one_hot_df):
+        for aspect, vector in zip(tag_list, one_hot_df):
             label_dict[aspect] = vector
 
         self.label_dict_onehot = label_dict
