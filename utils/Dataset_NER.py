@@ -6,17 +6,16 @@ import numpy as np
 
 class Dataset_NER():
     
-    def __init__(self, corpus, tokenizer, max_seq_len, data_type, label_str):
+    def __init__(self, corpus, tokenizer, max_seq_len, data_type, label_list):
         self.corpus = corpus
         self.tokenizer = tokenizer
 
         self.word2idx = self.tokenizer.word2idx
         self.max_seq_len = max_seq_len
 
-        self.label_str = label_str
         self.data_type = data_type
+        self.label_list = label_list
 
-        self.set_label_list()
         self.set_label2id()
         self.set_label2onehot()
 
@@ -24,7 +23,8 @@ class Dataset_NER():
         self.label_list = []
 
         self.preprocess()
-
+        
+        print(self.label_list)
         print(self.label2idx)
         print(self.idx2label)
 
@@ -33,10 +33,6 @@ class Dataset_NER():
 
     def __len__(self):
         return len(self.text_list)
-
-    def set_label_list(self):
-        label_list = [item.strip().strip("'") for item in self.label_str.split(',')]
-        self.label_list = label_list
 
     def set_label2id(self):
         label2idx = {}

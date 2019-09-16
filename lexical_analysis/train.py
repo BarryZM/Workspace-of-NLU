@@ -42,15 +42,20 @@ class Instructor:
         self.model = BIRNN_CRF(self.opt, tokenizer)
         self.session = self.model.session
 
+        # label list
+        self.label_list = self.opt.label_list
+
         # train
         self.trainset = Dataset_NER(opt.dataset_file['train'],
-                                    tokenizer, self.max_seq_len, 'entity', self.opt.label_list)
+                                    tokenizer, self.max_seq_len, 'entity',
+                                    self.label_list)
         text_list = np.asarray(self.trainset.text_list)
         label_list = np.asarray(self.trainset.label_list)
         self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size).shuffle(10000)
 
         # test
-        self.testset = Dataset_NER(opt.dataset_file['test'], tokenizer, self.max_seq_len, 'entity', self.opt.label_list)
+        self.testset = Dataset_NER(opt.dataset_file['test'], tokenizer,
+                                   self.max_seq_len, 'entity', self.label_list)
         text_list = np.asarray(self.testset.text_list)
         label_list = np.asarray(self.testset.label_list)
         self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size)
@@ -61,7 +66,7 @@ class Instructor:
          # predict
         if self.opt.do_predict is True:
             self.predictset = Dataset_NER(opt.dataset_file['predict'],
-                                          tokenizer, self.max_seq_len, 'entity', self.opt.label_list)
+                                          tokenizer, self.max_seq_len, 'entity', self.label_list)
 
             text_list = np.asarray(self.predictset.text_list)
             label_list = np.asarray(self.predictset.label_list)
@@ -146,7 +151,6 @@ class Instructor:
         t_texts_all, t_targets_all, t_outputs_all = [], [], []
         iterator = data_loader.make_one_shot_iterator()
         one_element = iterator.get_next()
-
 
         def convert_text_idx(input_list):
             return [item for item in input_list if item not in [0]]
@@ -246,7 +250,7 @@ class Instructor:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset_name', type=str, default='shaver', help='air-purifier, refrigerator, shaver, promotion')
+    parser.add_argument('--dataset_name', type=str, default='promotion', help='air-purifier, refrigerator, shaver, promotion')
     parser.add_argument('--outputs_folder', type=str)
     parser.add_argument('--results_file', type=str)
 
@@ -270,11 +274,17 @@ def main():
     args = parser.parse_args()
 
     prefix_path = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/'
+    prefix_path_1 = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/nlu/'
     train_path = '/slot/train.txt'
     test_path = '/slot/test.txt'
     predict_path = '/slot/predict.txt'
 
     dataset_files = {
+        'promotion':{
+            'train': prefix_path_1 + args.dataset_name + train_path,
+            'eval': prefix_path_1 + args.dataset_name + test_path,
+            'test': prefix_path_1 + args.dataset_name + test_path,
+            'predict': prefix_path_1 + args.dataset_name + predict_path},
         'frying-pan': {
             'train': prefix_path + args.dataset_name + train_path,
             'eval': prefix_path + args.dataset_name + test_path,
@@ -302,8 +312,13 @@ def main():
             'predict': prefix_path + args.dataset_name + predict_path},
     }
 
+    promotion_list = ['<PAD>', 'O', 'B-DATE', 'I-DATE', 'B-PRODUCT','I-PRODUCT',
+        'B-BRAND', 'I-BRAND', 'B-SHOP', 'I-SHOP', 'B-COLOR', 'I-COLOR',
+        'B-PRICE', 'I-PRICE', 'B-AMOUT','I-AMOUT', 'B-ATTRIBUTE',
+        'I-ATTRIBUTE']
+
     label_lists = {
-        'promotion':"'商品名'，'品牌'，'店铺'，'颜色'，'价格'，'数量', '属性'",
+        'promotion':promotion_list,
         'shaver':"'<PAD>','O', 'B-3','I-3'",
         'vacuum-cleaner':"'entity'",
         'air-purifier':"'entity'",

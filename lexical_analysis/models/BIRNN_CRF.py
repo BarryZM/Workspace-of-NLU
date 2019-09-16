@@ -22,7 +22,7 @@ class BIRNN_CRF(object):
         self.emb_dim = 200  # ???
         self.hidden_dim = args.hidden_dim
         self.attention_dim = 256
-        self.class_num = len(str(args.label_list).split(','))
+        self.class_num = len(args.label_list)
         self.learning_rate = args.learning_rate
 
         self.input_x = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_x')

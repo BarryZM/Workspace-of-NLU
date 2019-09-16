@@ -106,6 +106,11 @@ def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
 
 def get_results_by_line(text_lines, ground_lines, predict_lines):
 
+
+    print("text lines top 3", text_lines)
+    print("ground lines top 3", ground_lines)
+    print("predict lines top 3", predict_lines)
+
     assert len(text_lines) == len(ground_lines) == len(predict_lines)
     assert len(text_lines[0]) == len(ground_lines[0]) == len(predict_lines[0])
 
