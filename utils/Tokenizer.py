@@ -14,7 +14,7 @@ sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 
 
 class Tokenizer(object):
-    """ Tokenizer for Machine Reading Comprehension
+    """ Tokenizer
 
     1. Input : max length of context
     2. Get vocabulary dict : self.word2idx and self.idx2word
@@ -23,7 +23,7 @@ class Tokenizer(object):
         if embedding matrix exits, load from exit file
         else build new embedding matrix
     """
-    def __init__(self, corpus_files, emb_type):
+    def __init__(self, corpus_files, task_type, emb_type):
         """
         :param corpus_files:
         :param emb_type:
@@ -41,8 +41,14 @@ class Tokenizer(object):
             lines = fin.readlines()
             fin.close()
             for line in lines:
-                text_raw = line[0].lower().strip()
-                tmp_text += text_raw + " "
+                if task_type == 'NER':
+                    text_raw = line[0].lower().strip()
+                    tmp_text += text_raw + " "
+                elif task_type == 'CLF':
+                    cut_line = line.split("\t")
+                    if len(cut_line) == 2:
+                        text_raw = cut_line[1].lower().strip()
+                        tmp_text += text_raw + " "
         self.fit_text = tmp_text
 
         self.embedding_info = {}
@@ -158,7 +164,7 @@ class Tokenizer(object):
         self.embedding_matrix = embedding_matrix
 
 
-def build_tokenizer(corpus_files, corpus_type, embedding_type):
+def build_tokenizer(corpus_files, corpus_type, task_type, embedding_type):
     """
     corpus files and corpus type can merge
     """
@@ -168,8 +174,7 @@ def build_tokenizer(corpus_files, corpus_type, embedding_type):
         tokenizer = pickle.load(open(tokenizer_path, 'rb'))
     else:
         print('build new tokenizer:', tokenizer_path)
-        tokenizer = Tokenizer(corpus_files=corpus_files,
-                              emb_type=embedding_type)
+        tokenizer = Tokenizer(corpus_files=corpus_files, task_type=task_type, emb_type=embedding_type)
         pickle.dump(tokenizer, open(tokenizer_path, 'wb'))
     return tokenizer
 

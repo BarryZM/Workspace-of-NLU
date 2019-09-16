@@ -1,5 +1,6 @@
 import os, sys, time, argparse, logging
 import tensorflow as tf
+import numpy as np
 from os import path
 sys.path.append(path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -24,7 +25,10 @@ class Instructor:
 
         # build tokenizer
         logger.info("parameters for programming :  {}".format(self.opt))
-        tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'], opt.dataset_file['test']], corpus_type=opt.dataset_name, embedding_type='tencent')
+        tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'],
+                                                  opt.dataset_file['test']],
+                                    corpus_type=opt.dataset_name, task_type
+                                    ='CLF', embedding_type='tencent')
 
         self.tokenizer = tokenizer
         self.max_seq_len = self.opt.max_seq_len
@@ -50,8 +54,9 @@ class Instructor:
             self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.opt.batch_size)
 
         # dev dataset
-        val_data_loader = tf.data.Dataset.from_tensor_slices(self.testset.data).batch(self.opt.batch_size)
-        
+        #val_data_loader = tf.data.Dataset.from_tensor_slices(self.testset.data).batch(self.opt.batch_size)
+        self.val_data_loader = self.test_data_loader 
+
         logger.info('>> load data done')
 
         self.saver = tf.train.Saver(max_to_keep=1)
@@ -80,12 +85,11 @@ class Instructor:
                 try:
                     sample_batched = self.session.run(one_element)    
                     inputs = sample_batched['text']
-                    terms = sample_batched['term']
-                    targets = sample_batched['aspect']
-                    targets_onehot = sample_batched['aspect_onehot']
+                    labels = sample_batched['label']
                     
                     model = self.model
-                    _ = self.session.run(model.trainer, feed_dict = {model.input_x : inputs, model.input_term : terms , model.input_y : targets_onehot, model.global_step : _epoch, model.keep_prob : 1.0})
+                    _ = self.session.run(model.trainer, feed_dict =
+                                         {model.input_x : inputs, model.input_y : labels, model.global_step : _epoch, model.keep_prob : 1.0})
                     self.model = model
 
                 except tf.errors.OutOfRangeError:
@@ -118,10 +122,12 @@ class Instructor:
             try:
                 sample_batched = self.session.run(one_element)    
                 inputs = sample_batched['text']
-                targets = sample_batched['label']
+                labels = sample_batched['label']
                 model = self.model
-                outputs = self.session.run(model.outputs, feed_dict={model.input_x: inputs, model.input_y: targets, model.global_step: 1, model.keep_prob: 1.0})
-                t_targets_all.extend(targets)
+                outputs = self.session.run(model.outputs,
+                                           feed_dict={model.input_x: inputs,
+                                                      model.input_y: labels, model.global_step: 1, model.keep_prob: 1.0})
+                t_targets_all.extend(labels)
                 t_outputs_all.extend(outputs)
 
             except tf.errors.OutOfRangeError:
@@ -133,11 +139,19 @@ class Instructor:
                 break
 
         flag = 'weighted'
+
+        t_targets_all = np.asarray(t_targets_all)
+        t_outputs_all = np.asarray(t_outputs_all)
+
+        print("target top 5",t_targets_all[:5])
+        print("output top 5",t_outputs_all[:5])
+
+
         p = metrics.precision_score(t_targets_all, t_outputs_all,  average=flag)
         r = metrics.recall_score(t_targets_all, t_outputs_all,  average=flag)
         f1 = metrics.f1_score(t_targets_all, t_outputs_all,  average=flag)
-        logger.info(metrics.classification_report(t_targets_all, t_outputs_all, labels=range(len(self.trainset.label_list)), target_names=self.trainset.label_list))        
-        logger.info(metrics.confusion_matrix(t_targets_all, t_outputs_all))        
+        #logger.info(metrics.classification_report(t_targets_all, t_outputs_all, labels=range(len(self.trainset.label_list)), target_names=self.trainset.label_list))        
+        #logger.info(metrics.confusion_matrix(t_targets_all, t_outputs_all))        
         
         return p, r, f1
 

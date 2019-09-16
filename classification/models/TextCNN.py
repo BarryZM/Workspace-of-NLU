@@ -14,7 +14,7 @@ class TextCNN(object):
         self.hidden_dim = args.hidden_dim
         self.filters_num = args.filters_num
         self.filters_size = args.filters_size
-        self.class_num = len(str(args.label_list).split(','))
+        self.class_num = len(args.label_list)
         self.learning_rate = args.learning_rate
 
         self.input_x = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_x')
@@ -57,7 +57,9 @@ class TextCNN(object):
         with tf.name_scope("logits"):
             logits = tf.layers.dense(fc, self.class_num, name='fc2')
             softmax = tf.nn.softmax(logits, name="my_output")
-            self.outputs = tf.argmax(softmax, 1, name='predict')
+            #self.outputs = tf.argmax(softmax, 1, name='predict')
+            self.outputs = tf.one_hot(tf.argmax(softmax, 1, name='predict'),
+                                      self.class_num) 
 
         with tf.name_scope("loss"):
             loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=self.input_y)

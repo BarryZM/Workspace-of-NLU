@@ -17,6 +17,7 @@ class Dataset_CLF():
         self.data_type = data_type
 
         self.set_label2id()
+        self.set_label2onehot()
 
         self.text_list = []
         self.label_list = []
@@ -42,6 +43,18 @@ class Dataset_CLF():
 
         self.label2idx = label2idx
         self.idx2label = idx2label
+ 
+    def set_label2onehot(self):
+        label_list = self.label_list
+        from sklearn.preprocessing import LabelEncoder,OneHotEncoder
+        onehot_encoder = OneHotEncoder(sparse=False)
+        one_hot_df = onehot_encoder.fit_transform( np.asarray(list(range(len(label_list)))).reshape(-1,1))
+
+        label_dict = {}
+        for aspect, vector in zip(label_list, one_hot_df):
+            label_dict[aspect] = vector
+
+        self.label_dict_onehot = label_dict
 
     def __pad_and_truncate(self, sequence, maxlen, dtype='int64', padding='post', truncating='post', value=0):
         """
@@ -82,6 +95,9 @@ class Dataset_CLF():
 
         if do_padding:
             sequence = self.__pad_and_truncate(sequence, self.max_seq_len, value=0)
+
+        # onehot
+        sequence = [self.label_dict_onehot[item] for item in sequence]
 
         return sequence
 
@@ -137,9 +153,12 @@ class Dataset_CLF():
             tmp = self.encode_text_sequence(text, True, False)
             result_text.append(tmp)
 
-        result_label = [self.label2idx[item] for item in labels]
+        result_label = [self.label_dict_onehot[item] for item in labels]
 
         self.text_list = np.asarray(result_text)
         self.label_list = np.asarray(result_label)
 
+        print(" word2idx", self.word2idx)
+        print(">>> words top 3", self.text_list[:3])
+        print(">>> labels top 3", self.label_list[:3])
 
