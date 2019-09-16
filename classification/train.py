@@ -35,17 +35,22 @@ class Instructor:
         self.model = model
         self.session = model.session
 
+        # trainset
         self.trainset = Dataset_CLF(corpus=opt.dataset_file['train'], tokenizer=tokenizer, max_seq_len=self.opt.max_seq_len, data_type='normal', label_list=self.opt.label_list)
-        self.testset = Dataset_CLF(corpus=opt.dataset_file['test'], tokenizer=tokenizer, max_seq_len=self.opt.max_seq_len, data_type='normal', label_list=self.opt.label_list)
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.trainset.text_list, 'label': self.trainset.label_list}).batch(self.opt.batch_size).shuffle(10000)
 
+        # testset
+        self.testset = Dataset_CLF(corpus=opt.dataset_file['test'], tokenizer=tokenizer, max_seq_len=self.opt.max_seq_len, data_type='normal', label_list=self.opt.label_list)
+        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list, 'label': self.testset.label_list}).batch(self.opt.batch_size)
+
+        # predict
         if self.opt.do_predict is True:
             self.predictset = Dataset_CLF(corpus=opt.dataset_file['predict'], tokenizer=tokenizer, max_seq_len=self.opt.max_seq_len, data_type='normal', label_list=self.opt.label_list)
-
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.trainset.text_list, 'label': self.trainset.label_list}).batch(self.opt.batch_size).shuffle(10000)
-        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list, 'label': self.testset.label_list}).batch(self.opt.batch_size)
-        if self.opt.do_predict is True:
             self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.opt.batch_size)
-        # val_data_loader = tf.data.Dataset.from_tensor_slices(self.testset.data).batch(self.opt.batch_size)
+
+        # dev dataset
+        val_data_loader = tf.data.Dataset.from_tensor_slices(self.testset.data).batch(self.opt.batch_size)
+        
         logger.info('>> load data done')
 
         self.saver = tf.train.Saver(max_to_keep=1)
