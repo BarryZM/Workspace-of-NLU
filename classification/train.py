@@ -188,7 +188,7 @@ class Instructor:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset_name', type=str, default='air-purifier', help='air-purifier, refrigerator, shaver')
+    parser.add_argument('--dataset_name', type=str, default='promotion', help='air-purifier, refrigerator, shaver')
     parser.add_argument('--emb_dim', type=int, default='200')
     parser.add_argument('--emb_file', type=str, default='embedding.text')
     parser.add_argument('--vocab_file', type=str, default='vacab.txt')
@@ -228,11 +228,10 @@ def main():
 
     dataset_files = {
         'promotion':{
-            'train':os.path.join(prefix_path, args.dataset_name, 'clf/train.txt',
-            'dev':os.path.join(prefix_path, args.dataset_name, 'clf/dev.txt',
-            'test':os.path.join(prefix_path, args.dataset_name, 'clf/test.txt',
-            'predict':os.path.join(prefix_path, args.dataset_name, 'clf/predict.txt',
-        },
+            'train':os.path.join(prefix_path, args.dataset_name,'clf/train.txt'),
+            'dev':os.path.join(prefix_path, args.dataset_name, 'clf/dev.txt'),
+            'test':os.path.join(prefix_path, args.dataset_name, 'clf/test.txt'),
+            'predict':os.path.join(prefix_path, args.dataset_name, 'clf/predict.txt')},
         'frying-pan':{
             'train':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/train-term-category.txt',
             'eval':'/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/' + args.dataset_name + '/absa_clf/test-term-category.txt',
