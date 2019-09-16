@@ -37,6 +37,9 @@ class Instructor:
 
         # trainset
         self.trainset = Dataset_CLF(corpus=opt.dataset_file['train'], tokenizer=tokenizer, max_seq_len=self.opt.max_seq_len, data_type='normal', label_list=self.opt.label_list)
+        print("text list", self.trainset.text_list)
+        print("label list", self.trainset.label_list)
+
         self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.trainset.text_list, 'label': self.trainset.label_list}).batch(self.opt.batch_size).shuffle(10000)
 
         # testset

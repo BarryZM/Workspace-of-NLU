@@ -127,8 +127,6 @@ class Dataset_CLF():
 
             # TODO
             if len(cut_list) == 2:
-                print("words", cut_list[0])
-                print("labels", cut_list[1:])
                 words.append(cut_list[1:])
                 labels.append(cut_list[0])
             else:
