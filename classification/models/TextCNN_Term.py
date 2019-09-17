@@ -57,7 +57,9 @@ class TextCNN_Term(object):
         with tf.name_scope("logits"):
             logits = tf.layers.dense(fc, self.class_num, name='fc2')
             softmax = tf.nn.softmax(logits, name="my_output")
-            self.outputs = tf.argmax(softmax, 1, name='predict')
+            #self.outputs = tf.argmax(softmax, 1, name='predict')
+            self.outputs = tf.one_hot(tf.argmax(softmax, 1, name='predict'),
+                                      self.class_num)
 
         with tf.name_scope("loss"):
             loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=self.input_y)
