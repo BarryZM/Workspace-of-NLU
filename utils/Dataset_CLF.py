@@ -34,15 +34,15 @@ class Dataset_CLF():
     def __len__(self):
         return len(self.text_list)
 
-    def set_label2id(self):
-        label2idx = {}
-        idx2label = {}
+    def set_tag2id(self):
+        tag2idx = {}
+        idx2tag = {}
         for idx, item in enumerate(self.tag_list):
-            label2idx[item] = idx
-            idx2label[idx] = item
+            tag2idx[item] = idx
+            idx2tag[idx] = item
 
-        self.label2idx = label2idx
-        self.idx2label = idx2label
+        self.label2idx = tag2idx
+        self.idx2label = idx2tag
  
     def set_label2onehot(self):
         tag_list = self.tag_list

@@ -31,18 +31,13 @@ class Dataset_ABSA():
      def __len__(self):
          return len(self.text_list)
 
-     def set_label_list(self):
-         label_list = [ item.strip().strip("'") for item in self.label_str.split(',')]
-         print("%%%, label list length", len(label_list))
-         return label_list
-
-     def set_aspect2id(self):
+     def set_tag_dict(self):
          label_dict = {}
          for idx, item in enumerate(self.label_list):
              label_dict[item] = idx
          return label_dict
 
-     def set_aspect2onehot(self):
+     def set_tag2onehot(self):
          label_list = self.label_list
          from sklearn.preprocessing import LabelEncoder,OneHotEncoder
          onehot_encoder = OneHotEncoder(sparse=False)
