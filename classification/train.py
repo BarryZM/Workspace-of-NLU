@@ -165,7 +165,9 @@ class Instructor:
                 last_improved = _epoch
                 self.saver.save(sess=self.session, save_path=path)
                 # pb output
-                tf.convert_variables_to_constants(self.session,
+
+                from tensorflow.python.framework import graph_uti
+                graph_uti.convert_variables_to_constants(self.session,
                                                self.session.graph_def,
                                                output_node_names=[os.path.join(self.opt.outputs_folder,
                                                                                self.opt.dataset_name,
