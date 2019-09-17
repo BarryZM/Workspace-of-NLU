@@ -21,6 +21,7 @@ class Dataset_ABSA():
 
          self.tag2id = self.set_tag_dict()
          self.tag2onehot = self.set_tag2onehot()
+         self.polarity2idx = {'-1':[1,0,0], '0':[0,1,0], '1':[0,0,1]}
          self.preprocess()
 
          print(self.label_list)
@@ -104,33 +105,30 @@ class Dataset_ABSA():
          term_list = []
          aspect_list = []
          aspect_onehot_list = []
+         polarity_list = []
 
          for i in range(0, len(lines), 4):
              text = lines[i].lower().strip()
              term = lines[i + 1].lower().strip()
              aspect = lines[i + 2].lower().strip()
              polarity = lines[i + 3].strip()
-             print("&&& text", text)
-             print("&&& term", term)
-             print("&&& aspect", aspect)
-             print("&&& polarity", polarity)
-
 
              assert polarity in ['-1', '0', '1'], print("polarity", polarity)
              text_idx = self.encode_text_sequence(text, True, False)
-             print(">>> text idx", text_idx)
              term_idx = self.encode_text_sequence(term, True, False)
-             print(">>> term idx", term_idx)
              aspect_idx = self.tag2id[aspect]
              aspect_onehot_idx = self.tag2onehot[aspect]
+             polarity_idx = self.polarity2idx[polarity]
 
              text_list.append(text_idx)
              term_list.append(term_idx)
              aspect_list.append(aspect_idx)
              aspect_onehot_list.append(aspect_onehot_idx)
+             polarity_list.append(polarity_idx)
 
          self.text_list = np.asarray(text_list)
          self.term_list = np.asarray(term_list)
          self.aspect_list = np.asarray(aspect_list)
          self.aspect_onehot_list = np.asarray(aspect_onehot_list)
+         self.polarity_list = np.asarray(polarity_list)
 
