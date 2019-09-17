@@ -42,7 +42,7 @@ class Instructor:
 
         self.tag_list = opt.tag_list
         # trainset
-        self.trainset = Dataset_CLF(corpus=opt.dataset_file['train'],
+        self.trainset = Dataset_ABSA(corpus=opt.dataset_file['train'],
                                     tokenizer=tokenizer,
                                     max_seq_len=self.opt.max_seq_len,
                                     data_type='normal', tag_list=self.opt.tag_list)
@@ -53,7 +53,7 @@ class Instructor:
                                                                      self.trainset.label_list}).batch(self.opt.batch_size).shuffle(10000)
 
         # testset
-        self.testset = Dataset_CLF(corpus=opt.dataset_file['test'],
+        self.testset = Dataset_ABSA(corpus=opt.dataset_file['test'],
                                    tokenizer=tokenizer,
                                    max_seq_len=self.opt.max_seq_len,
                                    data_type='normal', tag_list=self.opt.tag_list)
@@ -64,7 +64,7 @@ class Instructor:
 
         # predict
         if self.opt.do_predict is True:
-            self.predictset = Dataset_CLF(corpus=opt.dataset_file['predict'],
+            self.predictset = Dataset_ABSAA(corpus=opt.dataset_file['predict'],
                                           tokenizer=tokenizer,
                                           max_seq_len=self.opt.max_seq_len,
                                           data_type='normal',
@@ -125,7 +125,11 @@ class Instructor:
                 last_improved = _epoch
                 self.saver.save(sess=self.session, save_path=path)
                 # pb output
-                # convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=[os.path.join(self.opt.outputs_folder, 'model')])
+                tf.convert_variables_to_constants(self.session,
+                                               self.session.graph_def,
+                                               output_node_names=[os.path.join(self.opt.outputs_folder,
+                                                                               self.opt.dataset_name,
+                                                                               'model')])
     
                 logger.info('>> saved: {}'.format(path))
 
@@ -236,7 +240,7 @@ class Instructor:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset_name', type=str, default='promotion', help='air-purifier, refrigerator, shaver')
+    parser.add_argument('--dataset_name', type=str, default='shaver', help='air-purifier, refrigerator, shaver')
     parser.add_argument('--emb_dim', type=int, default='200')
     parser.add_argument('--emb_file', type=str, default='embedding.text')
     parser.add_argument('--vocab_file', type=str, default='vacab.txt')

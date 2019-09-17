@@ -252,7 +252,7 @@ class Instructor:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset_name', type=str, default='promotion', help='air-purifier, refrigerator, shaver, promotion')
+    parser.add_argument('--dataset_name', type=str, default='shaver', help='air-purifier, refrigerator, shaver, promotion')
     parser.add_argument('--outputs_folder', type=str)
     parser.add_argument('--results_file', type=str)
 
@@ -319,9 +319,11 @@ def main():
         'B-PRICE', 'I-PRICE', 'B-AMOUT','I-AMOUT', 'B-ATTRIBUTE',
         'I-ATTRIBUTE']
 
+    comment_list = ['<PAD>', 'O', 'B-3', 'I-3']
+
     label_lists = {
         'promotion':promotion_list,
-        'shaver':"'<PAD>','O', 'B-3','I-3'",
+        'shaver':comment_list,
         'vacuum-cleaner':"'entity'",
         'air-purifier':"'entity'",
         'electric-toothbrush':"'entity'",
