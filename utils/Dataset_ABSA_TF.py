@@ -24,8 +24,8 @@ class Dataset_ABSA():
          self.preprocess()
 
          print(self.label_list)
-         print(self.aspect2id)
-         print(self.aspect2onehot)
+         print(self.tag2id)
+         print(self.tag2onehot)
 
      def __getitem__(self, index):
          return self.text_list[index]
