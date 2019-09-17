@@ -50,6 +50,30 @@ class Dataset_ABSA():
              label_dict[aspect] = vector
          return label_dict
 
+     def __pad_and_truncate(self, sequence, maxlen, dtype='int64', padding='post', truncating='post', value=0):
+        """
+        :param sequence:
+        :param maxlen:
+        :param dtype:
+        :param padding:
+        :param truncating:
+        :param value:
+        :return: sequence after padding and truncate
+        """
+        x = (np.ones(maxlen) * value).astype(dtype)
+
+        if truncating == 'pre':
+            trunc = sequence[-maxlen:]
+        else:
+            trunc = sequence[:maxlen]
+            trunc = np.asarray(trunc, dtype=dtype)
+
+        if padding == 'post':
+            x[:len(trunc)] = trunc
+        else:
+            x[-len(trunc):] = trunc
+        return x
+
      def encode_text_sequence(self, text, do_padding, do_reverse):
          """
          :param text:
