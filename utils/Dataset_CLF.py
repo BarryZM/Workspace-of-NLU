@@ -16,8 +16,8 @@ class Dataset_CLF():
         self.tag_list = tag_list
         self.data_type = data_type
 
-        self.set_label2id()
-        self.set_label2onehot()
+        self.set_tag2id()
+        self.set_tag2onehot()
 
         self.text_list = []
         self.label_list = []
@@ -44,7 +44,7 @@ class Dataset_CLF():
         self.label2idx = tag2idx
         self.idx2label = idx2tag
  
-    def set_label2onehot(self):
+    def set_tag2onehot(self):
         tag_list = self.tag_list
         from sklearn.preprocessing import LabelEncoder,OneHotEncoder
         onehot_encoder = OneHotEncoder(sparse=False)
