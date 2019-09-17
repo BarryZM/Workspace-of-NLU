@@ -17,6 +17,8 @@ class Dataset_ABSA():
          self.max_seq_len = max_seq_len
          self.data_type = data_type
 
+         self.word2idx = self.tokenizer.word2idx
+
          self.tag2id = self.set_tag_dict()
          self.tag2onehot = self.set_tag2onehot()
          self.preprocess()
