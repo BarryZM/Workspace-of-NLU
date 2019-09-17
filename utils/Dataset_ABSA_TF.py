@@ -7,7 +7,7 @@
 # @Desc    :
 
 
-class Dataset_CLF():
+class Dataset_ABSA():
      def __init__(self, fname, tokenizer, label_str):
          self.label_str = label_str
          self.label_list = self.set_label_list()

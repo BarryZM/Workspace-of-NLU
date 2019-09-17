@@ -33,7 +33,9 @@ class Instructor:
 
         # build tokenizer
         logger.info("parameters for programming :  {}".format(self.opt))
-        tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'], opt.dataset_file['test']],corpus_type=opt.dataset_name, embedding_type='tencent')
+        tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'],
+                                                  opt.dataset_file['test']],corpus_type=opt.dataset_name,
+                                    task_type='NER', embedding_type='tencent')
 
         self.tokenizer = tokenizer
         self.max_seq_len = self.opt.max_seq_len

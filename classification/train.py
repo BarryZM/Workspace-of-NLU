@@ -8,6 +8,7 @@ sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 from sklearn import metrics
 
 from utils.Dataset_CLF import Dataset_CLF
+from utils.Dataset_ABSA_TF import Dataset_ABSA
 from utils.Tokenizer import build_tokenizer
 from classification.models.TextCNN import TextCNN
 from classification.models.TextCNN_Term import TextCNN_Term
@@ -39,6 +40,7 @@ class Instructor:
         self.model = model
         self.session = model.session
 
+        self.tag_list = opt.tag_list
         # trainset
         self.trainset = Dataset_CLF(corpus=opt.dataset_file['train'],
                                     tokenizer=tokenizer,
@@ -172,9 +174,10 @@ class Instructor:
         print(">>>target top 5",t_targets_all[:5])
         print(">>>output top 5",t_outputs_all[:5])
 
-        logger.info(metrics.classification_report(t_targets_all, t_outputs_all,
-                                                  labels=[len(self.trainset.tag_list)],
-                                                  target_names=self.trainset.tag_list))        
+        logger.info(metrics.classification_report(t_targets_all,
+                                                  t_outputs_all,
+                                                  labels=list(range(len(self.tag_list))),
+                                                  target_names=list(self.tag_list))) 
         logger.info(metrics.confusion_matrix(t_targets_all, t_outputs_all))        
         
         return p, r, f1
@@ -269,7 +272,6 @@ def main():
     }
 
     prefix_path = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/nlu'
-
 
     dataset_files = {
         'promotion':{
