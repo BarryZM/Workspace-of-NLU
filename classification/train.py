@@ -34,8 +34,47 @@ class Instructor:
         self.tokenizer = tokenizer
         self.max_seq_len = self.opt.max_seq_len
 
+        # # build model
+        # model = TextCNN(self.opt, tokenizer)
+        #
+        # self.model = model
+        # self.session = model.session
+        #
+        # self.tag_list = opt.tag_list
+        # # trainset
+        # self.trainset = Dataset_CLF(corpus=opt.dataset_file['train'],
+        #                             tokenizer=tokenizer,
+        #                             max_seq_len=self.opt.max_seq_len,
+        #                             data_type='normal', tag_list=self.opt.tag_list)
+        #
+        # self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text':
+        #                                                              self.trainset.text_list,
+        #                                                              'label':
+        #                                                              self.trainset.label_list}).batch(self.opt.batch_size).shuffle(10000)
+        #
+        # # testset
+        # self.testset = Dataset_CLF(corpus=opt.dataset_file['test'],
+        #                            tokenizer=tokenizer,
+        #                            max_seq_len=self.opt.max_seq_len,
+        #                            data_type='normal', tag_list=self.opt.tag_list)
+        # self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text':
+        #                                                             self.testset.text_list,
+        #                                                             'label':
+        #                                                             self.testset.label_list}).batch(self.opt.batch_size)
+        #
+        # # predict
+        # if self.opt.do_predict is True:
+        #     self.predictset = Dataset_CLF(corpus=opt.dataset_file['predict'],
+        #                                   tokenizer=tokenizer,
+        #                                   max_seq_len=self.opt.max_seq_len,
+        #                                   data_type='normal',
+        #                                   tag_list=self.opt.tag_list)
+        #     self.predict_data_loader = \
+        #     tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list,
+        #     'label': self.predictset.label_list}).batch(self.opt.batch_size)
+
         # build model
-        model = TextCNN(self.opt, tokenizer)
+        model = TextCNN_Term(self.opt, tokenizer)
 
         self.model = model
         self.session = model.session
@@ -47,33 +86,33 @@ class Instructor:
                                     max_seq_len=self.opt.max_seq_len,
                                     data_type='normal', tag_list=self.opt.tag_list)
 
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text':
-                                                                     self.trainset.text_list,
-                                                                     'label':
-                                                                     self.trainset.label_list}).batch(self.opt.batch_size).shuffle(10000)
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.trainset.text_list,
+                                                                     'term': self.trainset.term_list,
+                                                                     'aspect': self.trainset.aspect_list,
+                                                                     'aspect_onehot': self.trainset.aspect_onehot_list}).batch(self.opt.batch_size).shuffle(10000)
 
-        # testset
-        self.testset = Dataset_ABSA(corpus=opt.dataset_file['test'],
-                                   tokenizer=tokenizer,
-                                   max_seq_len=self.opt.max_seq_len,
-                                   data_type='normal', tag_list=self.opt.tag_list)
-        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text':
-                                                                    self.testset.text_list,
-                                                                    'label':
-                                                                    self.testset.label_list}).batch(self.opt.batch_size)
+        self.test_data_loader = self.train_data_loader
+        self.predict_data_loader = self.train_data_loader
 
-        # predict
-        if self.opt.do_predict is True:
-            self.predictset = Dataset_ABSAA(corpus=opt.dataset_file['predict'],
-                                          tokenizer=tokenizer,
-                                          max_seq_len=self.opt.max_seq_len,
-                                          data_type='normal',
-                                          tag_list=self.opt.tag_list)
-            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.opt.batch_size)
+        # # testset
+        # self.testset = Dataset_ABSA(corpus=opt.dataset_file['test'],
+        #                            tokenizer=tokenizer,
+        #                            max_seq_len=self.opt.max_seq_len,
+        #                            data_type='normal', tag_list=self.opt.tag_list)
+        # self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list,
+        #                                                             'label': self.testset.label_list}).batch(self.opt.batch_size)
+        #
+        # # predict
+        # if self.opt.do_predict is True:
+        #     self.predictset = Dataset_ABSA(corpus=opt.dataset_file['predict'],
+        #                                   tokenizer=tokenizer,
+        #                                   max_seq_len=self.opt.max_seq_len,
+        #                                   data_type='normal',
+        #                                   tag_list=self.opt.tag_list)
+        #     self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.opt.batch_size)
 
         # dev dataset
-        #val_data_loader = tf.data.Dataset.from_tensor_slices(self.testset.data).batch(self.opt.batch_size)
-        self.val_data_loader = self.test_data_loader 
+        self.val_data_loader = self.test_data_loader
 
         logger.info('>> load data done')
 
@@ -103,11 +142,12 @@ class Instructor:
                 try:
                     sample_batched = self.session.run(one_element)    
                     inputs = sample_batched['text']
-                    labels = sample_batched['label']
-                    
+                    terms = sample_batched['term']
+                    labels = sample_batched['aspect_onehot']
+
                     model = self.model
-                    _ = self.session.run(model.trainer, feed_dict =
-                                         {model.input_x : inputs, model.input_y : labels, model.global_step : _epoch, model.keep_prob : 1.0})
+                    _ = self.session.run(model.trainer, feed_dict=
+                                         {model.input_x: inputs, model.input_term: terms, model.input_y: labels, model.global_step : _epoch, model.keep_prob : 1.0})
                     self.model = model
 
                 except tf.errors.OutOfRangeError:
