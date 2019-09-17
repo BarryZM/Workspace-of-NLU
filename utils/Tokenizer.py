@@ -40,7 +40,7 @@ class Tokenizer(object):
             fin = open(fname, 'r', encoding='utf-8', newline='\n', errors='ignore')
             lines = fin.readlines()
             fin.close()
-            for line in lines:
+            for idx, line in enumerate(lines):
                 if task_type == 'NER':
                     text_raw = line[0].lower().strip()
                     tmp_text += text_raw + " "
@@ -49,6 +49,10 @@ class Tokenizer(object):
                     if len(cut_line) == 2:
                         text_raw = cut_line[1].lower().strip()
                         tmp_text += text_raw + " "
+                elif task_type == "ABSA":
+                    if idx % 4 == 0:
+                        tmp_text += line 
+                    
         self.fit_text = tmp_text
 
         self.embedding_info = {}

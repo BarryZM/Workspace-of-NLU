@@ -81,6 +81,7 @@ class Dataset_ABSA():
          and truncating
          """
          words = list(text)
+         print(">>>>>>>>>", self.word2idx)
 
          sequence = [self.word2idx[w] if w in self.word2idx else
                      self.word2idx['<UNK>'] for w in words]
@@ -110,10 +111,17 @@ class Dataset_ABSA():
              term = lines[i + 1].lower().strip()
              aspect = lines[i + 2].lower().strip()
              polarity = lines[i + 3].strip()
+             print("&&& text", text)
+             print("&&& term", term)
+             print("&&& aspect", aspect)
+             print("&&& polarity", polarity)
+
 
              assert polarity in ['-1', '0', '1'], print("polarity", polarity)
              text_idx = self.encode_text_sequence(text, True, False)
+             print(">>> text idx", text_idx)
              term_idx = self.encode_text_sequence(term, True, False)
+             print(">>> term idx", term_idx)
              aspect_idx = self.tag2id[aspect]
              aspect_onehot_idx = self.tag2onehot[aspect]
 

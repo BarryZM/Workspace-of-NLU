@@ -29,7 +29,7 @@ class Instructor:
         tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'],
                                                   opt.dataset_file['test']],
                                     corpus_type=opt.dataset_name, task_type
-                                    ='CLF', embedding_type='tencent')
+                                    ='ABSA', embedding_type='tencent')
 
         self.tokenizer = tokenizer
         self.max_seq_len = self.opt.max_seq_len
@@ -166,13 +166,13 @@ class Instructor:
                 self.saver.save(sess=self.session, save_path=path)
                 # pb output
 
-                from tensorflow.python.framework import graph_util
-                graph_util.convert_variables_to_constants(self.session,
-                                               self.session.graph_def,
-                                               output_node_names=[os.path.join(self.opt.outputs_folder,
-                                                                               self.opt.dataset_name,
-                                                                               'model')])
-    
+    #            from tensorflow.python.framework import graph_util
+    #            graph_util.convert_variables_to_constants(self.session,
+    #                                           self.session.graph_def,
+    #                                           output_node_names=[os.path.join(self.opt.outputs_folder,
+    #                                                                           self.opt.dataset_name,
+    #                                                                           'model')])
+    #
                 logger.info('>> saved: {}'.format(path))
 
         return path
@@ -306,7 +306,7 @@ def main():
     parser.add_argument('--initializer', type=str, default='???')
     parser.add_argument('--optimizer', type=str, default='adam')
 
-    parser.add_argument('--learning_rate', type=float, default=1e-4)
+    parser.add_argument('--learning_rate', type=float, default=1e-2)
     parser.add_argument('--epoch', type=int, default=100)
     parser.add_argument('--do_train', action='store_true', default='false')
     parser.add_argument('--do_test', action='store_true', default='false')
