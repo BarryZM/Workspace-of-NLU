@@ -86,8 +86,8 @@ class Dataset_ABSA():
              polarity = lines[i + 3].strip()
 
              assert polarity in ['-1', '0', '1'], print("polarity", polarity)
-             text_idx = self.encode_text_sequence(text)
-             term_idx = self.encode_text_sequence(term)
+             text_idx = self.encode_text_sequence(text, True, False)
+             term_idx = self.encode_text_sequence(term, True, False)
              aspect_idx = self.tag2id[aspect]
              aspect_onehot_idx = self.tag2onehot[aspect]
 
