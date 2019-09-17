@@ -126,3 +126,7 @@ class Dataset_ABSA():
          self.term_list = np.asarray(term_list)
          self.aspect_list = np.asarray(aspect_list)
          self.aspect_onehot_list = np.asarray(aspect_onehot_list)
+
+         print(">>> text top 3", self.text_list[:3])
+         print(">>> term top 3", self.term_list[:3])
+         print(">>> aspect top 3", self.aspect_list[:3])
