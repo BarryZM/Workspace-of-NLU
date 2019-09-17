@@ -260,7 +260,7 @@ def main():
     parser.add_argument('--filters_size', type=int, default=[4,3,2], help='size of filters')
     parser.add_argument('--es', type=int, default=10, help='early stopping epochs')
     
-    parser.add_argument('--model_name', type=str, default='text_cnn')
+    parser.add_argument('--model_name', type=str, default='text_cnn_term')
     parser.add_argument('--inputs_cols', type=str, default='text')
     parser.add_argument('--initializer', type=str, default='???')
     parser.add_argument('--optimizer', type=str, default='adam')
@@ -274,9 +274,9 @@ def main():
     args = parser.parse_args()
     
     model_classes = {
-        'text_cnn':TextCNN,
+        #'text_cnn':TextCNN,
         'text_cnn_term':TextCNN_Term,
-        'bert_cnn':BERTCNN
+        #'bert_cnn':BERTCNN
     }
 
     prefix_path = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/nlu'
@@ -324,7 +324,7 @@ def main():
     }
 
     inputs_cols = {
-        'text_cnn':['text'],
+        'text_cnn_term':['text', 'term'],
         'bert_cnn':['text']
     }
 
