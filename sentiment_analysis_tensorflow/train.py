@@ -7,12 +7,9 @@ sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 
 from sklearn import metrics
 
-from utils.Dataset_CLF import Dataset_CLF
 from utils.Dataset_ABSA_TF import Dataset_ABSA
 from utils.Tokenizer import build_tokenizer
-from classification.models.TextCNN import TextCNN
-from classification.models.TextCNN_Term import TextCNN_Term
-from classification.models.bert_cnn import BERTCNN
+from sentiment_analysis_tensorflow.models.TextCNN_Term import TextCNN_Term
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
