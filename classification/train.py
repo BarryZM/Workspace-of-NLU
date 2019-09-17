@@ -184,11 +184,14 @@ class Instructor:
             try:
                 sample_batched = self.session.run(one_element)    
                 inputs = sample_batched['text']
-                labels = sample_batched['label']
+                terms = sample_batched['term']
+                labels = sample_batched['aspect_onehot']
                 model = self.model
                 outputs = self.session.run(model.outputs,
                                            feed_dict={model.input_x: inputs,
-                                                      model.input_y: labels, model.global_step: 1, model.keep_prob: 1.0})
+                                                      model.input_term: terms,
+                                                      model.input_y: labels,
+                                                      model.global_step: 1, model.keep_prob: 1.0})
                 t_targets_all.extend(labels)
                 t_outputs_all.extend(outputs)
 
