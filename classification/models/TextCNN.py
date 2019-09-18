@@ -18,7 +18,6 @@ class TextCNN(object):
         self.learning_rate = args.learning_rate
 
         self.input_x = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_x')
-        #self.input_term = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_term')
         self.input_y = tf.placeholder(dtype=tf.float32, shape=[None, self.class_num], name='input_y')
         self.global_step = tf.placeholder(shape=(), dtype=tf.int32, name='global_step')
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
@@ -33,12 +32,6 @@ class TextCNN(object):
             self.input_init = emb_input.assign(self.ph_input)
             inputs = tf.nn.embedding_lookup(emb_input, self.input_x)
 
-            #emb_term = tf.Variable(tf.constant(0.0, shape=[self.vocab_size, self.emb_dim]), trainable=True, name="embedding_term")
-            #self.ph_term = tf.placeholder(tf.float32, [self.vocab_size, self.emb_dim])
-            #self.term_init = emb_term.assign(self.ph_term)
-            #terms = tf.nn.embedding_lookup(emb_term, self.input_term)
-
-        #inputs_with_terms = tf.concat([inputs, terms], -1)
 
         with tf.name_scope('conv'):
             pooled_outputs = []
@@ -57,7 +50,7 @@ class TextCNN(object):
         with tf.name_scope("logits"):
             logits = tf.layers.dense(fc, self.class_num, name='fc2')
             softmax = tf.nn.softmax(logits, name="my_output")
-            #self.outputs = tf.argmax(softmax, 1, name='predict')
+            self.outputs = tf.argmax(softmax, 1, name='outputs')
             self.outputs = tf.one_hot(tf.argmax(softmax, 1, name='predict'),
                                       self.class_num) 
 
