@@ -38,16 +38,12 @@ class BIRNN_CRF(object):
         pass
 
     def birnn_crf(self):
-        # tf.global_variables_initializer()
 
         with tf.device('/cpu:0'):
 
             mask = tf.reduce_sum(tf.sign(self.input_x), reduction_indices=1)
             mask = tf.cast(mask, tf.int32)
 
-            #self.input_x = tf.boolean_mask(self.input_x, mask)
-            #self.input_y = tf.boolean_mask(self.input_y, mask)
-            
             inputs_emb = tf.nn.embedding_lookup(self.embedding_matrix, self.input_x)  # 维度增加
 
         if self.biderectional:
@@ -153,13 +149,6 @@ class BIRNN_CRF(object):
         config.gpu_options.allow_growth = True
         session = tf.Session(config=config)
         session.run(tf.global_variables_initializer())
-        # session.run(self.input_init, feed_dict={self.ph_input: self.embedding_matrix})
         self.session = session
 
-# inputs_emb = tf.transpose(inputs_emb, [1, 0, 2])
-# print(inputs_emb.get_shape())
-# inputs_emb = tf.reshape(inputs_emb, [-1, self.emb_dim])
-# print(inputs_emb.get_shape())
-# inputs_emb = tf.split(inputs_emb, self.length, 0)
-# print(inputs_emb.get_shape())
 
