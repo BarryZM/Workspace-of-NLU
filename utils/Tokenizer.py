@@ -176,10 +176,20 @@ def build_tokenizer(corpus_files, corpus_type, task_type, embedding_type):
     if os.path.exists(tokenizer_path):
         print('load exist tokenizer:', tokenizer_path)
         tokenizer = pickle.load(open(tokenizer_path, 'rb'))
+
+        with open("vocab.txt", mode='w', encoding='utf-8') as f:
+            for key, value in tokenizer.word2idx:
+                f.write(key + '\t' + value)
+
     else:
         print('build new tokenizer:', tokenizer_path)
         tokenizer = Tokenizer(corpus_files=corpus_files, task_type=task_type, emb_type=embedding_type)
         pickle.dump(tokenizer, open(tokenizer_path, 'wb'))
+
+        with open("vocab.txt", mode='w', encoding='utf-8') as f:
+            for key, value in tokenizer.word2idx:
+                f.write(key + '\t' + value)
+
     return tokenizer
 
 
