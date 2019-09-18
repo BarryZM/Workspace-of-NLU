@@ -51,25 +51,27 @@ class Instructor:
                                                                      'aspect': self.trainset.aspect_list,
                                                                      'aspect_onehot': self.trainset.aspect_onehot_list}).batch(self.opt.batch_size).shuffle(10000)
 
-        self.test_data_loader = self.train_data_loader
-        self.predict_data_loader = self.train_data_loader
+        # testset
+        self.testset = Dataset_ABSA(corpus=opt.dataset_file['test'],
+                                   tokenizer=tokenizer,
+                                   max_seq_len=self.opt.max_seq_len,
+                                   data_type='normal', tag_list=self.opt.tag_list)
+        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list,
+                                                                     'term': self.testset.term_list,
+                                                                     'aspect': self.testset.aspect_list,
+                                                                     'aspect_onehot': self.testset.aspect_onehot_list}).batch(self.opt.batch_size)
 
-        # # testset
-        # self.testset = Dataset_ABSA(corpus=opt.dataset_file['test'],
-        #                            tokenizer=tokenizer,
-        #                            max_seq_len=self.opt.max_seq_len,
-        #                            data_type='normal', tag_list=self.opt.tag_list)
-        # self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list,
-        #                                                             'label': self.testset.label_list}).batch(self.opt.batch_size)
-        #
         # # predict
-        # if self.opt.do_predict is True:
-        #     self.predictset = Dataset_ABSA(corpus=opt.dataset_file['predict'],
-        #                                   tokenizer=tokenizer,
-        #                                   max_seq_len=self.opt.max_seq_len,
-        #                                   data_type='normal',
-        #                                   tag_list=self.opt.tag_list)
-        #     self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.opt.batch_size)
+        if self.opt.do_predict is True:
+            self.predictset = Dataset_ABSA(corpus=opt.dataset_file['predict'],
+                                          tokenizer=tokenizer,
+                                          max_seq_len=self.opt.max_seq_len,
+                                          data_type='normal',
+                                          tag_list=self.opt.tag_list)
+            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list,
+                                                                     'term': self.predictset.term_list,
+                                                                     'aspect': self.predictset.aspect_list,
+                                                                     'aspect_onehot': self.predictset.aspect_onehot_list}).batch(self.opt.batch_size)
 
         # dev dataset
         self.val_data_loader = self.test_data_loader

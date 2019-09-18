@@ -124,15 +124,13 @@ class Instructor:
     
                 last_improved = _epoch
                 self.saver.save(sess=self.session, save_path=path)
-                # pb output
 
-    #            from tensorflow.python.framework import graph_util
-    #            graph_util.convert_variables_to_constants(self.session,
-    #                                           self.session.graph_def,
-    #                                           output_node_names=[os.path.join(self.opt.outputs_folder,
-    #                                                                           self.opt.dataset_name,
-    #                                                                           'model')])
-    #
+                # pb output
+                from tensorflow.python.framework import graph_util
+                trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def,
+                                                                          output_node_names=['logits/outputs'])
+                tf.train.write_graph(trained_graph, path, "model.pb", as_text=False)
+
                 logger.info('>> saved: {}'.format(path))
 
         return path
