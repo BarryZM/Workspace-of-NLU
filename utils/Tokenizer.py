@@ -178,8 +178,8 @@ def build_tokenizer(corpus_files, corpus_type, task_type, embedding_type):
         tokenizer = pickle.load(open(tokenizer_path, 'rb'))
 
         with open("vocab.txt", mode='w', encoding='utf-8') as f:
-            for key, value in tokenizer.word2idx:
-                f.write(key + '\t' + value)
+            for key, value in tokenizer.word2idx.items():
+                f.write(str(key) + '\t' + str(value) + '\n')
 
     else:
         print('build new tokenizer:', tokenizer_path)
@@ -187,8 +187,8 @@ def build_tokenizer(corpus_files, corpus_type, task_type, embedding_type):
         pickle.dump(tokenizer, open(tokenizer_path, 'wb'))
 
         with open("vocab.txt", mode='w', encoding='utf-8') as f:
-            for key, value in tokenizer.word2idx:
-                f.write(key + '\t' + value)
+            for key, value in tokenizer.word2idx.items():
+                f.write(str(key) + '\t' + str(value) + '\n')
 
     return tokenizer
 

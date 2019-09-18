@@ -14,8 +14,8 @@ class TextCNN_Term(object):
         self.hidden_dim = args.hidden_dim
         self.filters_num = args.filters_num
         self.filters_size = args.filters_size
-        self.class_num = 3
-        #self.class_num = len(args.tag_list)
+        #self.class_num = 3
+        self.class_num = len(args.tag_list)
         self.learning_rate = args.learning_rate
 
         self.input_x = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_x')
