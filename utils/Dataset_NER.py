@@ -24,10 +24,6 @@ class Dataset_NER():
 
         self.preprocess()
         
-        print(self.label_list)
-        print(self.label2idx)
-        print(self.idx2label)
-
     def __getitem__(self, index):
         return self.text_list[index]
 
@@ -176,8 +172,6 @@ class Dataset_NER():
         result_text = []
         result_label = []
 
-        print(">>> text list", text_list)
-        print(">>> label list", label_list)
 
         for text in text_list:
             tmp = self.encode_text_sequence(text, True, False)

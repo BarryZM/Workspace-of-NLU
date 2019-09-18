@@ -162,10 +162,7 @@ class Instructor:
                 
                 inputs = list(map(convert_text, inputs))
                 targets = list(map(convert_label, targets))
-                print(">>> eval inputs", inputs)
-                print(">>> eval labels", targets)
                 outputs = list(map(convert_label, outputs))
-                print(">>> eval outputs", outputs)
 
                 t_texts_all.extend(inputs)
                 t_targets_all.extend(targets)
@@ -237,7 +234,7 @@ class Instructor:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset_name', type=str, default='shaver', help='air-purifier, refrigerator, shaver, promotion')
+    parser.add_argument('--dataset_name', type=str, default='promotion', help='air-purifier, refrigerator, shaver, promotion')
     parser.add_argument('--outputs_folder', type=str)
     parser.add_argument('--results_file', type=str)
 
