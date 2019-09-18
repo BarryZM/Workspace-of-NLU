@@ -27,10 +27,7 @@ class TextCNN(object):
 
     def cnn(self):
         with tf.device('/cpu:0'):
-            emb_input = tf.Variable(tf.constant(0.0, shape=[self.vocab_size, self.emb_dim]), trainable=True, name="embedding_input")
-            self.ph_input = tf.placeholder(tf.float32, [self.vocab_size, self.emb_dim])
-            self.input_init = emb_input.assign(self.ph_input)
-            inputs = tf.nn.embedding_lookup(emb_input, self.input_x)
+            inputs = tf.nn.embedding_lookup(self.embedding_matrix, self.input_x)
 
 
         with tf.name_scope('conv'):
@@ -66,7 +63,7 @@ class TextCNN(object):
         config.gpu_options.allow_growth = True  
         session = tf.Session(config=config)
         session.run(tf.global_variables_initializer())
-        session.run(self.input_init, feed_dict={self.ph_input: self.embedding_matrix})
+        # session.run(self.input_init, feed_dict={self.ph_input: self.embedding_matrix})
         # session.run(self.term_init, feed_dict={self.ph_term: self.embedding_matrix})
         self.session = session
 
