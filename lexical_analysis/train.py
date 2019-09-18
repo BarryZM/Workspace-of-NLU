@@ -132,7 +132,7 @@ class Instructor:
                 # pb output
                 from tensorflow.python.framework import graph_util
                 # outputs = [node.op.name for node in self.model.outputs]
-                trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=self.model.outputs.name)
+                trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=['outputs'])
                 tf.train.write_graph(trained_graph, path, "model.pb", as_text=False)
 
                 logger.info('>> saved: {}'.format(path))

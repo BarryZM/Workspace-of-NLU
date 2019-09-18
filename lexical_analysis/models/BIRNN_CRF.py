@@ -139,6 +139,7 @@ class BIRNN_CRF(object):
             print("trasition", transition_params.shape)
 
             self.outputs, self.batch_viterbi_score = tf.contrib.crf.crf_decode(self.logits, transition_params, mask)
+            self.outputs_ = tf.identity(self.outputs, name='outputs')
             self.loss = tf.reduce_mean(-log_likelihood)
 
         # summary
