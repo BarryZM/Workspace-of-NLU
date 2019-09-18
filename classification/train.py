@@ -128,7 +128,7 @@ class Instructor:
 
                 from tensorflow.python.framework import graph_util
                 trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def,
-                                                                          output_node_names=['outputs'])
+                                                                          output_node_names=['logits/outputs'])
                 tf.train.write_graph(trained_graph, path, "model.pb", as_text=False)
 
                 logger.info('>> saved: {}'.format(path))
