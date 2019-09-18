@@ -131,8 +131,8 @@ class Instructor:
                 self.saver.save(sess=self.session, save_path=path)
                 # pb output
                 from tensorflow.python.framework import graph_util
-                outputs = [node.op.name for node in self.model.outputs]
-                trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=outputs)
+                # outputs = [node.op.name for node in self.model.outputs]
+                trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=self.model.outputs.name)
                 tf.train.write_graph(trained_graph, path, "model.pb", as_text=False)
 
                 logger.info('>> saved: {}'.format(path))
@@ -144,12 +144,6 @@ class Instructor:
         t_texts_all, t_targets_all, t_outputs_all = [], [], []
         iterator = data_loader.make_one_shot_iterator()
         one_element = iterator.get_next()
-
-        def convert_text_idx(input_list):
-            return [item for item in input_list if item not in [0]]
-
-        def convert_label_idx(input_list):
-            return [item for item in input_list if item not in [0]]
 
         def convert_text(encode_list):
             return [self.tokenizer.idx2word[item] for item in encode_list if item not in [self.tokenizer.word2idx["<PAD>"] ]]
