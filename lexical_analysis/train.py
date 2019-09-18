@@ -101,18 +101,6 @@ class Instructor:
             iterator = train_data_loader.make_one_shot_iterator()
             one_element = iterator.get_next()
 
-            def convert_text_idx(input_list):
-                return [item for item in input_list if item not in [0]]
-
-            def convert_label_idx(input_list):
-                return [item for item in input_list if item not in [-1]]
-
-            def convert_text(encode_list):
-                return [self.tokenizer.idx2word[item] for item in encode_list if item not in [self.tokenizer.word2idx["<PAD>"] ]]
-
-            def convert_label(encode_list):
-                return [self.trainset.idx2label[item] for item in encode_list if item != -1 ]
-
             while True:
                 try:
                     sample_batched = self.session.run(one_element)
@@ -142,7 +130,10 @@ class Instructor:
                 last_improved = _epoch
                 self.saver.save(sess=self.session, save_path=path)
                 # pb output
-                # convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=[os.path.join(self.opt.outputs_folder, 'model')])
+                from tensorflow.python.framework import graph_util
+                outputs = [node.op.name for node in self.model.outputs]
+                trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=outputs)
+                tf.train.write_graph(trained_graph, path, "model.pb", as_text=False)
 
                 logger.info('>> saved: {}'.format(path))
 
