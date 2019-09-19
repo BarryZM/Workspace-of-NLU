@@ -29,7 +29,6 @@ class TextCNN(object):
         with tf.device('/cpu:0'):
             inputs = tf.nn.embedding_lookup(self.embedding_matrix, self.input_x)
 
-
         with tf.name_scope('conv'):
             pooled_outputs = []
             for i, filter_size in enumerate(self.filters_size):
@@ -46,9 +45,9 @@ class TextCNN(object):
 
         with tf.name_scope("logits"):
             logits = tf.layers.dense(fc, self.class_num, name='fc2')
-            softmax = tf.nn.softmax(logits, name="my_output")
-            self.outputs = tf.argmax(softmax, 1, name='outputs')
-            self.outputs = tf.one_hot(tf.argmax(softmax, 1, name='predict'),
+            softmax = tf.nn.softmax(logits, name="output_softmax")
+            self.outputs = tf.argmax(softmax, 1, name='output_argmax')
+            self.outputs = tf.one_hot(tf.argmax(softmax, 1, name='output_onehot'),
                                       self.class_num) 
 
         with tf.name_scope("loss"):
@@ -63,7 +62,5 @@ class TextCNN(object):
         config.gpu_options.allow_growth = True  
         session = tf.Session(config=config)
         session.run(tf.global_variables_initializer())
-        # session.run(self.input_init, feed_dict={self.ph_input: self.embedding_matrix})
-        # session.run(self.term_init, feed_dict={self.ph_term: self.embedding_matrix})
         self.session = session
 
