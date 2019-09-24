@@ -45,17 +45,22 @@ class TextCNN(object):
 
         with tf.name_scope("logits"):
             logits = tf.layers.dense(fc, self.class_num, name='fc2')
-            softmax = tf.nn.softmax(logits, name="output_softmax")
-            self.outputs = tf.argmax(softmax, 1, name='output_argmax')
-            self.outputs = tf.one_hot(tf.argmax(softmax, 1, name='output_onehot'),
-                                      self.class_num) 
+            self.output_softmax = tf.nn.softmax(logits, name="output_softmax")
+            self.output_argmax = tf.argmax(self.output_softmax, 1, name='output_argmax')
+            self.output_onehot = tf.one_hot(tf.argmax(self.output_softmax, 1, name='output_onehot'), self.class_num)
 
         with tf.name_scope("loss"):
             loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=self.input_y)
             loss = tf.reduce_mean(loss)
 
         with tf.name_scope("optimizer"):
+            self.learning_rate = tf.train.exponential_decay(learning_rate=self.learning_rate,
+                                                            global_step=self.global_step,
+                                                            decay_steps=2,
+                                                            decay_rate=0.95,
+                                                            staircase=True)
             self.trainer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss)
+
             tf.summary.scalar('loss', loss)
 
         config = tf.ConfigProto()  
