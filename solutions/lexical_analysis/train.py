@@ -10,7 +10,6 @@
 import os,sys,time,argparse,logging
 import tensorflow as tf
 import numpy as np
-from sklearn import metrics
 from pathlib import Path
 from os import path
 sys.path.append(path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -18,13 +17,12 @@ sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 
 from utils.Tokenizer import build_tokenizer
 from utils.Dataset_NER import Dataset_NER
-from lexical_analysis.models.BIRNN_CRF import BIRNN_CRF
-from lexical_analysis.evals.evaluate import get_results_by_line
+from solutions.lexical_analysis.models.BIRNN_CRF import BIRNN_CRF
+from solutions.lexical_analysis.evals.evaluate import get_results_by_line
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler(sys.stdout))
-
 
 
 class Instructor:

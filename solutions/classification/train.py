@@ -7,6 +7,7 @@ sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 
 from sklearn import metrics
 
+from pathlib import Path
 from utils.Dataset_CLF import Dataset_CLF
 from utils.Tokenizer import build_tokenizer
 from solutions.classification.models.TextCNN import TextCNN
@@ -312,7 +313,11 @@ def main():
     args.tag_list = tag_lists[args.dataset_name]
     args.initializer = initializers[args.initializer]
     args.optimizer = optimizers[args.optimizer]
-    log_file = 'outputs/logs/{}-{}-{}.log'.format(args.model_name, args.dataset_name, time.strftime("%y%m%d-%H%M", time.localtime(time.time())))
+
+    log_dir = Path('outputs/logs')
+    if not log_dir.exists():
+        Path.mkdir(log_dir, parents=True)
+    log_file = log_dir / '{}-{}-{}.log'.format(args.model_name, args.dataset_name, time.strftime("%y%m%d-%H%M", time.localtime(time.time())))
     logger.addHandler(logging.FileHandler(log_file))
     ins = Instructor(args)
     ins.run()
