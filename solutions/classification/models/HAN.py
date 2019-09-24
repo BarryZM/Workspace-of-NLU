@@ -1,13 +1,14 @@
-#coding=utf8
 
 import tensorflow as tf
 from tensorflow.contrib import rnn
 from tensorflow.contrib import layers
 
+
 def length(sequences):
     used = tf.sign(tf.reduce_max(tf.abs(sequences), reduction_indices=2))
     seq_len = tf.reduce_sum(used, reduction_indices=1)
     return tf.cast(seq_len, tf.int32)
+
 
 class HAN():
 
@@ -22,19 +23,18 @@ class HAN():
             self.max_sentence_num = tf.placeholder(tf.int32, name='max_sentence_num')
             self.max_sentence_length = tf.placeholder(tf.int32, name='max_sentence_length')
             self.batch_size = tf.placeholder(tf.int32, name='batch_size')
-            #x的shape为[batch_size, 句子数， 句子长度(单词个数)]，但是每个样本的数据都不一样，，所以这里指定为空
-            #y的shape为[batch_size, num_classes]
+            # x的shape为[batch_size, 句子数， 句子长度(单词个数)]，但是每个样本的数据都不一样，，所以这里指定为空
+            # y的shape为[batch_size, num_classes]
             self.input_x = tf.placeholder(tf.int32, [None, None, None], name='input_x')
             self.input_y = tf.placeholder(tf.float32, [None, num_classes], name='input_y')
 
-        #构建模型
+        # 构建模型
         word_embedded = self.word2vec()
         sent_vec = self.sent2vec(word_embedded)
         doc_vec = self.doc2vec(sent_vec)
         out = self.classifer(doc_vec)
 
         self.out = out
-
 
     def word2vec(self):
         with tf.name_scope("embedding"):
