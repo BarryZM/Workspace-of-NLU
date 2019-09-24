@@ -50,7 +50,8 @@ class TextCNN(object):
             self.output_onehot = tf.one_hot(tf.argmax(self.output_softmax, 1, name='output_onehot'), self.class_num)
 
         with tf.name_scope("loss"):
-            loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=self.input_y)
+            #loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=self.input_y)
+            loss = tf.nn.weighted_cross_entropy_with_logits(logits=self.output_softmax, labels=self.input_y, pos_weight=3.0)
             loss = tf.reduce_mean(loss)
 
         with tf.name_scope("optimizer"):
