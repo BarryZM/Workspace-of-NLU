@@ -128,7 +128,7 @@ class Instructor:
 
                 from tensorflow.python.framework import graph_util
                 trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def,
-                                                                          output_node_names=['logits/outputs'])
+                                                                          output_node_names=['logits/output_argmax'])
                 tf.train.write_graph(trained_graph, path, "model.pb", as_text=False)
 
                 logger.info('>> saved: {}'.format(path))
@@ -250,7 +250,7 @@ def main():
     parser.add_argument('--results_file', type=str)
 
     parser.add_argument('--gpu', type=str, default='0')
-    parser.add_argument('--max_seq_len', type=str, default=80)
+    parser.add_argument('--max_seq_len', type=str, default=256)
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--hidden_dim', type=int, default=512, help='hidden dim of dense')
     parser.add_argument('--filters_num', type=int, default=256, help='number of filters')
@@ -262,7 +262,7 @@ def main():
     parser.add_argument('--initializer', type=str, default='???')
     parser.add_argument('--optimizer', type=str, default='adam')
 
-    parser.add_argument('--learning_rate', type=float, default=1e-2)
+    parser.add_argument('--learning_rate', type=float, default=1e-3)
     parser.add_argument('--epoch', type=int, default=100)
     parser.add_argument('--do_train', action='store_true', default='false')
     parser.add_argument('--do_test', action='store_true', default='false')

@@ -63,4 +63,3 @@ class TextCNN(object):
         session = tf.Session(config=config)
         session.run(tf.global_variables_initializer())
         self.session = session
-
