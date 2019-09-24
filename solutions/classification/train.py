@@ -7,10 +7,11 @@ sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 
 from sklearn import metrics
 
+from pathlib import Path
 from utils.Dataset_CLF import Dataset_CLF
 from utils.Tokenizer import build_tokenizer
-from classification.models.TextCNN import TextCNN
-from classification.models.bert_cnn import BERTCNN
+from solutions.classification.models.TextCNN import TextCNN
+from solutions.classification.models.BERT_CNN import BERTCNN
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -22,56 +23,49 @@ class Instructor:
         self.opt = opt
         logger.info("parameters for programming :  {}".format(self.opt))
 
+        self.lr = opt.lr
+        self.optimizer = opt.optimizer
+        self.epochs = opt.epochs
+        self.outputs_folder = opt.outputs_folder 
+
         # build tokenizer
-        logger.info("parameters for programming :  {}".format(self.opt))
-        tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'],
-                                                  opt.dataset_file['test']],
-                                    corpus_type=opt.dataset_name, task_type
-                                    ='CLF', embedding_type='tencent')
+        tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'], opt.dataset_file['test']], corpus_type=opt.dataset_name, task_type='CLF', embedding_type='tencent')
 
         self.tokenizer = tokenizer
         self.max_seq_len = self.opt.max_seq_len
 
         # build model
-        model = TextCNN(self.opt, tokenizer)
+        model = opt.model_class(self.opt, tokenizer)
 
         self.model = model
         self.session = model.session
 
         self.tag_list = opt.tag_list
-        # trainset
+        # train set
         self.trainset = Dataset_CLF(corpus=opt.dataset_file['train'],
                                     tokenizer=tokenizer,
                                     max_seq_len=self.opt.max_seq_len,
                                     data_type='normal', tag_list=self.opt.tag_list)
 
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text':
-                                                                     self.trainset.text_list,
-                                                                     'label':
-                                                                     self.trainset.label_list}).batch(self.opt.batch_size).shuffle(10000)
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.trainset.text_list, 'label': self.trainset.label_list}).batch(self.opt.batch_size).shuffle(10000)
 
-        # testset
+        # test set
         self.testset = Dataset_CLF(corpus=opt.dataset_file['test'],
                                    tokenizer=tokenizer,
                                    max_seq_len=self.opt.max_seq_len,
                                    data_type='normal', tag_list=self.opt.tag_list)
-        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text':
-                                                                    self.testset.text_list,
-                                                                    'label':
-                                                                    self.testset.label_list}).batch(self.opt.batch_size)
+        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list, 'label': self.testset.label_list}).batch(self.opt.batch_size)
 
-        # predict
+        # predict set
         if self.opt.do_predict is True:
             self.predictset = Dataset_CLF(corpus=opt.dataset_file['predict'],
                                           tokenizer=tokenizer,
                                           max_seq_len=self.opt.max_seq_len,
                                           data_type='normal',
                                           tag_list=self.opt.tag_list)
-            self.predict_data_loader = \
-            tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list,
-            'label': self.predictset.label_list}).batch(self.opt.batch_size)
+            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.opt.batch_size)
 
-        # dev dataset
+        # dev set
         self.val_data_loader = self.test_data_loader
 
         logger.info('>> load data done')
@@ -91,7 +85,7 @@ class Instructor:
         max_f1 = 0
         path = None
         print("train begin")
-        for _epoch in range(self.opt.epoch):
+        for _epoch in range(self.epochs):
             logger.info('>' * 100)
             logger.info('epoch: {}'.format(_epoch))
 
@@ -117,9 +111,9 @@ class Instructor:
             
             if val_f1 > max_f1:
                 max_f1 = val_f1
-                if not os.path.exists(self.opt.outputs_folder):
-                    os.mkdir(self.opt.outputs_folder)
-                path = os.path.join(self.opt.outputs_folder, '{0}_{1}_val_f1{2}'.format(self.opt.model_name, self.opt.dataset_name, round(val_f1, 4)))
+                if not os.path.exists(self.outputs_folder):
+                    os.mkdir(self.outputs_folder)
+                path = os.path.join(self.outputs_folder, '{0}_{1}_val_f1{2}'.format(self.opt.model_name, self.opt.dataset_name, round(val_f1, 4)))
     
                 last_improved = _epoch
                 self.saver.save(sess=self.session, save_path=path)
@@ -131,6 +125,10 @@ class Instructor:
                 tf.train.write_graph(trained_graph, path, "model.pb", as_text=False)
 
                 logger.info('>> saved: {}'.format(path))
+
+            if last_improved - _epoch > self.opt.es:
+                logging.info(">> too many epochs not imporve, break")
+                break
 
         return path
 
@@ -145,7 +143,7 @@ class Instructor:
                 inputs = sample_batched['text']
                 labels = sample_batched['label']
                 model = self.model
-                outputs = self.session.run(model.outputs,
+                outputs = self.session.run(model.output_onehot,
                                            feed_dict={model.input_x: inputs,
                                                       model.input_y: labels,
                                                       model.global_step: 1, model.keep_prob: 1.0})
@@ -187,7 +185,7 @@ class Instructor:
         return p, r, f1
 
     def run(self):
-        optimizer = tf.train.AdamOptimizer(learning_rate=self.opt.learning_rate)
+        optimizer = self.optimizer(learning_rate=self.lr)
         # tf.contrib.data.Dataset
 
         # train and find best model path
@@ -238,6 +236,7 @@ class Instructor:
         else:
             logger.info("@@@ Not Include This Situation")
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset_name', type=str, default='promotion', help='air-purifier, refrigerator, shaver')
@@ -254,15 +253,16 @@ def main():
     parser.add_argument('--hidden_dim', type=int, default=512, help='hidden dim of dense')
     parser.add_argument('--filters_num', type=int, default=256, help='number of filters')
     parser.add_argument('--filters_size', type=int, default=[4,3,2], help='size of filters')
-    parser.add_argument('--es', type=int, default=10, help='early stopping epochs')
-    
+
     parser.add_argument('--model_name', type=str, default='text_cnn')
     parser.add_argument('--inputs_cols', type=str, default='text')
-    parser.add_argument('--initializer', type=str, default='???')
+    parser.add_argument('--initializer', type=str, default='random_normal')
     parser.add_argument('--optimizer', type=str, default='adam')
 
-    parser.add_argument('--learning_rate', type=float, default=1e-3)
-    parser.add_argument('--epoch', type=int, default=100)
+    parser.add_argument('--lr', type=float, default=1e-2, help="learning rate")
+    parser.add_argument('--epochs', type=int, default=100, help='epochs for trianing')
+    parser.add_argument('--es', type=int, default=10, help='early stopping epochs')
+
     parser.add_argument('--do_train', action='store_true', default='false')
     parser.add_argument('--do_test', action='store_true', default='false')
     parser.add_argument('--do_predict', action='store_true', default='false')
@@ -274,7 +274,7 @@ def main():
         'bert_cnn':BERTCNN
     }
 
-    prefix_path = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/nlu'
+    prefix_path = '/export/home/sunhongchao1/Workspace-of-NLU/corpus/nlu'
 
     dataset_files = {
         'promotion':{
@@ -293,9 +293,15 @@ def main():
         'bert_cnn':['text']
     }
 
-    #initializers = {
-    #    'xavier_uniform_': '',
-    #}
+    initializers = {
+        'random_normal': tf.random_normal_initializer,  # 符号标准正太分布的tensor
+        'truncted_normal': tf.truncated_normal_initializer,  # 截断正太分布
+        'random_uniform': tf.random_uniform_initializer,  # 均匀分布
+        # tf.orthogonal_initializer() 初始化为正交矩阵的随机数，形状最少需要是二维的
+        # tf.glorot_uniform_initializer() 初始化为与输入输出节点数相关的均匀分布随机数
+        # tf.glorot_normal_initializer（） 初始化为与输入输出节点数相关的截断正太分布随机数
+        # tf.variance_scaling_initializer() 初始化为变尺度正太、均匀分布
+    }
 
     optimizers = {
         'adadelta': tf.train.AdadeltaOptimizer,  # default lr=1.0
@@ -311,9 +317,13 @@ def main():
     args.dataset_file = dataset_files[args.dataset_name]
     args.inputs_cols = inputs_cols[args.model_name]
     args.tag_list = tag_lists[args.dataset_name]
-    #args.initializer = initializers[args.initializer]
+    args.initializer = initializers[args.initializer]
     args.optimizer = optimizers[args.optimizer]
-    log_file = 'outputs/logs/{}-{}-{}.log'.format(args.model_name, args.dataset_name, time.strftime("%y%m%d-%H%M", time.localtime(time.time())))
+
+    log_dir = Path('outputs/logs')
+    if not log_dir.exists():
+        Path.mkdir(log_dir, parents=True)
+    log_file = log_dir / '{}-{}-{}.log'.format(args.model_name, args.dataset_name, time.strftime("%y%m%d-%H%M", time.localtime(time.time())))
     logger.addHandler(logging.FileHandler(log_file))
     ins = Instructor(args)
     ins.run()

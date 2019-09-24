@@ -25,8 +25,8 @@ class Dataset_CLF():
         self.preprocess()
 
         print(tag_list)
-        print(self.label2idx)
-        print(self.idx2label)
+        print(self.tag2idx)
+        print(self.idx2tag)
 
     def __getitem__(self, index):
         return self.text_list[index]
@@ -41,8 +41,8 @@ class Dataset_CLF():
             tag2idx[item] = idx
             idx2tag[idx] = item
 
-        self.label2idx = tag2idx
-        self.idx2label = idx2tag
+        self.tag2idx = tag2idx
+        self.idx2tag = idx2tag
  
     def __set_tag2onehot(self):
         tag_list = self.tag_list
@@ -51,11 +51,11 @@ class Dataset_CLF():
         one_hot_df = onehot_encoder.fit_transform(
             np.asarray(list(range(len(tag_list)))).reshape(-1,1))
 
-        label_dict = {}
+        tag_dict = {}
         for aspect, vector in zip(tag_list, one_hot_df):
-            label_dict[aspect] = vector
+            tag_dict[aspect] = vector
 
-        self.label_dict_onehot = label_dict
+        self.tag_dict_onehot = tag_dict
 
     def __pad_and_truncate(self, sequence, maxlen, dtype='int64', padding='post', truncating='post', value=0):
         """
@@ -80,27 +80,6 @@ class Dataset_CLF():
         else:
             x[-len(trunc):] = trunc
         return x
-
-    def encode_label_sequence(self, label, do_padding, do_reverse):
-        """
-        """
-        labels = list(label)
-
-        sequence = [self.label2idx[w] if w in self.label2idx else
-                    self.word2idx['<UNK>'] for w in labels]
-
-        if len(sequence) == 0:
-            sequence = [0]
-        if do_reverse:
-            sequence = sequence[::-1]
-
-        if do_padding:
-            sequence = self.__pad_and_truncate(sequence, self.max_seq_len, value=0)
-
-        # onehot
-        sequence = [self.label_dict_onehot[item] for item in sequence]
-
-        return sequence
 
     def encode_text_sequence(self, text, do_padding, do_reverse):
         """
@@ -154,7 +133,15 @@ class Dataset_CLF():
             tmp = self.encode_text_sequence(text, True, False)
             result_text.append(tmp)
 
-        result_label = [self.label_dict_onehot[item] for item in labels]
+        # result_label = [self.label_dict_onehot[item] for item in labels]
+        result_label = []
+
+        for item in labels:
+            if item in ["商品/品类", "搜优惠", "搜活动/会场"]:
+                result_label.append(self.tag_dict_onehot[item])
+            else:
+                result_label.append(self.tag_dict_onehot['闲聊'])
+
 
         self.text_list = np.asarray(result_text)
         self.label_list = np.asarray(result_label)

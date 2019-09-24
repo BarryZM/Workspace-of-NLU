@@ -77,11 +77,14 @@ class Tokenizer(object):
         """
         :return: embedding files dict
         """
+
+        prefix_path = '/export/home/sunhongchao1/Workspace-of-NLU'
+
         embedding_files = {
             'Static':{
                 "Word2Vec":"",
                 "Glove":"",
-                "tencent":"../resources/Tencent_AILab_ChineseEmbedding.txt"
+                "tencent":prefix_path + "/resources/Tencent_AILab_ChineseEmbedding.txt"
             },
             'Dynamic':{
                 "BERT":"",
