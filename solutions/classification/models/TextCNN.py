@@ -18,7 +18,7 @@ class TextCNN(object):
         self.learning_rate = args.lr
 
         self.input_x = tf.placeholder(dtype=tf.int32, shape=[None, self.seq_len], name='input_x')
-        self.input_y = tf.placeholder(dtype=tf.float32, shape=[None, self.class_num], name='input_y')
+        self.input_y = tf.placeholder(dtype=tf.float64, shape=[None, self.class_num], name='input_y')
         self.global_step = tf.placeholder(shape=(), dtype=tf.int32, name='global_step')
         self.keep_prob = tf.placeholder(tf.float64, name='keep_prob')
 
