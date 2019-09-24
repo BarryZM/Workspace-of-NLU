@@ -16,8 +16,8 @@ class Dataset_CLF():
         self.tag_list = tag_list
         self.data_type = data_type
 
-        self.set_tag2id()
-        self.set_tag2onehot()
+        self.__set_tag2id()
+        self.__set_tag2onehot()
 
         self.text_list = []
         self.label_list = []
@@ -34,7 +34,7 @@ class Dataset_CLF():
     def __len__(self):
         return len(self.text_list)
 
-    def set_tag2id(self):
+    def __set_tag2id(self):
         tag2idx = {}
         idx2tag = {}
         for idx, item in enumerate(self.tag_list):
@@ -44,7 +44,7 @@ class Dataset_CLF():
         self.label2idx = tag2idx
         self.idx2label = idx2tag
  
-    def set_tag2onehot(self):
+    def __set_tag2onehot(self):
         tag_list = self.tag_list
         from sklearn.preprocessing import LabelEncoder,OneHotEncoder
         onehot_encoder = OneHotEncoder(sparse=False)
@@ -159,7 +159,7 @@ class Dataset_CLF():
         self.text_list = np.asarray(result_text)
         self.label_list = np.asarray(result_label)
 
-        print(" word2idx", self.word2idx)
+        print("word2idx", self.word2idx)
         print(">>> words top 3", self.text_list[:3])
         print(">>> labels top 3", self.label_list[:3])
 

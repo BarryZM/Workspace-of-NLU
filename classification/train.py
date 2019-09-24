@@ -8,7 +8,6 @@ sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 from sklearn import metrics
 
 from utils.Dataset_CLF import Dataset_CLF
-from utils.Dataset_ABSA_TF import Dataset_ABSA
 from utils.Tokenizer import build_tokenizer
 from classification.models.TextCNN import TextCNN
 from classification.models.bert_cnn import BERTCNN
@@ -81,7 +80,7 @@ class Instructor:
 
     def _print_args(self):
         pass
-        #n_trainable_params, n_nontrainable_params = 0, 0
+        # n_trainable_params, n_nontrainable_params = 0, 0
 
     def _reset_params(self):
         pass

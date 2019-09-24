@@ -69,23 +69,6 @@ class BIRNN_CRF(object):
                 else:
                     self.outputs = outputs
 
-                # rnn multi cell
-
-            # lstm_cell = self.cell
-            # if self.is_training:
-            #     lstm_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob=(1 - self.dropout_rate))
-            # lstm_cell = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * self.num_layers)
-            #
-            # outputs, _ = tf.contrib.rnn.static_rnn(
-            #     lstm_cell,
-            #     inputs_emb,
-            #     dtype=tf.float32,
-            #     sequence_length=self.seq_len * self.args.batch_size
-            # )
-            # # outputs: list_steps[batch, 2*dim]
-            # outputs = tf.concat(outputs, 1)
-            # outputs = tf.reshape(outputs, [self.batch_size, self.max_time_steps, self.hidden_dim * 2])
-
         if self.is_attention:
             H1 = tf.reshape(self.rnn_outputs, [-1, self.hidden_dim * 2])
             W_a1 = tf.get_variable("W_a1", shape=[self.hidden_dim * 2, self.attention_dim],
@@ -127,13 +110,7 @@ class BIRNN_CRF(object):
             #self.loss = tf.reduce_mean(losses)
         else:
             # crf
-            print("logits", self.logits.shape)
-            print("input_y", self.input_y.shape)
-
             log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(self.logits, self.input_y, mask)
-            print("log_likehood", log_likelihood.shape)
-            print("trasition", transition_params.shape)
-
             self.outputs, self.batch_viterbi_score = tf.contrib.crf.crf_decode(self.logits, transition_params, mask)
             self.outputs_ = tf.identity(self.outputs, name='outputs')
             self.loss = tf.reduce_mean(-log_likelihood)
@@ -151,4 +128,17 @@ class BIRNN_CRF(object):
         session.run(tf.global_variables_initializer())
         self.session = session
 
-
+# lstm_cell = self.cell
+# if self.is_training:
+#     lstm_cell = tf.nn.rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob=(1 - self.dropout_rate))
+# lstm_cell = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * self.num_layers)
+#
+# outputs, _ = tf.contrib.rnn.static_rnn(
+#     lstm_cell,
+#     inputs_emb,
+#     dtype=tf.float32,
+#     sequence_length=self.seq_len * self.args.batch_size
+# )
+# # outputs: list_steps[batch, 2*dim]
+# outputs = tf.concat(outputs, 1)
+# outputs = tf.reshape(outputs, [self.batch_size, self.max_time_steps, self.hidden_dim * 2])
