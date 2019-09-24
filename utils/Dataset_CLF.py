@@ -104,6 +104,9 @@ class Dataset_CLF():
 
     # return [self.embedding_matrix[item] for item in sequence]
 
+    def del_unbalance_label(self):
+        pass
+
     def preprocess(self):
 
         fin = open(self.corpus, 'r', encoding='utf-8', newline='\n', errors='ignore')
