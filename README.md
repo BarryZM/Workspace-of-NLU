@@ -324,6 +324,31 @@
 |                                                              |      |        |
 
 
+# Metric
+
+- Classification/Sentiment Analysis
+  - Precision, Recall，F-score
+  - Micro-Average
+    - 根据总数据计算 P R F
+  - Marco-Average
+    - 计算出每个类得，再求平均值
+  - 平衡点
+  - 11点平均正确率
+    - https://blog.csdn.net/u010367506/article/details/38777909
+- Lexical analysis
+  - strict/type/partial/overlap/
+  - 准确率(Precision)和召回率(Recall)
+    - Precision = 正确切分出的词的数目/切分出的词的总数
+    - Recall = 正确切分出的词的数目/应切分出的词的总数
+  - 综合性能指标F-measure
+    - Fβ = (β2 + 1)*Precision*Recall/(β2*Precision + Recall)*
+    - *β为权重因子，如果将准确率和召回率同等看待，取β = 1，就得到最常用的F1-measure*
+    - *F1 = 2*Precisiton*Recall/(Precision+Recall)
+  - 未登录词召回率(R_OOV)和词典中词的召回率(R_IV)
+    - R_OOV = 正确切分出的未登录词的数目/标准答案中未知词的总数
+    - R_IV = 正确切分出的已知词的数目/标准答案中已知词的总数
+- Relation Extraction
+- Natural Language Inference
 
 # Problems
 + Tokenizer
@@ -391,6 +416,7 @@
 
 ## Links
 
++ [Rasa NLU Chinese](https://github.com/crownpku/Rasa_NLU_Chi)
 + [第四届语言与智能高峰论坛 报告](http://tcci.ccf.org.cn/summit/2019/dl.php)
 + [DiDi NLP](https://chinesenlp.xyz/#/)
 + https://www.zhihu.com/question/52756127
