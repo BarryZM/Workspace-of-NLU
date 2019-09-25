@@ -46,8 +46,13 @@ class Instructor:
                                     tokenizer=tokenizer,
                                     max_seq_len=self.opt.max_seq_len,
                                     data_type='normal', tag_list=self.opt.tag_list)
+        # train set augment
+        from imblearn.over_sampling import RandomOverSampler
 
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text':self.trainset.text_list, 'label': self.trainset.label_list}).batch(self.opt.batch_size).shuffle(10000)
+        ros = RandomOverSampler(random_state=0)
+        x_resampled, y_resampled = ros.fit_sample(self.trainset.text_list, self.trainset.label_list)
+
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': x_resampled, 'label': y_resampled}).batch(self.opt.batch_size).shuffle(10000)
 
         # test set
         self.testset = Dataset_CLF(corpus=opt.dataset_file['test'],
