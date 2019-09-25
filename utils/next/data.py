@@ -2,7 +2,6 @@ import sys, pickle, os, random
 import numpy as np, re
 
 
-
 def data_normalizer(char_in):
     char_out = char_in
     if char_in.isdigit():
@@ -11,6 +10,7 @@ def data_normalizer(char_in):
         char_out='<number>'
     return char_out
 
+
 # process the raw data into training and testing format B- I-
 def phrase_normalizer(sentence):
     # 凌晨/黎明/清晨/早上/早晨/上午/中午/下午/晚/晚儿/晚上/傍晚/夜里/上半夜/下半夜/半夜/深夜/午夜
@@ -18,6 +18,7 @@ def phrase_normalizer(sentence):
     sentence = re.sub(pattern, '', sentence)
     sentence = re.sub(' ', '@', sentence)
     return sentence
+
 
 def read_corpus(corpus_path):
     """

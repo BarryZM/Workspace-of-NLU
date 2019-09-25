@@ -47,6 +47,7 @@ class Instructor:
                                     max_seq_len=self.opt.max_seq_len,
                                     data_type='normal', tag_list=self.opt.tag_list)
         # train set augment
+        # https://blog.csdn.net/qq_27802435/article/details/81201357
         from imblearn.over_sampling import RandomOverSampler
 
         ros = RandomOverSampler(random_state=0)
