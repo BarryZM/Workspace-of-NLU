@@ -26,7 +26,14 @@ def process_boundary(tag: list, sent: list):
                 entity_val = tok
             elif tag.startswith("I-") and entity_tag == tag[2:]:
                 entity_val += tok
+            elif tag.startswith("E-") and entity_tag == tag[2:]:
+                entity_val += tok
             elif tag.startswith("I-") and entity_tag != tag[2:]:
+                if len(entity_val) > 0:
+                    tup_list.append((entity_tag, entity_val))
+                entity_tag = tag[2:]
+                entity_val = tok
+            elif tag.startswith("E-") and entity_tag != tag[2:]:
                 if len(entity_val) > 0:
                     tup_list.append((entity_tag, entity_val))
                 entity_tag = tag[2:]
@@ -88,14 +95,14 @@ def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
     print("entity predict list", entity_predict_list)
     print("%" * 20)
 
-    if entity_predict_list != entity_ground_list:
-        print("###")
-        print(char_list)
-        print(tag_predict_list)
-        print(tag_ground_list)
+    #if entity_predict_list != entity_ground_list:
+    #    print("###")
+    #    print(char_list)
+    #    print(tag_predict_list)
+    #    print(tag_ground_list)
     
-        print('predict###', entity_predict_list)
-        print('ground###', entity_ground_list)
+    #    print('predict###', entity_predict_list)
+    #    print('ground###', entity_ground_list)
     
     char_list = [ item for item in char_list if type(item) is str]
 

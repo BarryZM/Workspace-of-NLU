@@ -255,7 +255,7 @@ def main():
     args = parser.parse_args()
 
     prefix_path = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/sa/comment/'
-    prefix_path_1 = '/export/home/sunhongchao1/1-NLU/Workspace-of-NLU/corpus/nlu/'
+    prefix_path_1 = '/export/home/sunhongchao1/Workspace-of-NLU/corpus/nlu/'
     train_path = '/slot/train.txt'
     test_path = '/slot/test.txt'
     predict_path = '/slot/predict.txt'
@@ -293,10 +293,16 @@ def main():
             'predict': prefix_path + args.dataset_name + predict_path},
     }
 
-    promotion_list = ['<PAD>', 'O', 'B-DATE', 'I-DATE', 'B-PRODUCT','I-PRODUCT',
-        'B-BRAND', 'I-BRAND', 'B-SHOP', 'I-SHOP', 'B-COLOR', 'I-COLOR',
-        'B-PRICE', 'I-PRICE', 'B-AMOUT','I-AMOUT', 'B-ATTRIBUTE',
-        'I-ATTRIBUTE']
+    prefix_list = ['B', 'I', 'E', 'O', 'S']
+
+    promotion_type = ['DATE', 'PRODUCT', 'BRAND', 'SHOP', 'COLOR', 'PRICE',
+                      'AMOUT', 'ATTRIBUTE']
+
+    promotion_list = [ item_prefix + '-' + item_promotion for item_prefix in
+                      prefix_list for item_promotion in promotion_type]
+    promotion_list.append("<PAD>")
+    promotion_list.append("O")
+
 
     comment_list = ['<PAD>', 'O', 'B-3', 'I-3']
 

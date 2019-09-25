@@ -96,8 +96,13 @@ class TextCNN(object):
             # loss =  tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=self.input_y)
             # tf.nn.sigmoid_cross_entropy_with_logits
 
-            class_weights = tf.constant([1, 1, 1, 1, 1, 1])
-            loss = tf.nn.weighted_cross_entropy_with_logits(logits=logits, targets=self.input_y, pos_weight=class_weights)
+            class_weights = tf.constant([1.0, 10.0, 15.0, 1.0, 1.0, 1.0])
+            loss = tf.nn.weighted_cross_entropy_with_logits(logits=tf.cast(logits,
+                                                                    tf.float64),
+                                                     targets=tf.cast(self.input_y,
+                                                                     tf.float64),
+                                                     pos_weight=tf.cast(class_weights,
+                                                                       tf.float64))
             loss = tf.reduce_mean(loss)
 
         with tf.name_scope("optimizer"):

@@ -113,7 +113,7 @@ class Instructor:
                 max_f1 = val_f1
                 if not os.path.exists(self.outputs_folder):
                     os.mkdir(self.outputs_folder)
-                path = os.path.join(self.outputs_folder, '{0}_{1}_val_f1{2}'.format(self.opt.model_name, self.opt.dataset_name, round(val_f1, 4)))
+                path = os.path.join(self.outputs_folder, '{0}_{1}_val_f1_{2}'.format(self.opt.model_name, self.opt.dataset_name, round(val_f1, 4)))
     
                 last_improved = _epoch
                 self.saver.save(sess=self.session, save_path=path)
@@ -259,9 +259,9 @@ def main():
     parser.add_argument('--initializer', type=str, default='random_normal')
     parser.add_argument('--optimizer', type=str, default='adam')
 
-    parser.add_argument('--lr', type=float, default=1e-2, help="learning rate")
+    parser.add_argument('--lr', type=float, default=1e-3, help="learning rate")
     parser.add_argument('--epochs', type=int, default=100, help='epochs for trianing')
-    parser.add_argument('--es', type=int, default=10, help='early stopping epochs')
+    parser.add_argument('--es', type=int, default=3, help='early stopping epochs')
 
     parser.add_argument('--do_train', action='store_true', default='false')
     parser.add_argument('--do_test', action='store_true', default='false')
