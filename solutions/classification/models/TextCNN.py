@@ -25,6 +25,49 @@ class TextCNN(object):
         self.embedding_matrix = tokenizer.embedding_matrix
         self.cnn()
 
+    def focal_loss(self, pred, y, alpha=0.25, gamma=2):
+        r"""Compute focal loss for predictions.
+            Multi-labels Focal loss formula:
+                FL = -alpha * (z-p)^gamma * log(p) -(1-alpha) * p^gamma * log(1-p)
+                     ,which alpha = 0.25, gamma = 2, p = sigmoid(x), z = target_tensor.
+        Args:
+         pred: A float tensor of shape [batch_size, num_anchors,
+            num_classes] representing the predicted logits for each class
+         y: A float tensor of shape [batch_size, num_anchors,
+            num_classes] representing one-hot encoded classification targets
+         alpha: A scalar tensor for focal loss alpha hyper-parameter
+         gamma: A scalar tensor for focal loss gamma hyper-parameter
+        Returns:
+            loss: A (scalar) tensor representing the value of the loss function
+        """
+        zeros = tf.zeros_like(pred, dtype=pred.dtype)
+
+        # For positive prediction, only need consider front part loss, back part is 0;
+        # target_tensor > zeros <=> z=1, so positive coefficient = z - p.
+        pos_p_sub = tf.where(y > zeros, y - pred, zeros)  # positive sample 寻找正样本，并进行填充
+
+        # For negative prediction, only need consider back part loss, front part is 0;
+        # target_tensor > zeros <=> z=1, so negative coefficient = 0.
+        neg_p_sub = tf.where(y > zeros, zeros, pred)  # negative sample 寻找负样本，并进行填充
+        per_entry_cross_ent = - alpha * (pos_p_sub ** gamma) * tf.log(tf.clip_by_value(pred, 1e-8, 1.0)) \
+                              - (1 - alpha) * (neg_p_sub ** gamma) * tf.log(tf.clip_by_value(1.0 - pred, 1e-8, 1.0))
+
+        return tf.reduce_sum(per_entry_cross_ent)
+
+
+    def focal_loss(self, logits, labels, gamma):
+        '''
+        :param logits:  [batch_size, n_class]
+        :param labels: [batch_size]
+        :return: -(1-y)^r * log(y)
+        '''
+        softmax = tf.reshape(tf.nn.softmax(logits), [-1])  # [batch_size * n_class]
+        labels = tf.range(0, logits.shape[0]) * logits.shape[1] + labels
+        prob = tf.gather(softmax, labels)
+        weight = tf.pow(tf.subtract(1., prob), gamma)
+        loss = -tf.reduce_mean(tf.multiply(weight, tf.log(prob)))
+        return loss
+
     def cnn(self):
         with tf.device('/cpu:0'):
             inputs = tf.nn.embedding_lookup(self.embedding_matrix, self.input_x)
@@ -45,13 +88,16 @@ class TextCNN(object):
 
         with tf.name_scope("logits"):
             logits = tf.layers.dense(fc, self.class_num, name='fc2')
-            self.output_softmax = tf.nn.softmax(logits, name="output_softmax")
+            self.output_softmax = tf.nn.softmax(logits, name="output_softmax",)
             self.output_argmax = tf.argmax(self.output_softmax, 1, name='output_argmax')
             self.output_onehot = tf.one_hot(tf.argmax(self.output_softmax, 1, name='output_onehot'), self.class_num)
 
         with tf.name_scope("loss"):
-            #loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=self.input_y)
-            loss = tf.nn.weighted_cross_entropy_with_logits(logits=logits, targets=self.input_y, pos_weight=3.0)
+            # loss =  tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=self.input_y)
+            # tf.nn.sigmoid_cross_entropy_with_logits
+
+            class_weights = tf.constant([1, 1, 1, 1, 1, 1])
+            loss = tf.nn.weighted_cross_entropy_with_logits(logits=logits, targets=self.input_y, pos_weight=class_weights)
             loss = tf.reduce_mean(loss)
 
         with tf.name_scope("optimizer"):
