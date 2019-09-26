@@ -138,6 +138,45 @@ class Instructor:
 
         return path
 
+    def _test(self):
+        ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
+        if ckpt and ckpt.model_checkpoint_path:
+            self.saver.restore(self.session, ckpt.model_checkpoint_path)
+            test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
+            logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
+        else:
+            logger.info('@@@ Error:load ckpt error')
+
+    def _predict(self):
+        ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
+        if ckpt and ckpt.model_checkpoint_path:
+            self.saver.restore(self.session, ckpt.model_checkpoint_path)
+
+            t_targets_all, t_outputs_all = [], []
+            iterator = self.predict_data_loader.make_one_shot_iterator()
+            one_element = iterator.get_next()
+
+            while True:
+                try:
+                    sample_batched = self.session.run(one_element)
+                    inputs = sample_batched['text']
+                    targets = sample_batched['label']
+                    model = self.model
+                    outputs = self.session.run(model.outputs, feed_dict={model.input_x: inputs, model.input_y: targets,
+                                                                         model.global_step: 1, model.keep_prob: 1.0})
+                    t_targets_all.extend(targets)
+                    t_outputs_all.extend(outputs)
+
+                except tf.errors.OutOfRangeError:
+                    with open(self.opt.results_file, mode='w', encoding='utf-8') as f:
+                        for item in t_outputs_all:
+                            f.write(str(item) + '\n')
+
+                    break
+
+        else:
+            logger.info('@@@ Error:load ckpt error')
+
     def _evaluate_metric(self, data_loader):
         t_targets_all, t_outputs_all = [], []
         iterator = data_loader.make_one_shot_iterator()
@@ -149,6 +188,7 @@ class Instructor:
                 inputs = sample_batched['text']
                 labels = sample_batched['label']
                 model = self.model
+
                 outputs = self.session.run(model.output_onehot,
                                            feed_dict={model.input_x: inputs,
                                                       model.input_y: labels,
@@ -169,9 +209,6 @@ class Instructor:
         t_targets_all = np.asarray(t_targets_all)
         t_outputs_all = np.asarray(t_outputs_all)
 
-        print("target top 5",t_targets_all[:5])
-        print("output top 5",t_outputs_all[:5])
-
         p = metrics.precision_score(t_targets_all, t_outputs_all,  average=flag)
         r = metrics.recall_score(t_targets_all, t_outputs_all,  average=flag)
         f1 = metrics.f1_score(t_targets_all, t_outputs_all,  average=flag)
@@ -179,66 +216,24 @@ class Instructor:
         t_targets_all = [np.argmax(item) for item in t_targets_all]
         t_outputs_all = [np.argmax(item) for item in t_outputs_all]
 
-        print(">>>target top 5",t_targets_all[:5])
-        print(">>>output top 5",t_outputs_all[:5])
-
-        logger.info(metrics.classification_report(t_targets_all,
-                                                  t_outputs_all,
-                                                  labels=list(range(len(self.tag_list))),
-                                                  target_names=list(self.tag_list))) 
+        logger.info(metrics.classification_report(t_targets_all, t_outputs_all, labels=list(range(len(self.tag_list))), target_names=list(self.tag_list)))
         logger.info(metrics.confusion_matrix(t_targets_all, t_outputs_all))        
         
         return p, r, f1
 
     def run(self):
         optimizer = self.optimizer(learning_rate=self.lr)
-        # tf.contrib.data.Dataset
 
-        # train and find best model path
-        if self.opt.do_train is True and self.opt.do_test is True :
-            print("do train", self.opt.do_train)
-            print("do test", self.opt.do_test)
+        if self.opt.do_train is True and self.opt.do_test is True:
             best_model_path = self._train(None, optimizer, self.train_data_loader, self.test_data_loader)
             self.saver.restore(self.session, best_model_path)
             test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
             logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
 
         elif self.opt.do_train is False and self.opt.do_test is True:
-            ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
-            if ckpt and ckpt.model_checkpoint_path:
-                self.saver.restore(self.session, ckpt.model_checkpoint_path)
-                test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
-                logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
-            else:
-                logger.info('@@@ Error:load ckpt error')
+            self._test()
         elif self.opt.do_predict is True: 
-            ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
-            if ckpt and ckpt.model_checkpoint_path:
-                self.saver.restore(self.session, ckpt.model_checkpoint_path)
-                
-                t_targets_all, t_outputs_all = [], []
-                iterator = self.predict_data_loader.make_one_shot_iterator()
-                one_element = iterator.get_next()
-
-                while True:
-                    try:
-                        sample_batched = self.session.run(one_element)    
-                        inputs = sample_batched['text']
-                        targets = sample_batched['label']
-                        model = self.model
-                        outputs = self.session.run(model.outputs, feed_dict={model.input_x: inputs, model.input_y: targets, model.global_step : 1, model.keep_prob : 1.0})
-                        t_targets_all.extend(targets)
-                        t_outputs_all.extend(outputs)
-
-                    except tf.errors.OutOfRangeError:
-                        with open(self.opt.results_file,  mode='w', encoding='utf-8') as f:
-                            for item in t_outputs_all:
-                                f.write(str(item) + '\n')
-
-                        break
-
-            else:
-                logger.info('@@@ Error:load ckpt error')
+            self._predict()
         else:
             logger.info("@@@ Not Include This Situation")
 
