@@ -35,12 +35,20 @@ class Instructor:
         self.label_list = self.opt.label_list
         self.dataset_file = opt.dataset_file 
         self.batch_size = opt.batch_size
+        self.output_dir = opt.output_dir
+        self.result_file = opt.result_file
+        self.batch_size = opt.batch_size
+        self.dataset_name = opt.dataset_name
+        self.model_name = opt.model_name
+        self.model_class = opt.model_class
+        self.do_train = opt.do_train
+        self.do_test = opt.do_test
+        self.do_predict = opt.do_predict
+        self.es = opt.es
 
         # build tokenizer
-        tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'],
-                                                  opt.dataset_file['test']],corpus_type=opt.dataset_name,
+        tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'], opt.dataset_file['test']],corpus_type=opt.dataset_name,
                                     task_type='NER', embedding_type='tencent')
-
         self.tokenizer = tokenizer
 
         # build model and session
@@ -51,19 +59,19 @@ class Instructor:
 
     def _set_dataset(self):
         # train
-        self.trainset = Dataset_NER(self.dataset_file['train'], tokenizer, self.max_seq_len, 'entity', self.label_list)
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.batch_size).shuffle(10000)
+        self.trainset = Dataset_NER(self.dataset_file['train'], self.tokenizer, self.max_seq_len, 'entity', self.label_list)
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.trainset.text_list, 'label': self.trainset.label_list}).batch(self.batch_size).shuffle(10000)
         # test
-        self.testset = Dataset_NER(self.dataset_file['test'], tokenizer, self.max_seq_len, 'entity', self.label_list)
-        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size)
+        self.testset = Dataset_NER(self.dataset_file['test'], self.tokenizer, self.max_seq_len, 'entity', self.label_list)
+        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list, 'label': self.testset.label_list}).batch(self.opt.batch_size)
 
         # eval
         self.eval_data_loader = self.test_data_loader
 
          # predict
         if self.opt.do_predict is True:
-            self.predictset = Dataset_NER(self.dataset_file['predict'], tokenizer, self.max_seq_len, 'entity', self.label_list)
-            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.batch_size)
+            self.predictset = Dataset_NER(self.dataset_file['predict'], self.tokenizer, self.max_seq_len, 'entity', self.label_list)
+            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.batch_size)
         
         print(self.tokenizer.word2idx)
         print(self.trainset.label2idx)
@@ -136,11 +144,70 @@ class Instructor:
             if abs(last_improved - _epoch) > self.es:
                 logging.info(">> too many epochs not imporve, break")
 
-        if abs(last_improved - _epoch) > self.es:
-            logging.info(">> too many epochs not imporve, break")
-            break
+            if abs(last_improved - _epoch) > self.es:
+                logging.info(">> too many epochs not imporve, break")
+                break
 
-        return path
+        return ckpt_path
+
+    def _test(self):
+        ckpt = tf.train.get_checkpoint_state(self.opt.output_dir)
+        if ckpt and ckpt.model_checkpoint_path:
+            self.saver.restore(self.session, ckpt.model_checkpoint_path)
+            test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
+            logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
+        else:
+            logger.info('@@@ Error:load ckpt error')
+
+    def _predict(self, data_loader):
+        ckpt = tf.train.get_checkpoint_state(os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name)))
+
+        if ckpt and ckpt.model_checkpoint_path:
+            logger.info('>>> load ckpt model path for predict', ckpt.model_checkpoint_path)
+            self.saver.restore(self.session, ckpt.model_checkpoint_path)
+            self._output_result(self.predict_data_loader)
+            logger.info('>> predict done')
+        else:
+            logger.info('@@@ Error:load ckpt error')
+
+    def _output_result(self, data_loader):
+
+        t_texts_all, t_targets_all, t_outputs_all = [], [], []
+        iterator = data_loader.make_one_shot_iterator()
+        one_element = iterator.get_next()
+
+        def convert_text(encode_list):
+            return [self.tokenizer.idx2word[item] for item in encode_list if
+                    item not in [self.tokenizer.word2idx["<PAD>"]]]
+
+        def convert_label(encode_list):
+            return [self.trainset.idx2label[item] for item in encode_list if item not in [0]]
+
+        while True:
+            try:
+                sample_batched = self.session.run(one_element)
+                inputs = sample_batched['text']
+                targets = sample_batched['label']
+
+                model = self.model
+                outputs = self.session.run(model.outputs, feed_dict={model.input_x: inputs, model.input_y: targets,
+                                                                     model.global_step: 1, model.keep_prob: 1.0})
+
+                inputs = list(map(convert_text, inputs))
+                targets = list(map(convert_label, targets))
+                outputs = list(map(convert_label, outputs))
+
+                t_texts_all.extend(inputs)
+                t_targets_all.extend(targets)
+                t_outputs_all.extend(outputs)
+
+            except tf.errors.OutOfRangeError:
+                if self.opt.do_test is True and self.opt.do_train is False:
+                    with open(self.result_path, mode='w', encoding='utf-8') as f:
+                        for item in t_outputs_all:
+                            f.write(str(item) + '\n')
+
+                break
 
     def _evaluate_metric(self, data_loader):
 
@@ -173,12 +240,11 @@ class Instructor:
 
             except tf.errors.OutOfRangeError:
                 if self.opt.do_test is True and self.opt.do_train is False:
-                    with open(self.opt.result_path, mode='w', encoding='utf-8') as f:
+                    with open(self.result_path, mode='w', encoding='utf-8') as f:
                         for item in t_outputs_all:
                             f.write(str(item) + '\n')
 
                 break
-        
 
         p, r, f1 = get_results_by_line(t_texts_all, t_targets_all, t_outputs_all)
 
@@ -186,51 +252,17 @@ class Instructor:
 
     def run(self):
         optimizer = tf.train.AdamOptimizer(learning_rate=self.opt.learning_rate)
-        # tf.contrib.data.Dataset
 
         if self.opt.do_train is True and self.opt.do_test is True:
-
-            best_model_path = self._train(None, optimizer,
-                                          self.train_data_loader, self.test_data_loader)
+            best_model_path = self._train(None, optimizer, self.train_data_loader, self.test_data_loader)
             self.saver.restore(self.session, best_model_path)
             test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
             logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
 
-        elif self.opt.do_train is False and self.opt.do_test is True:
-            ckpt = tf.train.get_checkpoint_state(self.opt.output_dir)
-            if ckpt and ckpt.model_checkpoint_path:
-                self.saver.restore(self.session, ckpt.model_checkpoint_path)
-                test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
-                logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
-            else:
-                logger.info('@@@ Error:load ckpt error')
-        elif self.opt.do_predict is True:
-            ckpt = tf.train.get_checkpoint_state(self.opt.output_dir)
-            if ckpt and ckpt.model_checkpoint_path:
-                self.saver.restore(self.session, ckpt.model_checkpoint_path)
-
-                t_targets_all, t_outputs_all = [], []
-                iterator = predict_data_loader.make_one_shot_iterator()
-                one_element = iterator.get_next()
-
-                while True:
-                    try:
-                        sample_batched = self.session.run(one_element)
-                        inputs = sample_batched['text']
-                        targets_onehot = sample_batched['label']
-                        model = self.model
-                        outputs = self.session.run(model.outputs, feed_dict={model.input_x: inputs, model.input_y: targets_onehot, model.global_step: 1, model.keep_prob: 1.0})
-                        t_outputs_all.extend(outputs)
-
-                    except tf.errors.OutOfRangeError:
-                        with open(self.opt.result_path, mode='w', encoding='utf-8') as f:
-                            for item in t_outputs_all:
-                                f.write(str(item) + '\n')
-
-                        break
-
-            else:
-                logger.info('@@@ Error:load ckpt error')
+        elif self.do_train is False and self.do_test is True:
+            self._test()
+        elif self.do_predict is True:
+            self._predict()
         else:
             logger.info("@@@ Not Include This Situation")
 
@@ -246,14 +278,14 @@ def main():
     parser.add_argument('--batch_size', type=int, default=256)
     parser.add_argument('--hidden_dim', type=int, default=500, help='hidden dim of dense')
     parser.add_argument('--es', type=int, default=10, help='early stopping epochs')
+    parser.add_argument('--learning_rate', type=float, default=1e-2)
+    parser.add_argument('--epochs', type=int, default=5)
 
     parser.add_argument('--model_class', type=str, default='birnn_crf')
     parser.add_argument('--inputs_cols', type=str, default='text')
     parser.add_argument('--initializer', type=str, default='???')
     parser.add_argument('--optimizer', type=str, default='adam')
 
-    parser.add_argument('--learning_rate', type=float, default=1e-2)
-    parser.add_argument('--epochs', type=int, default=5)
     parser.add_argument('--do_train', action='store_true', default=True)
     parser.add_argument('--do_test', action='store_true', default=False)
     parser.add_argument('--do_predict', action='store_true', default=False)
@@ -309,7 +341,6 @@ def main():
     promotion_list.append("<PAD>")
     promotion_list.append("O")
 
-
     comment_list = ['<PAD>', 'O', 'B-3', 'I-3']
 
     label_lists = {
@@ -331,9 +362,15 @@ def main():
         'birnn_crf': ['text']
     }
 
-    # initializers = {
-    #    'xavier_uniform_': '',
-    # }
+    initializers = {
+        'random_normal': tf.random_normal_initializer,  # 符号标准正太分布的tensor
+        'truncted_normal': tf.truncated_normal_initializer,  # 截断正太分布
+        'random_uniform': tf.random_uniform_initializer,  # 均匀分布
+        # tf.orthogonal_initializer() 初始化为正交矩阵的随机数，形状最少需要是二维的
+        # tf.glorot_uniform_initializer() 初始化为与输入输出节点数相关的均匀分布随机数
+        # tf.glorot_normal_initializer（） 初始化为与输入输出节点数相关的截断正太分布随机数
+        # tf.variance_scaling_initializer() 初始化为变尺度正太、均匀分布
+    }
 
     optimizers = {
         'adadelta': tf.train.AdadeltaOptimizer,  # default lr=1.0
@@ -360,3 +397,32 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# ckpt = tf.train.get_checkpoint_state(self.opt.output_dir)
+# if ckpt and ckpt.model_checkpoint_path:
+#     self.saver.restore(self.session, ckpt.model_checkpoint_path)
+#
+#     t_targets_all, t_outputs_all = [], []
+#     iterator = data_loader.make_one_shot_iterator()
+#     one_element = iterator.get_next()
+#
+#     while True:
+#         try:
+#             sample_batched = self.session.run(one_element)
+#             inputs = sample_batched['text']
+#             targets_onehot = sample_batched['label']
+#             model = self.model
+#             outputs = self.session.run(model.outputs,
+#                                        feed_dict={model.input_x: inputs, model.input_y: targets_onehot,
+#                                                   model.global_step: 1, model.keep_prob: 1.0})
+#             t_outputs_all.extend(outputs)
+#
+#         except tf.errors.OutOfRangeError:
+#             with open(self.opt.result_path, mode='w', encoding='utf-8') as f:
+#                 for item in t_outputs_all:
+#                     f.write(str(item) + '\n')
+#
+#             break
+#
+# else:
+#     logger.info('@@@ Error:load ckpt error')

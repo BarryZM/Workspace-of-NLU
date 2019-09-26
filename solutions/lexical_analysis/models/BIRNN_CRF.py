@@ -89,15 +89,11 @@ class BIRNN_CRF(object):
             self.outputs = tf.matmul(A, tf.reshape(tf.identity(self.rnn_outputs), [-1, self.seq_len, self.hidden_dim * 2]))
 
         # linear
-        # self.outputs = tf.reshape(self.outputs, [-1, self.hidden_dim * 2])
         self.softmax_w = tf.get_variable("softmax_w", [self.hidden_dim * 2, self.class_num], initializer=self.initializer, dtype=tf.float32)
         self.softmax_b = tf.get_variable("softmax_b", [self.class_num], initializer=self.initializer, dtype=tf.float32)
 
         self.logits = tf.matmul(tf.reshape(self.outputs, [-1, 2*self.hidden_dim]), self.softmax_w) + self.softmax_b
-
         self.logits = tf.reshape(self.logits, [-1, self.seq_len, self.class_num])
-
-        # self.input_y = tf.reshape(self.input_y, [-1, self.seq_len, self.class_num])
 
         if not self.is_crf:
             pass
