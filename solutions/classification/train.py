@@ -29,23 +29,33 @@ class Instructor:
         """
         parameter
         """
-        self.max_seq_len = self.opt.max_seq_len
+        self.max_seq_len = opt.max_seq_len
         self.tag_list = opt.tag_list
         self.lr = opt.lr
         self.optimizer = opt.optimizer
+        self.initializer = opt.initializer
         self.epochs = opt.epochs
-        self.outputs_folder = opt.outputs_folder 
+        self.output_dir = opt.output_dir
+        self.result_file = opt.result_file
+        self.batch_size = opt.batch_size
+        self.dataset_file = opt.dataset_file
+        self.dataset_name = opt.dataset_name
+        self.model_class = opt.model_class
+        self.do_train = opt.do_train
+        self.do_test = opt.do_test
+        self.do_predict = opt.do_predict
+        self.es = opt.es
 
         """
         build tokenizer
         """
-        tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'], opt.dataset_file['test']], corpus_type=opt.dataset_name, task_type='CLF', embedding_type='tencent')
+        tokenizer = build_tokenizer(corpus_files=[self.dataset_file['train'], self.dataset_file['test']], corpus_type=self.dataset_name, task_type='CLF', embedding_type='tencent')
         self.tokenizer = tokenizer
 
         """
         build model
         """
-        model = opt.model_class(self.opt, tokenizer)
+        model = self.model_class(self.opt, tokenizer)
         self.model = model
 
         """
@@ -72,27 +82,27 @@ class Instructor:
         """
         train set
         """
-        self.trainset = Dataset_CLF(corpus=self.opt.dataset_file['train'], tokenizer=self.tokenizer, max_seq_len=self.opt.max_seq_len, data_type='normal', tag_list=self.opt.tag_list)
+        self.trainset = Dataset_CLF(corpus=self.dataset_file['train'], tokenizer=self.tokenizer, max_seq_len=self.max_seq_len, data_type='normal', tag_list=self.tag_list)
         # train set augment
         # https://blog.csdn.net/qq_27802435/article/details/81201357
         from imblearn.over_sampling import RandomOverSampler
         ros = RandomOverSampler(random_state=0)
         x_resampled, y_resampled = ros.fit_sample(self.trainset.text_list, self.trainset.label_list)
 
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': x_resampled, 'label': y_resampled}).batch(self.opt.batch_size).shuffle(10000)
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': x_resampled, 'label': y_resampled}).batch(self.batch_size).shuffle(10000)
         """
         test and dev set
         """
-        self.testset = Dataset_CLF(corpus=self.opt.dataset_file['test'], tokenizer=self.tokenizer, max_seq_len=self.opt.max_seq_len,data_type='normal', tag_list=self.opt.tag_list)
-        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list, 'label': self.testset.label_list}).batch(self.opt.batch_size)
+        self.testset = Dataset_CLF(corpus=self.dataset_file['test'], tokenizer=self.tokenizer, max_seq_len=self.max_seq_len,data_type='normal', tag_list=self.tag_list)
+        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list, 'label': self.testset.label_list}).batch(self.batch_size)
 
         self.val_data_loader = self.test_data_loader
         """
         predict set
         """
-        if self.opt.do_predict is True:
-            self.predictset = Dataset_CLF(corpus=self.opt.dataset_file['predict'], tokenizer=self.tokenizer, max_seq_len=self.opt.max_seq_len, data_type='normal', tag_list=self.opt.tag_list)
-            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.opt.batch_size)
+        if self.do_predict is True:
+            self.predictset = Dataset_CLF(corpus=self.dataset_file['predict'], tokenizer=self.tokenizer, max_seq_len=self.max_seq_len, data_type='normal', tag_list=self.tag_list)
+            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.batch_size)
 
         logger.info('>> load data done')
 
@@ -142,9 +152,9 @@ class Instructor:
                 """
                 output path for pb and ckpt model
                 """
-                if not os.path.exists(self.outputs_folder):
-                    os.mkdir(self.outputs_folder)
-                path = os.path.join(self.outputs_folder, '{0}_{1}_val_f1_{2}'.format(self.opt.model_name, self.opt.dataset_name, round(val_f1, 4)))
+                if not os.path.exists(self.output_dir):
+                    os.mkdir(self.output_dir)
+                path = os.path.join(self.output_dir, '{0}_{1}_val_f1_{2}'.format(self.model_name, self.dataset_name, round(val_f1, 4)))
                 """
                 flag for early stopping
                 """
@@ -162,7 +172,7 @@ class Instructor:
                 tf.train.write_graph(trained_graph, path, "model.pb", as_text=False)
                 logger.info('>> pb model saved in : {}'.format(path))
 
-            if abs(last_improved - _epoch) > self.opt.es:
+            if abs(last_improved - _epoch) > self.es:
                 logging.info(">> too many epochs not imporve, break")
                 break
         if path is None:
@@ -177,7 +187,7 @@ class Instructor:
         last checkpoint is best model
         :return:
         """
-        ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
+        ckpt = tf.train.get_checkpoint_state(self.output_dir)
         if ckpt and ckpt.model_checkpoint_path:
             logger.info('>>> load ckpt model path for test', ckpt.model_checkpoint_path)
             self.saver.restore(self.session, ckpt.model_checkpoint_path)
@@ -195,7 +205,7 @@ class Instructor:
         last checkpoint is best model
         :return:
         """
-        ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
+        ckpt = tf.train.get_checkpoint_state(self.output_dir)
         if ckpt and ckpt.model_checkpoint_path:
             logger.info('>>> load ckpt model path for predict', ckpt.model_checkpoint_path)
             self.saver.restore(self.session, ckpt.model_checkpoint_path)
@@ -209,7 +219,7 @@ class Instructor:
         iterator = data_loader.make_one_shot_iterator()
         one_element = iterator.get_next()
 
-        ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
+        ckpt = tf.train.get_checkpoint_state(self.output_dir)
         if ckpt and ckpt.model_checkpoint_path:
             logger.info('>>> load ckpt model path for predict', ckpt.model_checkpoint_path)
             self.saver.restore(self.session, ckpt.model_checkpoint_path)
@@ -225,7 +235,7 @@ class Instructor:
                     t_outputs_all.extend(outputs)
 
                 except tf.errors.OutOfRangeError:
-                    with open(self.opt.results_file, mode='w', encoding='utf-8') as f:
+                    with open(self.result_file, mode='w', encoding='utf-8') as f:
                         for item in t_outputs_all:
                             f.write(str(item) + '\n')
 
@@ -251,8 +261,8 @@ class Instructor:
                 t_outputs_all.extend(outputs)
 
             except tf.errors.OutOfRangeError:
-                if self.opt.do_test is True and self.opt.do_train is False:
-                    with open(self.opt.results_file,  mode='w', encoding='utf-8') as f:
+                if self.do_test is True and self.do_train is False:
+                    with open(self.result_file,  mode='w', encoding='utf-8') as f:
                         for item in t_outputs_all:
                             f.write(str(item) + '\n')
 
@@ -278,15 +288,15 @@ class Instructor:
     def run(self):
         optimizer = self.optimizer(learning_rate=self.lr)
 
-        if self.opt.do_train is True and self.opt.do_test is True:
+        if self.do_train is True and self.do_test is True:
             best_model_path = self._train(None, optimizer, self.train_data_loader, self.test_data_loader)
             self.saver.restore(self.session, best_model_path)
             test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
             logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
 
-        elif self.opt.do_train is False and self.opt.do_test is True:
+        elif self.do_train is False and self.do_test is True:
             self._test()
-        elif self.opt.do_predict is True: 
+        elif self.do_predict is True:
             self._predict()
         else:
             logger.info("@@@ Not Include This Situation")
@@ -299,7 +309,7 @@ def main():
     parser.add_argument('--emb_file', type=str, default='embedding.text')
     parser.add_argument('--vocab_file', type=str, default='vacab.txt')
     parser.add_argument('--outputs_folder', type=str, default='./outputs')
-    parser.add_argument('--results_file', type=str, default='results.txt')
+    parser.add_argument('--result_file', type=str, default='results.txt')
     parser.add_argument('--tag_list', type=str)
 
     parser.add_argument('--gpu', type=str, default='0')
