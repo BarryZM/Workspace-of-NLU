@@ -203,7 +203,7 @@ class Instructor:
 
             except tf.errors.OutOfRangeError:
                 if self.opt.do_test is True and self.opt.do_train is False:
-                    with open(self.result_path, mode='w', encoding='utf-8') as f:
+                    with open(os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name), 'result.log'), mode='w', encoding='utf-8') as f:
                         for item in t_outputs_all:
                             f.write(str(item) + '\n')
 
@@ -240,7 +240,7 @@ class Instructor:
 
             except tf.errors.OutOfRangeError:
                 if self.opt.do_test is True and self.opt.do_train is False:
-                    with open(self.result_path, mode='w', encoding='utf-8') as f:
+                    with open(os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name), 'result.log'), mode='w', encoding='utf-8') as f:
                         for item in t_outputs_all:
                             f.write(str(item) + '\n')
 
