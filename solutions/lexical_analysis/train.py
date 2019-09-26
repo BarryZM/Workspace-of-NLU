@@ -28,36 +28,33 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 class Instructor:
     def __init__(self, opt):
         self.opt = opt
+        logger.info("parameters for programming :  {}".format(self.opt))
+
+        self.max_seq_len = self.opt.max_seq_len
+        self.epochs = opt.epochs
+        self.label_list = self.opt.label_list
+        self.dataset_file = opt.dataset_file 
+        self.batch_size = opt.batch_size
 
         # build tokenizer
-        logger.info("parameters for programming :  {}".format(self.opt))
         tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'],
                                                   opt.dataset_file['test']],corpus_type=opt.dataset_name,
                                     task_type='NER', embedding_type='tencent')
 
         self.tokenizer = tokenizer
-        self.max_seq_len = self.opt.max_seq_len
 
         # build model and session
-        self.model = BIRNN_CRF(self.opt, tokenizer)
+        self.model = self.model_class(self.opt, tokenizer)
         self.session = self.model.session
 
-        # label list
-        self.label_list = self.opt.label_list
+        self.saver = tf.train.Saver(max_to_keep=1)
 
+    def _set_dataset(self):
         # train
-        self.trainset = Dataset_NER(opt.dataset_file['train'],
-                                    tokenizer, self.max_seq_len, 'entity',
-                                    self.label_list)
-        text_list = np.asarray(self.trainset.text_list)
-        label_list = np.asarray(self.trainset.label_list)
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size).shuffle(10000)
-
+        self.trainset = Dataset_NER(self.dataset_file['train'], tokenizer, self.max_seq_len, 'entity', self.label_list)
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.batch_size).shuffle(10000)
         # test
-        self.testset = Dataset_NER(opt.dataset_file['test'], tokenizer,
-                                   self.max_seq_len, 'entity', self.label_list)
-        text_list = np.asarray(self.testset.text_list)
-        label_list = np.asarray(self.testset.label_list)
+        self.testset = Dataset_NER(self.dataset_file['test'], tokenizer, self.max_seq_len, 'entity', self.label_list)
         self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size)
 
         # eval
@@ -65,12 +62,8 @@ class Instructor:
 
          # predict
         if self.opt.do_predict is True:
-            self.predictset = Dataset_NER(opt.dataset_file['predict'],
-                                          tokenizer, self.max_seq_len, 'entity', self.label_list)
-
-            text_list = np.asarray(self.predictset.text_list)
-            label_list = np.asarray(self.predictset.label_list)
-            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.opt.batch_size)
+            self.predictset = Dataset_NER(self.dataset_file['predict'], tokenizer, self.max_seq_len, 'entity', self.label_list)
+            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': text_list, 'label': label_list}).batch(self.batch_size)
         
         print(self.tokenizer.word2idx)
         print(self.trainset.label2idx)
@@ -79,20 +72,13 @@ class Instructor:
         logger.info('>> load data done')
 
         # build saver
-        self.saver = tf.train.Saver(max_to_keep=1)
-
-    def _print_args(self):
-        pass
-
-    def _reset_params(self):
-        pass
 
     def _train(self, criterion, optimizer, train_data_loader, val_data_loader):
 
         max_f1 = 0
         path = None
 
-        for _epoch in range(self.opt.epoch):
+        for _epoch in range(self.epochs):
             logger.info('>' * 100)
             logger.info('epoch: {}'.format(_epoch))
 
@@ -106,11 +92,7 @@ class Instructor:
                     labels = sample_batched['label']
                     
                     model = self.model
-                    _ = self.session.run(model.trainer,
-                                         feed_dict={model.input_x: inputs,
-                                                    model.input_y: labels,
-                                                    model.global_step: _epoch,
-                                                    model.keep_prob: 1.0})
+                    _ = self.session.run(model.trainer, feed_dict={model.input_x: inputs, model.input_y: labels, model.global_step: _epoch, model.keep_prob: 1.0})
                     self.model = model
 
                 except tf.errors.OutOfRangeError:
@@ -120,19 +102,43 @@ class Instructor:
             logger.info('>>>>>> val_p: {:.4f}, val_r:{:.4f}, val_f1: {:.4f}'.format(val_p, val_r, val_f1))
 
             if val_f1 > max_f1:
+                logger.info(">> val f1 > max_f1, enter save model part")
+                """
+                update max_f1
+                """
                 max_f1 = val_f1
-                if not os.path.exists(self.opt.outputs_folder):
-                    os.mkdir(self.opt.outputs_folder)
-                path = os.path.join(self.opt.outputs_folder, '{0}_{1}_val_f1{2}'.format(self.opt.model_name, self.opt.dataset_name, round(val_f1, 4)))
-
+                """
+                output path for pb and ckpt model
+                """
+                if not os.path.exists(self.output_dir):
+                    os.mkdir(self.output_dir)
+                ckpt_path = os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name), '{0}'.format(round(val_f1, 4)))
+                """
+                flag for early stopping
+                """
                 last_improved = _epoch
-                self.saver.save(sess=self.session, save_path=path)
-                # pb output
-                from tensorflow.python.framework import graph_util
-                trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=['outputs'])
-                tf.train.write_graph(trained_graph, path, "model.pb", as_text=False)
+                """
+                save ckpt model
+                """
+                self.saver.save(sess=self.session, save_path=ckpt_path)
+                logger.info('>> ckpt model saved in : {}'.format(ckpt_path))
+                """
+                save pb model
+                """
+                
+                pb_dir = os.path.join(self.output_dir,'{0}_{1}'.format(self.model_name,  self.dataset_name))
 
-                logger.info('>> saved: {}'.format(path))
+                from tensorflow.python.framework import graph_util
+                trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=['logits/output_argmax'])
+                tf.train.write_graph(trained_graph, pb_dir, "model.pb", as_text=False)
+                logger.info('>> pb model saved in : {}'.format(pb_dir))
+
+            if abs(last_improved - _epoch) > self.es:
+                logging.info(">> too many epochs not imporve, break")
+
+        if abs(last_improved - _epoch) > self.es:
+            logging.info(">> too many epochs not imporve, break")
+            break
 
         return path
 
@@ -167,7 +173,7 @@ class Instructor:
 
             except tf.errors.OutOfRangeError:
                 if self.opt.do_test is True and self.opt.do_train is False:
-                    with open(self.opt.results_file, mode='w', encoding='utf-8') as f:
+                    with open(self.opt.result_path, mode='w', encoding='utf-8') as f:
                         for item in t_outputs_all:
                             f.write(str(item) + '\n')
 
@@ -191,7 +197,7 @@ class Instructor:
             logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
 
         elif self.opt.do_train is False and self.opt.do_test is True:
-            ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
+            ckpt = tf.train.get_checkpoint_state(self.opt.output_dir)
             if ckpt and ckpt.model_checkpoint_path:
                 self.saver.restore(self.session, ckpt.model_checkpoint_path)
                 test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
@@ -199,7 +205,7 @@ class Instructor:
             else:
                 logger.info('@@@ Error:load ckpt error')
         elif self.opt.do_predict is True:
-            ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
+            ckpt = tf.train.get_checkpoint_state(self.opt.output_dir)
             if ckpt and ckpt.model_checkpoint_path:
                 self.saver.restore(self.session, ckpt.model_checkpoint_path)
 
@@ -217,7 +223,7 @@ class Instructor:
                         t_outputs_all.extend(outputs)
 
                     except tf.errors.OutOfRangeError:
-                        with open(self.opt.results_file, mode='w', encoding='utf-8') as f:
+                        with open(self.opt.result_path, mode='w', encoding='utf-8') as f:
                             for item in t_outputs_all:
                                 f.write(str(item) + '\n')
 
@@ -232,22 +238,22 @@ class Instructor:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset_name', type=str, default='promotion', help='air-purifier, refrigerator, shaver, promotion')
-    parser.add_argument('--outputs_folder', type=str)
-    parser.add_argument('--results_file', type=str)
+    parser.add_argument('--output_dir', type=str)
+    parser.add_argument('--result_path', type=str)
 
     parser.add_argument('--gpu', type=str, default='0')
-    parser.add_argument('--max_seq_len', type=str, default=32)
-    parser.add_argument('--batch_size', type=int, default=126)
-    parser.add_argument('--hidden_dim', type=int, default=509, help='hidden dim of dense')
+    parser.add_argument('--max_seq_len', type=str, default=64)
+    parser.add_argument('--batch_size', type=int, default=256)
+    parser.add_argument('--hidden_dim', type=int, default=500, help='hidden dim of dense')
     parser.add_argument('--es', type=int, default=10, help='early stopping epochs')
 
-    parser.add_argument('--model_name', type=str, default='birnn_crf')
+    parser.add_argument('--model_class', type=str, default='birnn_crf')
     parser.add_argument('--inputs_cols', type=str, default='text')
     parser.add_argument('--initializer', type=str, default='???')
     parser.add_argument('--optimizer', type=str, default='adam')
 
     parser.add_argument('--learning_rate', type=float, default=1e-2)
-    parser.add_argument('--epoch', type=int, default=5)
+    parser.add_argument('--epochs', type=int, default=5)
     parser.add_argument('--do_train', action='store_true', default=True)
     parser.add_argument('--do_test', action='store_true', default=False)
     parser.add_argument('--do_predict', action='store_true', default=False)

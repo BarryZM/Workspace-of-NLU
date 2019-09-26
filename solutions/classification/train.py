@@ -40,6 +40,7 @@ class Instructor:
         self.batch_size = opt.batch_size
         self.dataset_file = opt.dataset_file
         self.dataset_name = opt.dataset_name
+        self.model_name = opt.model_name
         self.model_class = opt.model_class
         self.do_train = opt.do_train
         self.do_test = opt.do_test
@@ -84,10 +85,15 @@ class Instructor:
         """
         self.trainset = Dataset_CLF(corpus=self.dataset_file['train'], tokenizer=self.tokenizer, max_seq_len=self.max_seq_len, data_type='normal', tag_list=self.tag_list)
         # train set augment
-        # https://blog.csdn.net/qq_27802435/article/details/81201357
-        from imblearn.over_sampling import RandomOverSampler
-        ros = RandomOverSampler(random_state=0)
-        x_resampled, y_resampled = ros.fit_sample(self.trainset.text_list, self.trainset.label_list)
+        from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
+
+        #ros = RandomOverSampler(random_state=0)
+        #x_resampled, y_resampled = ros.fit_sample(self.trainset.text_list, self.trainset.label_list)
+
+        # x_resampled, y_resampled = SMOTE(kind='borderline1').fit_sample(self.trainset.text_list, self.trainset.label_list)
+        # print(">>> y_resampled", y_resampled[:4])
+        x_resampled = self.trainset.text_list
+        y_resampled = self.trainset.label_list
 
         self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': x_resampled, 'label': y_resampled}).batch(self.batch_size).shuffle(10000)
         """
@@ -154,7 +160,7 @@ class Instructor:
                 """
                 if not os.path.exists(self.output_dir):
                     os.mkdir(self.output_dir)
-                path = os.path.join(self.output_dir, '{0}_{1}_val_f1_{2}'.format(self.model_name, self.dataset_name, round(val_f1, 4)))
+                ckpt_path = os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name), '{0}'.format(round(val_f1, 4)))
                 """
                 flag for early stopping
                 """
@@ -162,23 +168,26 @@ class Instructor:
                 """
                 save ckpt model
                 """
-                self.saver.save(sess=self.session, save_path=path)
-                logger.info('>> ckpt model saved in : {}'.format(path))
+                self.saver.save(sess=self.session, save_path=ckpt_path)
+                logger.info('>> ckpt model saved in : {}'.format(ckpt_path))
                 """
                 save pb model
                 """
+                
+                pb_dir = os.path.join(self.output_dir,'{0}_{1}'.format(self.model_name,  self.dataset_name))
+
                 from tensorflow.python.framework import graph_util
                 trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=['logits/output_argmax'])
-                tf.train.write_graph(trained_graph, path, "model.pb", as_text=False)
-                logger.info('>> pb model saved in : {}'.format(path))
+                tf.train.write_graph(trained_graph, pb_dir, "model.pb", as_text=False)
+                logger.info('>> pb model saved in : {}'.format(pb_dir))
 
             if abs(last_improved - _epoch) > self.es:
                 logging.info(">> too many epochs not imporve, break")
                 break
-        if path is None:
+        if ckpt_path is None:
             logging.warning(">> return path is None")
 
-        return path
+        return ckpt_path
 
     def _test(self):
         """
@@ -187,7 +196,7 @@ class Instructor:
         last checkpoint is best model
         :return:
         """
-        ckpt = tf.train.get_checkpoint_state(self.output_dir)
+        ckpt = tf.train.get_checkpoint_state(os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name)))
         if ckpt and ckpt.model_checkpoint_path:
             logger.info('>>> load ckpt model path for test', ckpt.model_checkpoint_path)
             self.saver.restore(self.session, ckpt.model_checkpoint_path)
@@ -205,7 +214,8 @@ class Instructor:
         last checkpoint is best model
         :return:
         """
-        ckpt = tf.train.get_checkpoint_state(self.output_dir)
+        ckpt = tf.train.get_checkpoint_state(os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name)))
+
         if ckpt and ckpt.model_checkpoint_path:
             logger.info('>>> load ckpt model path for predict', ckpt.model_checkpoint_path)
             self.saver.restore(self.session, ckpt.model_checkpoint_path)
@@ -219,27 +229,22 @@ class Instructor:
         iterator = data_loader.make_one_shot_iterator()
         one_element = iterator.get_next()
 
-        ckpt = tf.train.get_checkpoint_state(self.output_dir)
-        if ckpt and ckpt.model_checkpoint_path:
-            logger.info('>>> load ckpt model path for predict', ckpt.model_checkpoint_path)
-            self.saver.restore(self.session, ckpt.model_checkpoint_path)
+        while True:
+            try:
+                sample_batched = self.session.run(one_element)
+                inputs = sample_batched['text']
+                targets = sample_batched['label']
+                model = self.model
+                outputs = self.session.run(model.output_softmax, feed_dict={model.input_x: inputs, model.input_y: targets, model.global_step: 1, model.keep_prob: 1.0})
+                t_targets_all.extend(targets)
+                t_outputs_all.extend(outputs)
 
-            while True:
-                try:
-                    sample_batched = self.session.run(one_element)
-                    inputs = sample_batched['text']
-                    targets = sample_batched['label']
-                    model = self.model
-                    outputs = self.session.run(model.output_softmax, feed_dict={model.input_x: inputs, model.input_y: targets, model.global_step: 1, model.keep_prob: 1.0})
-                    t_targets_all.extend(targets)
-                    t_outputs_all.extend(outputs)
+            except tf.errors.OutOfRangeError:
+                with open(os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name), 'result.log'), mode='w', encoding='utf-8') as f:
+                    for item in t_outputs_all:
+                        f.write(str(item) + '\n')
 
-                except tf.errors.OutOfRangeError:
-                    with open(self.result_file, mode='w', encoding='utf-8') as f:
-                        for item in t_outputs_all:
-                            f.write(str(item) + '\n')
-
-                    break
+                break
 
         else:
             logger.info('@@@ Error:load ckpt error')
@@ -308,7 +313,7 @@ def main():
     parser.add_argument('--emb_dim', type=int, default='200')
     parser.add_argument('--emb_file', type=str, default='embedding.text')
     parser.add_argument('--vocab_file', type=str, default='vacab.txt')
-    parser.add_argument('--outputs_folder', type=str, default='./outputs')
+    parser.add_argument('--output_dir', type=str, default='./outputs')
     parser.add_argument('--result_file', type=str, default='results.txt')
     parser.add_argument('--tag_list', type=str)
 
@@ -349,8 +354,9 @@ def main():
             'predict': os.path.join(prefix_path, args.dataset_name, 'clf/predict.txt')},
     }
 
-    tag_lists = {
-        'promotion': ['商品/品类', '搜优惠', '搜活动/会场', '闲聊', '其它属性', '看不懂的'],
+    tag_lists ={
+        'promotion': ['商品/品类', '搜优惠', '搜活动/会场', '闲聊'],
+        #'promotion': ['商品/品类', '搜优惠', '搜活动/会场', '闲聊', '其它属性', '看不懂的'],
     }
 
     inputs_cols = {
