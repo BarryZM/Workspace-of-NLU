@@ -36,7 +36,7 @@ class Instructor:
         self.dataset_file = opt.dataset_file 
         self.batch_size = opt.batch_size
         self.output_dir = opt.output_dir
-        self.result_file = opt.result_file
+        self.result_path = opt.result_path
         self.batch_size = opt.batch_size
         self.dataset_name = opt.dataset_name
         self.model_name = opt.model_name
@@ -281,7 +281,7 @@ def main():
     parser.add_argument('--learning_rate', type=float, default=1e-2)
     parser.add_argument('--epochs', type=int, default=5)
 
-    parser.add_argument('--model_class', type=str, default='birnn_crf')
+    parser.add_argument('--model_name', type=str, default='birnn_crf')
     parser.add_argument('--inputs_cols', type=str, default='text')
     parser.add_argument('--initializer', type=str, default='???')
     parser.add_argument('--optimizer', type=str, default='adam')
