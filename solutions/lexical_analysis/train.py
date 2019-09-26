@@ -27,9 +27,15 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 
 class Instructor:
     def __init__(self, opt):
+        """
+
+        :param opt:
+        """
         self.opt = opt
         logger.info("parameters for programming :  {}".format(self.opt))
-
+        """
+        parameters
+        """
         self.max_seq_len = self.opt.max_seq_len
         self.epochs = opt.epochs
         self.label_list = self.opt.label_list
@@ -46,16 +52,26 @@ class Instructor:
         self.do_predict = opt.do_predict
         self.es = opt.es
 
-        # build tokenizer
+        """
+        build tokenizer
+        """
         tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'], opt.dataset_file['test']],corpus_type=opt.dataset_name,
                                     task_type='NER', embedding_type='tencent')
         self.tokenizer = tokenizer
-
-        # build model and session
+        """
+        build model and session
+        """
         self.model = self.model_class(self.opt, tokenizer)
         self.session = self.model.session
 
+        """
+        set saver and max_to_keep 
+        """
         self.saver = tf.train.Saver(max_to_keep=1)
+        """
+        dataset
+        """
+        self._set_dataset()
 
     def _set_dataset(self):
         # train
