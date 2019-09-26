@@ -20,80 +20,99 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 
 class Instructor:
     def __init__(self, opt):
+        """
+        :param opt: parameters for build model
+        """
         self.opt = opt
         logger.info("parameters for programming :  {}".format(self.opt))
 
+        """
+        parameter
+        """
+        self.max_seq_len = self.opt.max_seq_len
+        self.tag_list = opt.tag_list
         self.lr = opt.lr
         self.optimizer = opt.optimizer
         self.epochs = opt.epochs
         self.outputs_folder = opt.outputs_folder 
 
-        # build tokenizer
+        """
+        build tokenizer
+        """
         tokenizer = build_tokenizer(corpus_files=[opt.dataset_file['train'], opt.dataset_file['test']], corpus_type=opt.dataset_name, task_type='CLF', embedding_type='tencent')
-
         self.tokenizer = tokenizer
-        self.max_seq_len = self.opt.max_seq_len
 
-        # build model
+        """
+        build model
+        """
         model = opt.model_class(self.opt, tokenizer)
-
         self.model = model
+
+        """
+        set session
+        """
         self.session = model.session
 
-        self.tag_list = opt.tag_list
-        # train set
-        self.trainset = Dataset_CLF(corpus=opt.dataset_file['train'],
-                                    tokenizer=tokenizer,
-                                    max_seq_len=self.opt.max_seq_len,
-                                    data_type='normal', tag_list=self.opt.tag_list)
+        """
+        set saver and max_to_keep 
+        """
+        self.saver = tf.train.Saver(max_to_keep=1)
+
+        """
+        dataset
+        """
+        self._set_dataset()
+
+    def _set_dataset(self):
+        """
+        set dataset for train, dev, test, predict
+        :return:
+        """
+
+        """
+        train set
+        """
+        self.trainset = Dataset_CLF(corpus=self.opt.dataset_file['train'], tokenizer=self.tokenizer, max_seq_len=self.opt.max_seq_len, data_type='normal', tag_list=self.opt.tag_list)
         # train set augment
         # https://blog.csdn.net/qq_27802435/article/details/81201357
         from imblearn.over_sampling import RandomOverSampler
-
         ros = RandomOverSampler(random_state=0)
         x_resampled, y_resampled = ros.fit_sample(self.trainset.text_list, self.trainset.label_list)
 
         self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': x_resampled, 'label': y_resampled}).batch(self.opt.batch_size).shuffle(10000)
-
-        # test set
-        self.testset = Dataset_CLF(corpus=opt.dataset_file['test'],
-                                   tokenizer=tokenizer,
-                                   max_seq_len=self.opt.max_seq_len,
-                                   data_type='normal', tag_list=self.opt.tag_list)
+        """
+        test and dev set
+        """
+        self.testset = Dataset_CLF(corpus=self.opt.dataset_file['test'], tokenizer=self.tokenizer, max_seq_len=self.opt.max_seq_len,data_type='normal', tag_list=self.opt.tag_list)
         self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list, 'label': self.testset.label_list}).batch(self.opt.batch_size)
 
-        # predict set
-        if self.opt.do_predict is True:
-            self.predictset = Dataset_CLF(corpus=opt.dataset_file['predict'],
-                                          tokenizer=tokenizer,
-                                          max_seq_len=self.opt.max_seq_len,
-                                          data_type='normal',
-                                          tag_list=self.opt.tag_list)
-            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.opt.batch_size)
-
-        # dev set
         self.val_data_loader = self.test_data_loader
+        """
+        predict set
+        """
+        if self.opt.do_predict is True:
+            self.predictset = Dataset_CLF(corpus=self.opt.dataset_file['predict'], tokenizer=self.tokenizer, max_seq_len=self.opt.max_seq_len, data_type='normal', tag_list=self.opt.tag_list)
+            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.opt.batch_size)
 
         logger.info('>> load data done')
 
-        self.saver = tf.train.Saver(max_to_keep=1)
-
-    def _print_args(self):
-        pass
-        # n_trainable_params, n_nontrainable_params = 0, 0
-
-    def _reset_params(self):
-        pass
-        # smooth for parameters
-
     def _train(self, criterion, optimizer, train_data_loader, val_data_loader):
+        """
+        :param criterion: no use, select loss function
+        :param optimizer: no use, select optimizer
+        :param train_data_loader: ..
+        :param val_data_loader: ..
+        :return: best model ckpt path
+        """
 
         max_f1 = 0
         path = None
-        print("train begin")
+
+        logger.info("$" * 50)
+        logger.info(" >>>>>> train begin")
         for _epoch in range(self.epochs):
-            logger.info('>' * 100)
-            logger.info('epoch: {}'.format(_epoch))
+            logger.info('>' * 50)
+            logger.info(' >>>>>> epoch: {}'.format(_epoch))
 
             iterator = train_data_loader.make_one_shot_iterator()
             one_element = iterator.get_next()
@@ -105,8 +124,7 @@ class Instructor:
                     labels = sample_batched['label']
 
                     model = self.model
-                    _ = self.session.run(model.trainer, feed_dict=
-                                         {model.input_x: inputs, model.input_y: labels, model.global_step : _epoch, model.keep_prob : 1.0})
+                    _ = self.session.run(model.trainer, feed_dict={model.input_x: inputs, model.input_y: labels, model.global_step : _epoch, model.keep_prob: 1.0})
                     self.model = model
 
                 except tf.errors.OutOfRangeError:
@@ -116,45 +134,85 @@ class Instructor:
             logger.info('>>>>>> val_p: {:.4f}, val_r:{:.4f}, val_f1: {:.4f}'.format(val_p, val_r, val_f1))
             
             if val_f1 > max_f1:
+                logger.info(">> val f1 > max_f1, enter save model part")
+                """
+                update max_f1
+                """
                 max_f1 = val_f1
+                """
+                output path for pb and ckpt model
+                """
                 if not os.path.exists(self.outputs_folder):
                     os.mkdir(self.outputs_folder)
                 path = os.path.join(self.outputs_folder, '{0}_{1}_val_f1_{2}'.format(self.opt.model_name, self.opt.dataset_name, round(val_f1, 4)))
-    
+                """
+                flag for early stopping
+                """
                 last_improved = _epoch
+                """
+                save ckpt model
+                """
                 self.saver.save(sess=self.session, save_path=path)
-                # pb output
-
+                logger.info('>> ckpt model saved in : {}'.format(path))
+                """
+                save pb model
+                """
                 from tensorflow.python.framework import graph_util
-                trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def,
-                                                                          output_node_names=['logits/output_argmax'])
+                trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=['logits/output_argmax'])
                 tf.train.write_graph(trained_graph, path, "model.pb", as_text=False)
+                logger.info('>> pb model saved in : {}'.format(path))
 
-                logger.info('>> saved: {}'.format(path))
-
-            if last_improved - _epoch > self.opt.es:
+            if abs(last_improved - _epoch) > self.opt.es:
                 logging.info(">> too many epochs not imporve, break")
                 break
+        if path is None:
+            logging.warning(">> return path is None")
 
         return path
 
     def _test(self):
+        """
+        load model and evaluate test data
+        output metric on test data
+        last checkpoint is best model
+        :return:
+        """
         ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
         if ckpt and ckpt.model_checkpoint_path:
+            logger.info('>>> load ckpt model path for test', ckpt.model_checkpoint_path)
             self.saver.restore(self.session, ckpt.model_checkpoint_path)
             test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
             logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
+            logger.info('>> test done')
         else:
             logger.info('@@@ Error:load ckpt error')
 
     def _predict(self):
+        """
+        load model and predict predict data
+        output predict results, not metric
+        no label or default label
+        last checkpoint is best model
+        :return:
+        """
         ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
         if ckpt and ckpt.model_checkpoint_path:
+            logger.info('>>> load ckpt model path for predict', ckpt.model_checkpoint_path)
             self.saver.restore(self.session, ckpt.model_checkpoint_path)
+            self._output_result(self.predict_data_loader)
+            logger.info('>> predict done')
+        else:
+            logger.info('@@@ Error:load ckpt error')
 
-            t_targets_all, t_outputs_all = [], []
-            iterator = self.predict_data_loader.make_one_shot_iterator()
-            one_element = iterator.get_next()
+    def _output_result(self, data_loader):
+        t_targets_all, t_outputs_all = [], []
+        iterator = data_loader.make_one_shot_iterator()
+        one_element = iterator.get_next()
+
+        ckpt = tf.train.get_checkpoint_state(self.opt.outputs_folder)
+        if ckpt and ckpt.model_checkpoint_path:
+            logger.info('>>> load ckpt model path for predict', ckpt.model_checkpoint_path)
+            self.saver.restore(self.session, ckpt.model_checkpoint_path)
 
             while True:
                 try:
@@ -162,8 +220,7 @@ class Instructor:
                     inputs = sample_batched['text']
                     targets = sample_batched['label']
                     model = self.model
-                    outputs = self.session.run(model.outputs, feed_dict={model.input_x: inputs, model.input_y: targets,
-                                                                         model.global_step: 1, model.keep_prob: 1.0})
+                    outputs = self.session.run(model.output_softmax, feed_dict={model.input_x: inputs, model.input_y: targets, model.global_step: 1, model.keep_prob: 1.0})
                     t_targets_all.extend(targets)
                     t_outputs_all.extend(outputs)
 
@@ -189,10 +246,7 @@ class Instructor:
                 labels = sample_batched['label']
                 model = self.model
 
-                outputs = self.session.run(model.output_onehot,
-                                           feed_dict={model.input_x: inputs,
-                                                      model.input_y: labels,
-                                                      model.global_step: 1, model.keep_prob: 1.0})
+                outputs = self.session.run(model.output_onehot, feed_dict={model.input_x: inputs, model.input_y: labels, model.global_step: 1, model.keep_prob: 1.0})
                 t_targets_all.extend(labels)
                 t_outputs_all.extend(outputs)
 
@@ -244,9 +298,9 @@ def main():
     parser.add_argument('--emb_dim', type=int, default='200')
     parser.add_argument('--emb_file', type=str, default='embedding.text')
     parser.add_argument('--vocab_file', type=str, default='vacab.txt')
+    parser.add_argument('--outputs_folder', type=str, default='./outputs')
+    parser.add_argument('--results_file', type=str, default='results.txt')
     parser.add_argument('--tag_list', type=str)
-    parser.add_argument('--outputs_folder', type=str)
-    parser.add_argument('--results_file', type=str)
 
     parser.add_argument('--gpu', type=str, default='0')
     parser.add_argument('--max_seq_len', type=str, default=256)
@@ -271,27 +325,27 @@ def main():
     args = parser.parse_args()
     
     model_classes = {
-        'text_cnn':TextCNN,
-        'bert_cnn':BERTCNN
+        'text_cnn': TextCNN,
+        'bert_cnn': BERTCNN
     }
 
     prefix_path = '/export/home/sunhongchao1/Workspace-of-NLU/corpus/nlu'
 
     dataset_files = {
-        'promotion':{
-            'train':os.path.join(prefix_path, args.dataset_name,'clf/train.txt'),
-            'dev':os.path.join(prefix_path, args.dataset_name, 'clf/dev.txt'),
-            'test':os.path.join(prefix_path, args.dataset_name, 'clf/test.txt'),
-            'predict':os.path.join(prefix_path, args.dataset_name, 'clf/predict.txt')},
+        'promotion': {
+            'train': os.path.join(prefix_path, args.dataset_name,'clf/train.txt'),
+            'dev': os.path.join(prefix_path, args.dataset_name, 'clf/dev.txt'),
+            'test': os.path.join(prefix_path, args.dataset_name, 'clf/test.txt'),
+            'predict': os.path.join(prefix_path, args.dataset_name, 'clf/predict.txt')},
     }
 
-    tag_lists ={
+    tag_lists = {
         'promotion': ['商品/品类', '搜优惠', '搜活动/会场', '闲聊', '其它属性', '看不懂的'],
     }
 
     inputs_cols = {
-        'text_cnn':['text'],
-        'bert_cnn':['text']
+        'text_cnn': ['text'],
+        'bert_cnn': ['text']
     }
 
     initializers = {
