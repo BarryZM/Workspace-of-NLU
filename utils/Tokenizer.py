@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # author: apollo2mars <apollo2mars@gmail.com>
 
-# problem: vocabulary and word2vec not saved
+# problems: load other embedding
 # pickle hdf5
 
 import pickle
@@ -14,6 +14,7 @@ sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 
 
 class Tokenizer(object):
+
     """ Tokenizer
 
     1. Input : max length of context
@@ -24,13 +25,7 @@ class Tokenizer(object):
         else build new embedding matrix
     """
     def __init__(self, corpus_files, task_type, emb_type):
-        """
-        :param corpus_files:
-        :param emb_type:
-        """
-
         self.emb_type = emb_type.lower()
-
         self.lower = True
 
         tmp_text = ''
