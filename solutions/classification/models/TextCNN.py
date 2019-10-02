@@ -97,13 +97,8 @@ class TextCNN(object):
             # tf.nn.sigmoid_cross_entropy_with_logits
 
             class_weights = tf.constant([1.0, 10.0, 15.0, 1.0])
-            loss = tf.nn.weighted_cross_entropy_with_logits(logits=tf.cast(logits,
-                                                                    tf.float64),
-                                                     targets=tf.cast(self.input_y,
-                                                                     tf.float64),
-                                                     pos_weight=tf.cast(class_weights,
-                                                                       tf.float64))
-            loss = tf.reduce_mean(loss)
+            self.loss = tf.nn.weighted_cross_entropy_with_logits(logits=tf.cast(logits, tf.float64), targets=tf.cast(self.input_y, tf.float64), pos_weight=tf.cast(class_weights, tf.float64))
+            loss = tf.reduce_mean(self.loss)
 
         with tf.name_scope("optimizer"):
             self.learning_rate = tf.train.exponential_decay(learning_rate=self.learning_rate,
@@ -115,8 +110,8 @@ class TextCNN(object):
 
             tf.summary.scalar('loss', loss)
 
-        config = tf.ConfigProto()  
-        config.gpu_options.allow_growth = True  
-        session = tf.Session(config=config)
-        session.run(tf.global_variables_initializer())
-        self.session = session
+        # config = tf.ConfigProto()
+        # config.gpu_options.allow_growth = True
+        # session = tf.Session(config=config)
+        # session.run(tf.global_variables_initializer())
+        # self.session = session
