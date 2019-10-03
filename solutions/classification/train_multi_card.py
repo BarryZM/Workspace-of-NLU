@@ -1,3 +1,5 @@
+# https://www.iteye.com/blog/cherishlc-2348962
+
 import os, sys, time, argparse, logging
 import tensorflow as tf
 import numpy as np
@@ -323,34 +325,14 @@ class Instructor:
         :return: best model ckpt path
         """
 
-        with tf.device('/cpu:0'):
-            tower_grads = []
-        with tf.variable_scope(tf.get_variable_scope()):
-            for gpu_id in gpu_list:
-                with tf.device('/gpu:%d' % gpu_id):
-                    print('tower:%d...' % gpu_id)
-                    with tf.name_scope('tower_%d' % gpu_id) as scope:
-                        model = self.model_class(self.opt, self.tokenizer)
-                        grads = tf.train.AdamOptimizer(learning_rate=self.learning_rate).compute_gradients(loss)
-                        tower_grads.append(grads)
-                tf.get_variable_scope().reuse_variables()  # we reuse variableds here after we initiate one model
-                tf.add_to_collection("train_model", model)  # add to collection
-
-        print('build model on gpu tower done.')
-        opt = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
-        apply_gradient_op = opt.apply_gradients(self.average_gradients(tower_grads))
-        print('reduce model on cpu done.')
-
-        self.sess.run(tf.global_variables_initializer())
-        self.sess.run(tf.local_variables_initializer())
-
-
-
-
-
+        # self.sess.run(tf.global_variables_initializer())
+        # self.sess.run(tf.local_variables_initializer())
 
         max_f1 = 0
         path = None
+
+        tower_grads = []
+
 
         logger.info("$" * 50)
         logger.info(" >>>>>> train begin")
@@ -367,10 +349,22 @@ class Instructor:
                     inputs = sample_batched['text']
                     labels = sample_batched['label']
 
-                    model = self.model
-                    _ = self.session.run(model.trainer, feed_dict={model.input_x: inputs, model.input_y: labels,
-                                                                   model.global_step: _epoch, model.keep_prob: 1.0})
-                    self.model = model
+                    for gpu_id in gpu_list:
+                        with tf.device('/gpu:%d' % gpu_id):
+                            print('tower:%d...' % gpu_id)
+                            with tf.name_scope('tower_%d' % gpu_id) as scope:
+                                model = self.model_class(self.opt, self.tokenizer)
+                                _, loss = self.session.run([model.trainer, model.loss], feed_dict={model.input_x: inputs, model.input_y: labels, model.global_step: _epoch, model.keep_prob: 1.0})
+                                grads = tf.train.AdamOptimizer(learning_rate=self.learning_rate).compute_gradients(model.loss)
+                                tower_grads.append(grads)
+                        tf.get_variable_scope().reuse_variables()  # we reuse variables here after we initiate one model
+                        tf.add_to_collection("train_model", model)  # add to collection
+
+                    with tf.device('/cpu:0'):
+                        print('build model on gpu tower done.')
+                        opt = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
+                        apply_gradient_op = opt.apply_gradients(self.average_gradients(tower_grads))
+                        print('reduce model on cpu done.')
 
                 except tf.errors.OutOfRangeError:
                     break
@@ -381,28 +375,28 @@ class Instructor:
             if val_f1 > max_f1:
                 logger.info(">> val f1 > max_f1, enter save model part")
                 """
-				update max_f1
-				"""
+                update max_f1
+                """
                 max_f1 = val_f1
                 """
-				output path for pb and ckpt model
-				"""
+                output path for pb and ckpt model
+                """
                 if not os.path.exists(self.output_dir):
                     os.mkdir(self.output_dir)
                 ckpt_path = os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name),
                                          '{0}'.format(round(val_f1, 4)))
                 """
-				flag for early stopping
-				"""
+                flag for early stopping
+                """
                 last_improved = _epoch
                 """
-				save ckpt model
-				"""
+                save ckpt model
+                """
                 self.saver.save(sess=self.session, save_path=ckpt_path)
                 logger.info('>> ckpt model saved in : {}'.format(ckpt_path))
                 """
-				save pb model
-				"""
+                save pb model
+                """
 
                 pb_dir = os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name))
 
