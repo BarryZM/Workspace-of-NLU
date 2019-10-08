@@ -55,22 +55,20 @@ class Instructor:
         tokenizer = build_tokenizer(corpus_files=[self.dataset_file['train'], self.dataset_file['test']], corpus_type=self.dataset_name, task_type='CLF', embedding_type='tencent')
         self.tokenizer = tokenizer
 
-        # """
-        # build model
-        # """
-        # model = self.model_class(self.opt, tokenizer)
-        # self.model = model
+        """
+        build model
+        """
+        model = self.model_class(self.opt, tokenizer)
+        self.model = model
 
-        # """
-        # set session
-        # """
-        # self.session = model.session
+        """
+        set session
+        """
 
-        # config = tf.ConfigProto()
-        # config.gpu_options.allow_growth = True
-        # session = tf.Session(config=config)
-        # session.run(tf.global_variables_initializer())
-        # self.session = session
+        config = tf.ConfigProto(allow_soft_placement=True)
+        config.gpu_options.allow_growth = True
+        session = tf.Session(config=config)
+        self.session = session
 
         """
         set saver and max_to_keep 
@@ -141,18 +139,19 @@ class Instructor:
             iterator = train_data_loader.make_one_shot_iterator()
             one_element = iterator.get_next()
 
+            model = self.model
+            self.session.run(tf.global_variables_initializer())
+
             while True:
                 try:
                     sample_batched = self.session.run(one_element)    
                     inputs = sample_batched['text']
                     labels = sample_batched['label']
-
-                    model = self.model
                     _ = self.session.run(model.trainer, feed_dict={model.input_x: inputs, model.input_y: labels, model.global_step : _epoch, model.keep_prob: 1.0})
-                    self.model = model
-
                 except tf.errors.OutOfRangeError:
                     break
+            
+            self.model = model
 
             val_p, val_r, val_f1 = self._evaluate_metric(val_data_loader)
             logger.info('>>>>>> val_p: {:.4f}, val_r:{:.4f}, val_f1: {:.4f}'.format(val_p, val_r, val_f1))
@@ -316,6 +315,8 @@ class Instructor:
             average_grads.append(grad_and_var)
             return average_grads
 
+
+
     def _train_multi_gpu(self, gpu_list, optimizer, train_data_loader, val_data_loader):
         """
         :param criterion: no use, select loss function
@@ -324,15 +325,25 @@ class Instructor:
         :param val_data_loader: ..
         :return: best model ckpt path
         """
+        
+        max_f1, path, tower_grads = 0, None, []
+        model_list = []
+        
+        for gpu_id in gpu_list:
+            with tf.device('/gpu:%d' % gpu_id):
+                print('tower:%d...' % gpu_id)
+                with tf.name_scope('tower_%d' % gpu_id) as scope:
+                    model = self.model_class(self.opt, self.tokenizer)
+                    model_list.append(model)
+                    grads = optimizer.compute_gradients(model.loss)
+                    tower_grads.append(grads)
 
-        # self.sess.run(tf.global_variables_initializer())
-        # self.sess.run(tf.local_variables_initializer())
+                    tf.get_variable_scope().reuse_variables()  # we reuse variables here after we initiate one model
 
-        max_f1 = 0
-        path = None
-
-        tower_grads = []
-
+        with tf.variable_scope("tower_gradient", reuse=tf.AUTO_REUSE):
+            apply_gradient_op = optimizer.apply_gradients(self.average_gradients(tower_grads))
+        
+        self.session.run(tf.global_variables_initializer())
 
         logger.info("$" * 50)
         logger.info(" >>>>>> train begin")
@@ -345,26 +356,20 @@ class Instructor:
 
             while True:
                 try:
-                    sample_batched = self.session.run(one_element)
-                    inputs = sample_batched['text']
-                    labels = sample_batched['label']
-
+                    feed_dict = {}
                     for gpu_id in gpu_list:
-                        with tf.device('/gpu:%d' % gpu_id):
-                            print('tower:%d...' % gpu_id)
-                            with tf.name_scope('tower_%d' % gpu_id) as scope:
-                                model = self.model_class(self.opt, self.tokenizer)
-                                _, loss = self.session.run([model.trainer, model.loss], feed_dict={model.input_x: inputs, model.input_y: labels, model.global_step: _epoch, model.keep_prob: 1.0})
-                                grads = tf.train.AdamOptimizer(learning_rate=self.learning_rate).compute_gradients(model.loss)
-                                tower_grads.append(grads)
-                        tf.get_variable_scope().reuse_variables()  # we reuse variables here after we initiate one model
-                        tf.add_to_collection("train_model", model)  # add to collection
+                        sample_batched = self.session.run(one_element)
+                        inputs = sample_batched['text']
+                        labels = sample_batched['label']
+                        
+                        # feed_dict={model.input_x: inputs, model.input_y: targets, model.global_step: 1, model.keep_prob: 1.0})
+                        feed_dict[model_list[gpu_id].input_x] = inputs
+                        feed_dict[model_list[gpu_id].input_y] = labels
+                        feed_dict[model_list[gpu_id].global_step] = 1
+                        feed_dict[model_list[gpu_id].keep_prob] = 1.0
 
-                    with tf.device('/cpu:0'):
-                        print('build model on gpu tower done.')
-                        opt = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
-                        apply_gradient_op = opt.apply_gradients(self.average_gradients(tower_grads))
-                        print('reduce model on cpu done.')
+                    #gradient, loss = self.session.run([apply_gradient_op, loss], feed_dict=feed_dict)
+                    gradient = self.session.run(apply_gradient_op, feed_dict=feed_dict)
 
                 except tf.errors.OutOfRangeError:
                     break
@@ -383,8 +388,7 @@ class Instructor:
                 """
                 if not os.path.exists(self.output_dir):
                     os.mkdir(self.output_dir)
-                ckpt_path = os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name),
-                                         '{0}'.format(round(val_f1, 4)))
+                ckpt_path = os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name), '{0}'.format(round(val_f1, 4)))
                 """
                 flag for early stopping
                 """
@@ -397,7 +401,6 @@ class Instructor:
                 """
                 save pb model
                 """
-
                 pb_dir = os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name))
 
                 from tensorflow.python.framework import graph_util
@@ -419,7 +422,8 @@ class Instructor:
         optimizer = self.optimizer(learning_rate=self.lr)
 
         if self.do_train is True and self.do_test is True:
-            best_model_path = self._train(None, optimizer, self.train_data_loader, self.test_data_loader)
+            best_model_path = self._train_multi_gpu([0,1,2], optimizer, self.train_data_loader, self.test_data_loader)
+            # best_model_path = self._train(None, optimizer, self.train_data_loader, self.test_data_loader)
             self.saver.restore(self.session, best_model_path)
             test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
             logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))

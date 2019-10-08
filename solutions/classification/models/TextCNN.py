@@ -75,24 +75,24 @@ class TextCNN(object):
         with tf.name_scope('conv'):
             pooled_outputs = []
             for i, filter_size in enumerate(self.filters_size):
-                with tf.variable_scope("conv-maxpool-%s" % filter_size, reuse=False):
+                with tf.variable_scope("conv-maxpool-%s" % filter_size, reuse=tf.AUTO_REUSE):
                     conv = tf.layers.conv1d(inputs, self.filters_num, filter_size, name='conv1d')
                     pooled = tf.reduce_max(conv, axis=[1], name='gmp')
                     pooled_outputs.append(pooled)
             outputs = tf.concat(pooled_outputs, 1)
 
-        with tf.name_scope("fully-connect"):
+        with tf.variable_scope("fully-connect", reuse=tf.AUTO_REUSE):
             fc = tf.layers.dense(outputs, self.hidden_dim, name='fc1')
             fc = tf.nn.relu(fc)
             fc = tf.nn.dropout(fc, self.keep_prob)
 
-        with tf.name_scope("logits"):
+        with tf.variable_scope("logits", reuse=tf.AUTO_REUSE):
             logits = tf.layers.dense(fc, self.class_num, name='fc2')
             self.output_softmax = tf.nn.softmax(logits, name="output_softmax",)
             self.output_argmax = tf.argmax(self.output_softmax, 1, name='output_argmax')
             self.output_onehot = tf.one_hot(tf.argmax(self.output_softmax, 1, name='output_onehot'), self.class_num)
 
-        with tf.name_scope("loss"):
+        with tf.variable_scope("loss", reuse=tf.AUTO_REUSE):
             # loss =  tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=self.input_y)
             # tf.nn.sigmoid_cross_entropy_with_logits
 
@@ -100,7 +100,7 @@ class TextCNN(object):
             self.loss = tf.nn.weighted_cross_entropy_with_logits(logits=tf.cast(logits, tf.float64), targets=tf.cast(self.input_y, tf.float64), pos_weight=tf.cast(class_weights, tf.float64))
             loss = tf.reduce_mean(self.loss)
 
-        with tf.name_scope("optimizer"):
+        with tf.variable_scope("optimizer", reuse=tf.AUTO_REUSE):
             self.learning_rate = tf.train.exponential_decay(learning_rate=self.learning_rate,
                                                             global_step=self.global_step,
                                                             decay_steps=2,
@@ -110,8 +110,3 @@ class TextCNN(object):
 
             tf.summary.scalar('loss', loss)
 
-        # config = tf.ConfigProto()
-        # config.gpu_options.allow_growth = True
-        # session = tf.Session(config=config)
-        # session.run(tf.global_variables_initializer())
-        # self.session = session

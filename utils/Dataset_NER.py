@@ -180,12 +180,8 @@ class Dataset_NER():
         for label in label_list:  # [[B, I, ..., I], [B, I, ..., O], [O, O, ..., O], [B, I, ..., O]]
             tmp = self.encode_label_sequence(label, True, False)
             result_label.append(tmp)
-#            tmp_list = []
-#            for item in list(target):
-#                tmp_list.append(self.label2id[item])
-#            result_label.append(tmp_list.copy())
 
-        self.text_list = result_text
-        self.label_list = result_label
+        self.text_list = np.asarray(result_text)
+        self.label_list = np.asarray(result_label)
 
 

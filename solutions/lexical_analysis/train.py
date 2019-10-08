@@ -153,7 +153,9 @@ class Instructor:
                 pb_dir = os.path.join(self.output_dir,'{0}_{1}'.format(self.model_name,  self.dataset_name))
 
                 from tensorflow.python.framework import graph_util
-                trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=['logits/output_argmax'])
+                trained_graph = graph_util.convert_variables_to_constants(self.session,
+                                                          self.session.graph_def,
+                                                          output_node_names=['outputs'])
                 tf.train.write_graph(trained_graph, pb_dir, "model.pb", as_text=False)
                 logger.info('>> pb model saved in : {}'.format(pb_dir))
 
@@ -181,7 +183,7 @@ class Instructor:
         if ckpt and ckpt.model_checkpoint_path:
             logger.info('>>> load ckpt model path for predict', ckpt.model_checkpoint_path)
             self.saver.restore(self.session, ckpt.model_checkpoint_path)
-            self._output_result(self.predict_data_loader)
+            self._output_result(data_loader)
             logger.info('>> predict done')
         else:
             logger.info('@@@ Error:load ckpt error')
@@ -278,7 +280,7 @@ class Instructor:
         elif self.do_train is False and self.do_test is True:
             self._test()
         elif self.do_predict is True:
-            self._predict()
+            self._predict(self.predict_data_loader)
         else:
             logger.info("@@@ Not Include This Situation")
 
