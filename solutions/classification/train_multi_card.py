@@ -56,12 +56,6 @@ class Instructor:
         self.tokenizer = tokenizer
 
         """
-        build model
-        """
-        model = self.model_class(self.opt, tokenizer)
-        self.model = model
-
-        """
         set session
         """
 
@@ -315,8 +309,6 @@ class Instructor:
             average_grads.append(grad_and_var)
             return average_grads
 
-
-
     def _train_multi_gpu(self, gpu_list, optimizer, train_data_loader, val_data_loader):
         """
         :param criterion: no use, select loss function
@@ -362,14 +354,14 @@ class Instructor:
                         inputs = sample_batched['text']
                         labels = sample_batched['label']
                         
-                        # feed_dict={model.input_x: inputs, model.input_y: targets, model.global_step: 1, model.keep_prob: 1.0})
                         feed_dict[model_list[gpu_id].input_x] = inputs
                         feed_dict[model_list[gpu_id].input_y] = labels
                         feed_dict[model_list[gpu_id].global_step] = 1
                         feed_dict[model_list[gpu_id].keep_prob] = 1.0
 
-                    #gradient, loss = self.session.run([apply_gradient_op, loss], feed_dict=feed_dict)
+                    # gradient, loss = self.session.run([apply_gradient_op, loss], feed_dict=feed_dict)
                     gradient = self.session.run(apply_gradient_op, feed_dict=feed_dict)
+                    # TODO loss
 
                 except tf.errors.OutOfRangeError:
                     break
@@ -416,7 +408,6 @@ class Instructor:
             logging.warning(">> return path is None")
 
         return ckpt_path
-
 
     def run(self):
         optimizer = self.optimizer(learning_rate=self.lr)
