@@ -317,11 +317,14 @@
 
 # Reference
 
+## Papers
+
 + Do we need hundreds of classifiers to solve real world classification problems.Fernández-Delgado, Manuel, et al. J. Mach. Learn. Res 15.1 (2014)
 + An empirical evaluation of supervised learning in high dimensions.Rich Caruana, Nikos Karampatziakis, and Ainur Yessenalina. ICML '08
 + Man vs. Machine: Practical Adversarial Detection of Malicious Crowdsourcing WorkersWang, G., Wang, T., Zheng, H., & Zhao, B. Y. Usenix Security'14
-
 + http://www.win-vector.com/dfiles/LogisticRegressionMaxEnt.pdf
+
+## Links
 
 - 各种机器学习的应用场景分别是什么？
   - https://www.zhihu.com/question/26726794
@@ -336,3 +339,8 @@
 + SGM:Sequence Generation Model for Multi-label Classification
   + Peking Unversity COLING 2018
   + **利用序列生成的方式进行多标签分类, 引入标签之间的相关性**
+
+## Projects
+
+- <https://github.com/jiangxinyang227/textClassifier>
+- <https://github.com/brightmart/text_classification>

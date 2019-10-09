@@ -11,8 +11,10 @@
     + Framework for multi-dataset and multi-card
     + Framework for model ensemble
     
-
-![](https://pic3.zhimg.com/80/v2-3d2cc9e84d5912dac812dc51ddee54fa_hd.jpg)
++ function for this README.md
+    + Dataset
+    + Solution
+    + Metric
 
 # Dataset && Solution && Metric
 
@@ -208,8 +210,9 @@
 
 | Semantic Role Labeling   | SOTA | Tips |
 | ------------------------ | ---- | ---- |
-| Chinese Proposition Bank |      |      |
-|                          |      |      |
+| Chinese Proposition Bank |      | 中文 |
+| FrameNet                 |      | 英文 |
+| PropBank                 |      | 英文 |
 
 ### document-level
 
@@ -344,6 +347,8 @@
 
 # Service
 
++ Pass
+
 # Resource
 
 ## Stop words
@@ -372,12 +377,12 @@
 
 # Milestone
 
-+ pass
++ 2019/10/08 : multi-card gnu training
 
 # Usages
 
 + Service 
-+ Will be used in “Workspace of Conversation-AI"
++ Will be used for other module
 
 # Reference
 
@@ -386,26 +391,11 @@
 + [Rasa NLU Chinese](https://github.com/crownpku/Rasa_NLU_Chi)
 + [第四届语言与智能高峰论坛 报告](http://tcci.ccf.org.cn/summit/2019/dl.php)
 + [DiDi NLP](https://chinesenlp.xyz/#/)
-+ https://www.zhihu.com/question/52756127
-+ [xlnet](https://indexfziq.github.io/2019/06/21/XLNet/)
-+ [self attention](https://www.cnblogs.com/robert-dlut/p/8638283.html)
-+ [embedding summary blog](https://www.cnblogs.com/robert-dlut/p/9824346.html)
-+ [ulm-fit](http://nlp.fast.ai/classification/2018/05/15/introducting-ulmfit.html)
-+ [open gpt](https://blog.floydhub.com/gpt2/)
 
 ## Projects
 
 + https://snips-nlu.readthedocs.io/
 + https://github.com/crownpku/Rasa_NLU_Chi
-+ <https://github.com/jiangxinyang227/textClassifier>
-+ <https://github.com/brightmart/text_classification>
-+ <https://github.com/songyouwei/ABSA-PyTorch>
-+ https://github.com/12190143/Deep-Learning-for-Aspect-Level-Sentiment-Classification-Baselines
-+ https://github.com/guillaumegenthial/sequence_tagging
-+ https://github.com/macanv/BERT-BiLSTM-CRF-NER
-+ https://github.com/crownpku/Information-Extraction-Chinese/tree/master/NER_IDCNN_CRF
-+ https://github.com/Determined22/zh-NER-TF
-+ https://github.com/EOA-AILab/NER-Chinese
 
 ## Papers
 
@@ -414,45 +404,6 @@
 + Zhang, Lei, Shuai Wang, and Bing Liu. "Deep Learning for Sentiment Analysis: A Survey." arXiv preprint arXiv:1801.07883 (2018). [[pdf\]](https://arxiv.org/pdf/1801.07883)
 + Young, Tom, et al. "Recent trends in deep learning based natural language processing." arXiv preprint arXiv:1708.02709 (2017). [[pdf\]](https://arxiv.org/pdf/1708.02709)
 + https://ieeexplore.ieee.org/document/8726353
-+ [**ABSA solutions**](https://zhuanlan.zhihu.com/p/77656863)
-
-### Named Entity Recognition
-
-- Bidirectional LSTM-CRF Models for Sequence Tagging
-- Neural Architectures for Named Entity Recognition
-- Character-Based LSTM-CRF with Radical-Level Features for Chinese Named Entity Recognition
-- Cross-Domain and Semi-Supervised Named Entity Recognition in Chinese Social Media: A Unified Model 
-  - https://zhuanlan.zhihu.com/p/34694204
-
-### Relation Extraction
-
-+ Santos C N, Xiang B, Zhou B. Classifying relations by ranking with convolutional neural networks[J]. arXiv preprint arXiv:1504.06580, 2015
-+ Wang L, Cao Z, de Melo G, et al. Relation Classification via Multi-Level Attention CNNs[C]//ACL (1). 2016.
-+ Lin Y, Shen S, Liu Z, et al. Neural Relation Extraction with Selective Attention over Instances[C]//ACL(1). 2016.
-+ Zhou P, Shi W, Tian J, et al.Attention-based bidirectional long short-term memory networks for relationclassification[C]//Proceedings of the 54th Annual Meeting of the Association for Computational Linguistics (Volume 2: Short Papers). 2016, 2: 207-212.
-+ Miwa M, Bansal M. End-to-end relation extraction using lstms on sequences and tree structures[J]. arXiv preprint arXiv:1601.00770, 2016.
-+ Raj D, SAHU S, Anand A. Learning local and global contexts using a convolutional recurrent network model for relation classification in biomedical text[C]//Proceedings of the 21st Conference on Computational Natural Language Learning (CoNLL 2017). 2017: 311-321
-+ Ji G, Liu K, He S, et al. Distant Supervision for Relation Extraction with Sentence-Level Attention and Entity Descriptions[C]//AAAI.2017: 3060-3066.
-+ Adel H, Schütze H. Global Normalizationof Convolutional Neural Networks for Joint Entity and RelationClassification[J]. arXiv preprint arXiv:1707.07719, 2017.
-+ QinL, Zhang Z, Zhao H, et al. Adversarial Connective-exploiting Networks for Implicit Discourse Relation Classification[J]. arXiv preprint arXiv:1704.00217,2017.
-+ Feng J, Huang M, Zhao L, et al.Reinforcement Learning for Relation Classification from Noisy Data[J]. 2018.
-+ Zeng D, Liu K, Chen Y, et al.Distant Supervision for Relation Extraction via Piecewise Convolutional NeuralNetworks[C]// Conference on Empirical Methods in Natural Language Processing.2015:1753-1762.(EMNLP)
-+ Lin Y, Shen S, Liu Z, et al. Neural Relation Extraction with Selective Attention over Instances[C]// Meeting of the Association for Computational Linguistics. 2016:2124-2133.(ACL)
-
-### Sentiment Analysis
-
-- Zhang, Lei, Shuai Wang, and Bing Liu. "Deep Learning for Sentiment Analysis: A Survey." arXiv preprint arXiv:1801.07883 (2018). [[pdf]](https://arxiv.org/pdf/1801.07883)
-+ Song, Youwei, et al. "Attentional Encoder Network for Targeted Sentiment Classification." arXiv preprint arXiv:1902.09314 (2019). [[pdf]](https://arxiv.org/pdf/1902.09314.pdf)
-+ Devlin, Jacob, et al. "Bert: Pre-training of deep bidirectional transformers for language understanding." arXiv preprint arXiv:1810.04805 (2018). [[pdf]](https://arxiv.org/pdf/1810.04805.pdf)
-+ Fan, Feifan, et al. "Multi-grained Attention Network for Aspect-Level Sentiment Classification." Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing. 2018. [[pdf]](http://aclweb.org/anthology/D18-1380)
-+ Huang, Binxuan, et al. "Aspect Level Sentiment Classification with Attention-over-Attention Neural Networks." arXiv preprint arXiv:1804.06536 (2018). [[pdf]](https://arxiv.org/pdf/1804.06536.pdf)
-+ Li, Xin, et al. "Transformation Networks for Target-Oriented Sentiment Classification." arXiv preprint arXiv:1805.01086 (2018). [[pdf]](https://arxiv.org/pdf/1805.01086)
-+ Liu, Qiao, et al. "Content Attention Model for Aspect Based Sentiment Analysis." Proceedings of the 2018 World Wide Web Conference on World Wide Web. International World Wide Web Conferences Steering Committee, 2018.
-+ Chen, Peng, et al. "Recurrent Attention Network on Memory for Aspect Sentiment Analysis." Proceedings of the 2017 Conference on Empirical Methods in Natural Language Processing. 2017. [[pdf]](http://www.aclweb.org/anthology/D17-1047)
-+ Tang, Duyu, B. Qin, and T. Liu. "Aspect Level Sentiment Classification with Deep Memory Network." Conference on Empirical Methods in Natural Language Processing 2016:214-224. [[pdf]](https://arxiv.org/pdf/1605.08900)
-+ Ma, Dehong, et al. "Interactive Attention Networks for Aspect-Level Sentiment Classification." arXiv preprint arXiv:1709.00893 (2017). [[pdf]](https://arxiv.org/pdf/1709.00893)
-+ Wang, Yequan, Minlie Huang, and Li Zhao. "Attention-based lstm for aspect-level sentiment classification." Proceedings of the 2016 conference on empirical methods in natural language processing. 2016.
-+ Tang, Duyu, et al. "Effective LSTMs for Target-Dependent Sentiment Classification." Proceedings of COLING 2016, the 26th International Conference on Computational Linguistics: Technical Papers. 2016. [[pdf]](https://arxiv.org/pdf/1512.01100)
 
 
 # Contributions
@@ -464,6 +415,10 @@ You can raise an issue or submit a pull request, whichever is more convenient fo
 # Licence
 
 Apache License
+
+
+
+![](https://pic3.zhimg.com/80/v2-3d2cc9e84d5912dac812dc51ddee54fa_hd.jpg)
 
 
 
