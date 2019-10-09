@@ -95,7 +95,6 @@ class Instructor:
 
         logger.info('>> load data done')
 
-        # build saver
 
     def _train(self, criterion, optimizer, train_data_loader, val_data_loader):
 
@@ -220,7 +219,7 @@ class Instructor:
                 t_outputs_all.extend(outputs)
 
             except tf.errors.OutOfRangeError:
-                if self.opt.do_test is True and self.opt.do_train is False:
+                if self.opt.do_predict is True or self.opt.do_test is True and self.opt.do_train is False:
                     with open(os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name), 'result.log'), mode='w', encoding='utf-8') as f:
                         for item in t_outputs_all:
                             f.write(str(item) + '\n')
@@ -416,31 +415,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-# ckpt = tf.train.get_checkpoint_state(self.opt.output_dir)
-# if ckpt and ckpt.model_checkpoint_path:
-#     self.saver.restore(self.session, ckpt.model_checkpoint_path)
-#
-#     t_targets_all, t_outputs_all = [], []
-#     iterator = data_loader.make_one_shot_iterator()
-#     one_element = iterator.get_next()
-#
-#     while True:
-#         try:
-#             sample_batched = self.session.run(one_element)
-#             inputs = sample_batched['text']
-#             targets_onehot = sample_batched['label']
-#             model = self.model
-#             outputs = self.session.run(model.outputs,
-#                                        feed_dict={model.input_x: inputs, model.input_y: targets_onehot,
-#                                                   model.global_step: 1, model.keep_prob: 1.0})
-#             t_outputs_all.extend(outputs)
-#
-#         except tf.errors.OutOfRangeError:
-#             with open(self.opt.result_path, mode='w', encoding='utf-8') as f:
-#                 for item in t_outputs_all:
-#                     f.write(str(item) + '\n')
-#
-#             break
-#
-# else:
-#     logger.info('@@@ Error:load ckpt error')
