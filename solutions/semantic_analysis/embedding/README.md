@@ -432,3 +432,11 @@ model = Doc2Vec(dm=1, size=100, window=5, negative=5, hs=0, min_count=2, workers
 
 + [transformer model TF 2.0 ](https://cloud.tencent.com/developer/news/417202)
 + [albert_zh](https://github.com/brightmart/albert_zh)
+
+- https://www.zhihu.com/question/52756127
+- [xlnet](https://indexfziq.github.io/2019/06/21/XLNet/)
+- [self attention](https://www.cnblogs.com/robert-dlut/p/8638283.html)
+- [embedding summary blog](https://www.cnblogs.com/robert-dlut/p/9824346.html)
+- [ulm-fit](http://nlp.fast.ai/classification/2018/05/15/introducting-ulmfit.html)
+- [open gpt](https://blog.floydhub.com/gpt2/)
+
