@@ -20,7 +20,7 @@
 
 ### Seg && Pos && NER
 
-#### Dataset for Segment && part of speech tag && Named entity recognize
+#### Dataset 
 
 | lexical Dataset                                              | SOTA | Tips                                                         |
 | ------------------------------------------------------------ | ---- | ------------------------------------------------------------ |
@@ -37,7 +37,7 @@
 | Weibo NER corpus                                             |      | 1890条, person, organization, location and geo-political entity |
 | **MSRA-NER**                                                 |      |                                                              |
 
-#### Solution for Segment && part of speech tag && Named entity recognize
+#### Solution 
 
 | Model                                                        | Tips                                                         | Results                      |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------- |
@@ -48,7 +48,7 @@
 | DBN CRF                                                      |                                                              |                              |
 | NCRF++ [paper](https://arxiv.org/abs/1806.04470)             | Colling 2018                                                 | CoNLL2003 上能达到91.35的 F1 |
 
-#### Metric for Segment && part of speech tag && Named entity recognize
+#### Metric 
 
 - strict/type/partial/overlap/
 - 准确率(Precision)和召回率(Recall)
@@ -64,7 +64,7 @@
 
 ### Relation Extraction
 
-#### Dataset for Relation Extraction
+#### Dataset 
 
 | Relation Extraction Dataset | SOTA | Tips                          |
 | --------------------------- | ---- | ----------------------------- |
@@ -73,7 +73,7 @@
 | NYT10                       |      | https://github.com/thunlp/NRE |
 | 百度实体链接 CCKS2019       |      |                               |
 
-#### Solution for Relation Extraction
+#### Solution
 
 | Model                                       | Tips                         |
 | ------------------------------------------- | ---------------------------- |
@@ -81,7 +81,9 @@
 |                                             |                              |
 |                                             |                              |
 
-#### Metric for Relation Extraction
+#### Metric
+
++ Pass
 
 
 
@@ -89,20 +91,24 @@
 
 ### constituent parsing
 
++ Pass
+
 ### dependency syntactic analysis
+
++ Pass
 
 ## Part III : Semantic Analysis
 
 ### semantic similarity
 
-#### Dataset for semantic similarity
+#### Dataset 
 
 | Similarity |                                                              |      |
 | ---------- | ------------------------------------------------------------ | ---- |
 | **LCQMC**  | LCQMC 是哈尔滨工业大学在自然语言处理国际顶会 COLING2018 构建的问题语义匹配数据集，其目标是判断两个问题的语义是否相同 |      |
 |            |                                                              |      |
 
-#### Solution for semantic similarity
+#### Solution
 
 | Short Text Similarity Methods                                | Tips |
 | ------------------------------------------------------------ | ---- |
@@ -127,7 +133,13 @@
 | FCM                                                          |      |
 | SOM                                                          |      |
 
+#### Metric
+
++ Pass
+
 ### word-level
+
++ Pass
 
 #### Word Sense Disambiguation
 
@@ -135,7 +147,7 @@
 
 #### Word represent
 
-##### Dataset for word represent
+##### Dataset 
 
 | Embedding                                                    | SOTA                                                         | Tips |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
@@ -144,7 +156,7 @@
 | [Google 1 Billion Word Corpus](https://github.com/ciprian-chelba/1-billion-word-language-modeling-benchmark) |                                                              |      |
 | [Microsoft Research entence Completion Challenge dataset]()  | A fast and simple algorithm for training neural probabilistic language models |      |
 
-##### Solution for word represent
+##### Solution 
 
 | Model                                                        | Tips                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -164,7 +176,7 @@
 | BERT-www [paper]()[code](https://github.com/ymcui/Chinese-BERT-wwm) | 支持中文；与BERT base 结构一致，使用更大量的中文预料训练     |
 | MT-DNN                                                       |                                                              |
 
-##### Metric for word represent
+##### Metric 
 
 + Intrinsic Evaluation
   - Word relatedness
@@ -183,7 +195,7 @@
 
 #### textual entailment(NLI)
 
-##### Dataset for textual entailment
+##### Dataset
 
 | Natural Language Inference Dataset | SOTA | Tips               |
 | ---------------------------------- | ---- | ------------------ |
@@ -192,7 +204,7 @@
 
 #### Semantic Role Labeling
 
-##### Dataset for SRL
+##### Dataset 
 
 | Semantic Role Labeling   | SOTA | Tips |
 | ------------------------ | ---- | ---- |
@@ -207,7 +219,7 @@
 
 ### Classification
 
-#### Dataset for Classification
+#### Dataset 
 
 | Classification Dataset                                       | SOTA                                                     | Tips                                                         |
 | ------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------ |
@@ -220,15 +232,33 @@
 | [SogouCE(搜狐新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |                                                              |
 | [今日头条中文新闻文本**多层**分类数据集](https://github.com/fate233/toutiao-multilevel-text-classfication-dataset) |                                                          |                                                              |
 
-#### Solution for Classification
+#### Solution 
 
-#### Metric for Classification
+| Model         | Tips                          |
+| ------------- | ----------------------------- |
+| Feature Engineer + NBSVM [paper](http://nlp.stanford.edu/pubs/sidaw12_simple_sentiment.pdf) [code](https://github.com/mesnilgr/nbsvm) | 可解释性 |
+| TextCNN [paper](https://arxiv.org/abs/1408.5882) | 短文本                        |
+| RNNs + Attention | 长文本                        |
+| Fastext [website](https://fasttext.cc/) | 多类别，大数据量              |
+| Capsule       | scalar to vector， 训练较慢   |
+| Bert + NNs   | 效果最好， 模型较大，延时较长 |
+| Seq2Seq with Attention |  |
+| RCNN [paper](https://arxiv.org/abs/1609.04243) [code](https://github.com/jiangxinyang227/textClassifier) | RNN + Max-pooling 降维 |
+| Transformer [paper](https://arxiv.org/abs/1706.03762) [code](https://github.com/jiangxinyang227/textClassifier) |                               |
+| HAN [paper](https://www.aclweb.org/anthology/N16-1174) [code](https://github.com/lc222/HAN-text-classification-tf) | 层次注意力机制，长文本，{词向量, 句子向量， 文档向量} |
+| Attention based CNN [paper](https://arxiv.org/pdf/1512.05193.pdf) |                               |
+| DMN [paper](https://arxiv.org/pdf/1506.07285.pdf) [code](https://github.com/brightmart/text_classification) | Memory-Based |
+| EntityNetwork [source-code](https://github.com/siddk/entity-network) [code](https://github.com/brightmart/text_classification) | Memory-Based |
+| Adversial-LSTM [paper](https://arxiv.org/abs/1605.07725) [blog](https://www.cnblogs.com/jiangxinyang/p/10208363.html) | 对抗样本，正则化，避免过拟合 |
+| VAT [paper](https://arxiv.org/abs/1605.07725) [blog](https://zhuanlan.zhihu.com/p/66389797) |  |
 
+#### Metric 
 
++ p/r/f1
 
 ### Sentiment Analysis
 
-####  Dataset for Sentiment Analysis
+####  Dataset
 
 | Sentiment Analysis Dataset                                   | SOTA                                                         | Tips                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -249,13 +279,31 @@
 | [Kaggle Twitter Sentiment Analysis](https://www.kaggle.com/c/si650winter11/leaderboard) |                                                              |                                                              |
 | **ChnSentiCorp**                                             | 中文情感分析数据集                                           |                                                              |
 
-#### Solution for Sentiment Analysis
+#### Solution 
 
-#### Metric for Sentiment Analysis
+| Model                                                        | Tips                                                |
+| ------------------------------------------------------------ | --------------------------------------------------- |
+| TD-LSTM [paper](https://link.zhihu.com/?target=http%3A//www.aclweb.org/anthology/C16-1311) [code](https://link.zhihu.com/?target=https%3A//github.com/jimmyyfeng/TD-LSTM) | COLING 2016；两个LSTM 分别编码 context 和 target    |
+| TC-LSTM [paper]() [blog](https://zhuanlan.zhihu.com/p/43100493) | 两个LSTM 分别添加 target words 的 average embedding |
+| AT-LSTM                                                      | softmax 之前加入 aspect embedding                   |
+| ATAE-LSTM [paper](Wang, Yequan, Minlie Huang, and Li Zhao. "Attention-based lstm for aspect-level sentiment classification." Proceedings of the 2016 conference on empirical methods in natural language processing. 2016) [source-code](http://coai.cs.tsinghua.edu.cn/media/files/atae-lstm_uVgRmdb.rar) | EMNLP 2016；输入端加入 aspect embedding             |
+| BERT-SPC [paper](https://arxiv.org/pdf/1810.04805.pdf) [code](https://github.com/songyouwei/ABSA-PyTorch) |                                                     |
+| MGAN [paper](http://aclweb.org/anthology/D18-1380) [code](https://github.com/songyouwei/ABSA-PyTorch) | ACL 2018                                            |
+| AEN-BERT [paper](https://arxiv.org/pdf/1902.09314.pdf) [code](https://github.com/songyouwei/ABSA-PyTorch) | ACL 2019                                            |
+| AOA                                                          |                                                     |
+| TNet                                                         |                                                     |
+| Cabasc                                                       |                                                     |
+| RAM                                                          | EMNLP 2017                                          |
+| MemNet                                                       | EMNLP 2016                                          |
+| IAN                                                          |                                                     |
+
+#### Metric 
+
++ p/r/f1
 
 ## Parr V : Summarization
 
-### Dataset for Summarization 
+### Dataset
 
 | Summarization                                                | SOTA | Tips |
 | ------------------------------------------------------------ | ---- | ---- |
@@ -263,7 +311,7 @@
 | [The AQUAINT Corpus of English News Text](https://catalog.ldc.upenn.edu/LDC2002T31) |      |      |
 | [4000法律案例以及摘要的集合 TIPSTER](http://www-nlpir.nist.gov/related_projects/tipster_summac/cmp_lg.html) |      |      |
 
-### Solution for Sumarization
+### Solution
 
 | Model                                                      | Tips | Resule |
 | ---------------------------------------------------------- | ---- | ------ |
@@ -273,7 +321,7 @@
 
 ## Part VI : Retrieval
 
-### Dataset for Information Retrieval
+### Dataset
 
 | Information Retrieval                                        | SOTA | Tips |
 | ------------------------------------------------------------ | ---- | ---- |
