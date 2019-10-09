@@ -116,7 +116,7 @@
 
 # Knowledge Base
 
-+ Pass
+## TransE
 
 # Reference
 

@@ -321,6 +321,18 @@
 
 ## BERTs
 
+
+
+# ERNIE
+
+### 把英文字变成中文词
+
+![](https://pics1.baidu.com/feed/09fa513d269759ee43efeba2c2b2c4126c22dfee.png?token=dd737a03414c5fb8c6c69efaa9665ebf&s=4296A62A8D604C0110410CF403008032)
+
+### 使用TransE 编码知识图谱
+
+![](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_png/VBcD02jFhglJEicBrKD32A5pErPnYJ7H2BfuD9zp8MRQPV73UTSMwJ4uo99hJsbnumWJasOVvdgfd4YexHNKwAg/640?wx_fmt=png)
+
 # MASS
 
 ## Tips
