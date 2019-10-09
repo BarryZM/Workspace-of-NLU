@@ -10,6 +10,8 @@
 + General Architecture for NLU 
     + Framework for multi-dataset and multi-card
     + Framework for model ensemble
+    
+![](https://pic3.zhimg.com/80/v2-3d2cc9e84d5912dac812dc51ddee54fa_hd.jpg)
 
 # Dataset
 
@@ -33,6 +35,7 @@
 | [SogouTCE(文本分类评价)](http://www.sogou.com/labs/resource/tce.php) |                                                          |                                                              |
 | [SogouCA(全网新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |                                                              |
 | [SogouCE(搜狐新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |                                                              |
+| [今日头条中文新闻文本**多层**分类数据集](https://github.com/fate233/toutiao-multilevel-text-classfication-dataset) |                                                          |                                                              |
 
 ## Sentiment Analysis Dataset
 
@@ -86,10 +89,9 @@
 
 | Semantic Role Labeling | SOTA | Tips |
 | ---------------------- | ---- | ---- |
+| Chinese Proposition Bank |      |      |
 |                        |      |      |
 |                        |      |      |
-|                        |      |      |
-
 
 
 ## Natural Language Inference Dataset
@@ -99,7 +101,6 @@
 | [XNLI](XNLI: Evaluating Cross-lingual Sentence Representations) |      | EMNLP2018:**FAIR** |
 |                                                              |      |                    |
 |                                                              |      |                    |
-
 
 
 ## Summarization Dataset
@@ -363,12 +364,15 @@
     + Challenge (Not)
 
 + Classification
+    
     + 
     
 + Corpus
+    
     + download.sh
     
 + Resoruce
+    
     + Download.sh
     
 + Code Fix
