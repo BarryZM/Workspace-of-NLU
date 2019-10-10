@@ -194,11 +194,10 @@ class Instructor:
         one_element = iterator.get_next()
 
         def convert_text(encode_list):
-            return [self.tokenizer.idx2word[item] for item in encode_list if
-                    item not in [self.tokenizer.word2idx["<PAD>"]]]
+            return [self.tokenizer.idx2word[item] for item in encode_list if item not in [self.tokenizer.word2idx["<PAD>"]]]
 
         def convert_label(encode_list):
-            return [self.trainset.idx2label[item] for item in encode_list if item not in [0]]
+            return [self.trainset.idx2label[item] for item in encode_list if item not in [self.trainset.label2idx["<PAD>"]]]
 
         while True:
             try:
