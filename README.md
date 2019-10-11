@@ -1,4 +1,67 @@
-<!-- TOC -->autoauto- [Workspace of Nature Language Understanding](#workspace-of-nature-language-understanding)auto- [Target](#target)auto- [Dataset && Solution && Metric](#dataset--solution--metric)auto    - [Part I : Lexical Analysis](#part-i--lexical-analysis)auto        - [Seg && Pos && NER](#seg--pos--ner)auto            - [Dataset](#dataset)auto            - [Solution](#solution)auto            - [Metric](#metric)auto        - [Relation Extraction](#relation-extraction)auto            - [Dataset](#dataset-1)auto            - [Solution](#solution-1)auto            - [Metric](#metric-1)auto    - [Part II : Syntactic Analysis](#part-ii--syntactic-analysis)auto        - [constituent parsing](#constituent-parsing)auto        - [dependency syntactic analysis](#dependency-syntactic-analysis)auto    - [Part III : Semantic Analysis](#part-iii--semantic-analysis)auto        - [semantic similarity](#semantic-similarity)auto            - [Dataset](#dataset-2)auto            - [Solution](#solution-2)auto            - [Metric](#metric-2)auto        - [word-level](#word-level)auto            - [Word Sense Disambiguation](#word-sense-disambiguation)auto            - [Word represent](#word-represent)auto                - [Dataset](#dataset-3)auto                - [Solution](#solution-3)auto                - [Metric](#metric-3)auto        - [sentence-level](#sentence-level)auto            - [textual entailment(NLI)](#textual-entailmentnli)auto                - [Dataset](#dataset-4)auto            - [Semantic Role Labeling](#semantic-role-labeling)auto                - [Dataset](#dataset-5)auto        - [document-level](#document-level)auto    - [Part IV : Classification && Sentiment Analysis](#part-iv--classification--sentiment-analysis)auto        - [Classification](#classification)auto            - [Dataset](#dataset-6)auto            - [Solution](#solution-4)auto            - [Metric](#metric-4)auto        - [Sentiment Analysis](#sentiment-analysis)auto            - [Dataset](#dataset-7)auto            - [Solution](#solution-5)auto            - [Metric](#metric-5)auto    - [Parr V : Summarization](#parr-v--summarization)auto        - [Dataset](#dataset-8)auto        - [Solution](#solution-6)auto    - [Part VI : Retrieval](#part-vi--retrieval)auto        - [Dataset](#dataset-9)auto- [Advance Solutions](#advance-solutions)auto    - [Joint Learning for NLU](#joint-learning-for-nlu)auto    - [Semi-Supervised NLU](#semi-supervised-nlu)auto- [Service](#service)auto- [Resource](#resource)auto    - [Stop words](#stop-words)auto    - [Pretrained Embedding](#pretrained-embedding)auto    - [NLU APIs](#nlu-apis)auto- [Milestone](#milestone)auto- [Usages](#usages)auto- [Reference](#reference)auto    - [Links](#links)auto    - [Projects](#projects)auto    - [Papers](#papers)auto        - [Survey](#survey)auto- [Contributions](#contributions)auto- [Licence](#licence)autoauto<!-- /TOC -->
+<!-- TOC -->
+
+- [Workspace of Nature Language Understanding](#workspace-of-nature-language-understanding)
+- [Target](#target)
+- [Dataset && Solution && Metric](#dataset--solution--metric)
+    - [Part I : Lexical Analysis](#part-i--lexical-analysis)
+        - [Seg && Pos && NER](#seg--pos--ner)
+            - [Dataset](#dataset)
+            - [Solution](#solution)
+            - [Metric](#metric)
+        - [Relation Extraction](#relation-extraction)
+            - [Dataset](#dataset)
+            - [Solution](#solution)
+            - [Metric](#metric)
+    - [Part II : Syntactic Analysis](#part-ii--syntactic-analysis)
+        - [constituent parsing](#constituent-parsing)
+        - [dependency syntactic analysis](#dependency-syntactic-analysis)
+    - [Part III : Semantic Analysis](#part-iii--semantic-analysis)
+        - [semantic similarity](#semantic-similarity)
+            - [Dataset](#dataset)
+            - [Solution](#solution)
+            - [Metric](#metric)
+        - [word-level](#word-level)
+            - [Word Sense Disambiguation](#word-sense-disambiguation)
+            - [Word represent](#word-represent)
+                - [Dataset](#dataset)
+                - [Solution](#solution)
+                - [Metric](#metric)
+        - [sentence-level](#sentence-level)
+            - [textual entailment(NLI)](#textual-entailmentnli)
+                - [Dataset](#dataset)
+            - [Semantic Role Labeling](#semantic-role-labeling)
+                - [Dataset](#dataset)
+        - [document-level](#document-level)
+    - [Part IV : Classification && Sentiment Analysis](#part-iv--classification--sentiment-analysis)
+        - [Classification](#classification)
+        - [Sentiment Analysis](#sentiment-analysis)
+            - [Dataset](#dataset)
+            - [Solution](#solution)
+            - [Metric](#metric)
+    - [Parr V : Summarization](#parr-v--summarization)
+        - [Dataset](#dataset)
+        - [Solution](#solution)
+    - [Part VI : Retrieval](#part-vi--retrieval)
+        - [Dataset](#dataset)
+- [Advance Solutions](#advance-solutions)
+    - [Joint Learning for NLU](#joint-learning-for-nlu)
+    - [Semi-Supervised NLU](#semi-supervised-nlu)
+- [Service](#service)
+- [Resource](#resource)
+    - [Stop words](#stop-words)
+    - [Pretrained Embedding](#pretrained-embedding)
+    - [NLU APIs](#nlu-apis)
+- [Milestone](#milestone)
+- [Usages](#usages)
+- [Reference](#reference)
+    - [Links](#links)
+    - [Projects](#projects)
+    - [Papers](#papers)
+        - [Survey](#survey)
+- [Contributions](#contributions)
+- [Licence](#licence)
+
+<!-- /TOC -->
 
 # Workspace of Nature Language Understanding
 
@@ -221,42 +284,7 @@
 
 ### Classification
 
-#### Dataset 
-
-| Classification Dataset                                       | SOTA                                                     | Tips                                                         |
-| ------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------ |
-| IMDB                                                         | Learning Structured Text Representations                 | 25,000个高度差异化的电影评论用于训练，25,000个测试 二元情感分类，并具有比此领域以前的任何数据集更多的数据 除了训练和测试评估示例之外，还有更多未标记的数据可供使用 包括文本和预处理的词袋格式。 |
-| [Reuter](http://kdd.ics.uci.edu/databases/reuters21578/reuters21578.html) |                                                          | 一系列1987年在路透上发布的按分类索引的文档(RCV1，RCV2，以及TRC2) |
-| THUCTC                                                       |                                                          |                                                              |
-| Twenty Newsgroups                                            | Very Deep Convolutional Networks for Text Classification |                                                              |
-| [SogouTCE(文本分类评价)](http://www.sogou.com/labs/resource/tce.php) |                                                          |                                                              |
-| [SogouCA(全网新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |                                                              |
-| [SogouCE(搜狐新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |                                                              |
-| [今日头条中文新闻文本**多层**分类数据集](https://github.com/fate233/toutiao-multilevel-text-classfication-dataset) |                                                          |                                                              |
-
-#### Solution 
-
-| Model         | Tips                          |
-| ------------- | ----------------------------- |
-| Feature Engineer + NBSVM [paper](http://nlp.stanford.edu/pubs/sidaw12_simple_sentiment.pdf) [code](https://github.com/mesnilgr/nbsvm) | 可解释性 |
-| TextCNN [paper](https://arxiv.org/abs/1408.5882) | 短文本                        |
-| RNNs + Attention | 长文本                        |
-| Fastext [website](https://fasttext.cc/) | 多类别，大数据量              |
-| Capsule       | scalar to vector， 训练较慢   |
-| Bert + NNs   | 效果最好， 模型较大，延时较长 |
-| Seq2Seq with Attention |  |
-| RCNN [paper](https://arxiv.org/abs/1609.04243) [code](https://github.com/jiangxinyang227/textClassifier) | RNN + Max-pooling 降维 |
-| Transformer [paper](https://arxiv.org/abs/1706.03762) [code](https://github.com/jiangxinyang227/textClassifier) |                               |
-| HAN [paper](https://www.aclweb.org/anthology/N16-1174) [code](https://github.com/lc222/HAN-text-classification-tf) | 层次注意力机制，长文本，{词向量, 句子向量， 文档向量} |
-| Attention based CNN [paper](https://arxiv.org/pdf/1512.05193.pdf) |                               |
-| DMN [paper](https://arxiv.org/pdf/1506.07285.pdf) [code](https://github.com/brightmart/text_classification) | Memory-Based |
-| EntityNetwork [source-code](https://github.com/siddk/entity-network) [code](https://github.com/brightmart/text_classification) | Memory-Based |
-| Adversial-LSTM [paper](https://arxiv.org/abs/1605.07725) [blog](https://www.cnblogs.com/jiangxinyang/p/10208363.html) | 对抗样本，正则化，避免过拟合 |
-| VAT [paper](https://arxiv.org/abs/1605.07725) [blog](https://zhuanlan.zhihu.com/p/66389797) |  |
-
-#### Metric 
-
-+ p/r/f1
++ see in solution/classification/README.md
 
 ### Sentiment Analysis
 

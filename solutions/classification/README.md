@@ -1,39 +1,102 @@
 <!-- TOC -->
 
 - [Summary for Text Classification](#summary-for-text-classification)
-- [Supervised Classification](#supervised-classification)
-- [Unsupervised Classification](#unsupervised-classification)
-- [Unbalance Classification](#unbalance-classification)
-- [Anomaly Detection](#anomaly-detection)
-- [Feature Engineering && Machine Learning Algorithm](#feature-engineering--machine-learning-algorithm)
-        - [Feature Engineering](#feature-engineering)
-        - [文本关键词](#文本关键词)
-        - [文本表示（Text Represent）](#文本表示text-represent)
-        - [文本特征选择](#文本特征选择)
-        - [特征权重计算](#特征权重计算)
-        - [文本数据分布](#文本数据分布)
-    - [Machine Learning Classification Algorithms](#machine-learning-classification-algorithms)
+- [Dataset](#dataset)
+- [Solution](#solution)
+- [Metric](#metric)
+- [Application](#application)
+    - [Intent Detection](#intent-detection)
+    - [Sentiment Polarity Detection](#sentiment-polarity-detection)
+    - [Anomaly Detection](#anomaly-detection)
+- [Advance Research](#advance-research)
+    - [Ideas](#ideas)
+    - [Unsupervised Classification](#unsupervised-classification)
+    - [Unbalance Classification](#unbalance-classification)
 - [Reference](#reference)
     - [Papers](#papers)
     - [Links](#links)
     - [Projects](#projects)
-    - [Ideas](#ideas)
 
 <!-- /TOC -->
 
 # Summary for Text Classification
 
-# Supervised Classification
+# Dataset 
 
-# Unsupervised Classification
+| Classification Dataset                                       | SOTA                                                     | Tips                                                         |
+| ------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------ |
+| IMDB                                                         | Learning Structured Text Representations                 | 25,000个高度差异化的电影评论用于训练，25,000个测试 二元情感分类，并具有比此领域以前的任何数据集更多的数据 除了训练和测试评估示例之外，还有更多未标记的数据可供使用 包括文本和预处理的词袋格式。 |
+| [Reuter](http://kdd.ics.uci.edu/databases/reuters21578/reuters21578.html) |                                                          | 一系列1987年在路透上发布的按分类索引的文档(RCV1，RCV2，以及TRC2) |
+| THUCTC                                                       |                                                          |                                                              |
+| Twenty Newsgroups                                            | Very Deep Convolutional Networks for Text Classification |                                                              |
+| [SogouTCE(文本分类评价)](http://www.sogou.com/labs/resource/tce.php) |                                                          |                                                              |
+| [SogouCA(全网新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |                                                              |
+| [SogouCE(搜狐新闻数据)](http://www.sogou.com/labs/resource/ca.php) |                                                          |                                                              |
+| [今日头条中文新闻文本**多层**分类数据集](https://github.com/fate233/toutiao-multilevel-text-classfication-dataset) |                                                          |   
+| 20Newsgroup | |（有四类，计算机，政治，娱乐和宗教），复旦大学集（中国的文档分类集合，包括20类，如艺术，教育和能源）|
+| ACL选集网 ||（有五种语言：英文，日文，德文，中文和法文）|
+| Sentiment Treebank数据集（包含非常负面，负面，中性，正面和非常正面的标签的数据集）|||
+
+# Solution 
+
+| Model         | Tips                          |
+| ------------- | ----------------------------- |
+| KNN | |
+| SVM | |
+| Decision Tree and Ensemble Learning| |
+|Navie Bayesian||
+| Feature Engineer + NBSVM [paper](http://nlp.stanford.edu/pubs/sidaw12_simple_sentiment.pdf) [code](https://github.com/mesnilgr/nbsvm) | 可解释性 |
+| topic model| 主题模型+短文本分类 <https://www.jiqizhixin.com/articles/2018-10-23-6> |
+| TextCNN [paper](https://arxiv.org/abs/1408.5882) | 短文本                        |
+| RNNs + Attention | 长文本                        |
+| RCNN | Recurrent Convolutional Neural Networks for Text Classification|
+| Fastext [website](https://fasttext.cc/) | 多类别，大数据量              |
+| Capsule       | scalar to vector， 训练较慢   |
+| Bert + NNs   | 效果最好， 模型较大，延时较长 |
+| Seq2Seq with Attention |  |
+| RCNN [paper](https://arxiv.org/abs/1609.04243) [code](https://github.com/jiangxinyang227/textClassifier) | RNN + Max-pooling 降维 |
+| Transformer [paper](https://arxiv.org/abs/1706.03762) [code](https://github.com/jiangxinyang227/textClassifier) |                               |
+| HAN [paper](https://www.aclweb.org/anthology/N16-1174) [code](https://github.com/lc222/HAN-text-classification-tf) | 层次注意力机制，长文本，{词向量, 句子向量， 文档向量} |
+| Attention based CNN [paper](https://arxiv.org/pdf/1512.05193.pdf) |                               |
+| DMN [paper](https://arxiv.org/pdf/1506.07285.pdf) [code](https://github.com/brightmart/text_classification) | Memory-Based |
+| EntityNetwork [source-code](https://github.com/siddk/entity-network) [code](https://github.com/brightmart/text_classification) | Memory-Based |
+| Adversial-LSTM [paper](https://arxiv.org/abs/1605.07725) [blog](https://www.cnblogs.com/jiangxinyang/p/10208363.html) | 对抗样本，正则化，避免过拟合 |
+| VAT [paper](https://arxiv.org/abs/1605.07725) [blog](https://zhuanlan.zhihu.com/p/66389797) |  |
+
+# Metric
++ p/r/f1
+
+
+# Application
+## Intent Detection
+## Sentiment Polarity Detection
+## Anomaly Detection
++ Kaggle
++ [http://www.cnblogs.com/fengfenggirl/p/iForest.html](http://www.cnblogs.com/fengfenggirl/p/iForest.html)
++ https://github.com/yzhao062/anomaly-detection-resources
+
+
+# Advance Research
+
+## Ideas
+- 领域相关性研究
+  - 跨领域时保持一定的分类能力
+- 数据不平衡研究
+  - 有监督
+    - 将多的类进行内部聚类
+    - 在聚类后进行类内部层次采样，获得同少的类相同数据规模得样本
+    - 使用采样样本，并结合类的中心向量构建新的向量，并进行学习
+  - 不平衡数据的半监督问题
+  - 不平衡数据的主动学习问题
+
+## Unsupervised Classification
 - Step 1. self learning / co learning
 - Step 2. 聚类
 - Step 3. Transfer Learning
 - Step 4. Open-GPT Tranasformer
 
-# Unbalance Classification
+## Unbalance Classification
 + 改loss
-
 “”“
     class_weights = tf.constant([1.0, 10.0, 15.0, 1.0])
     self.loss = tf.nn.weighted_cross_entropy_with_logits(logits=tf.cast(logits, tf.float64), targets=tf.cast(self.input_y, tf.float64), pos_weight=tf.cast(class_weights, tf.float64))
@@ -46,76 +109,6 @@
     + semantic_analysis
         + clustering
 
-# Anomaly Detection
-
-+ Kaggle
-+ [http://www.cnblogs.com/fengfenggirl/p/iForest.html](http://www.cnblogs.com/fengfenggirl/p/iForest.html)
-+ https://github.com/yzhao062/anomaly-detection-resources
-
-
-# Feature Engineering && Machine Learning Algorithm
-
-### Feature Engineering
-
-### 文本关键词
-
-+ TFIDF
-+ TextRank
-	+ https://my.oschina.net/letiantian/blog/351154
-	+ TextRank算法基于PageRank，用于为文本生成关键字和摘要
-
-### 文本表示（Text Represent）
-
-+ VSM
-    + n-gram 获得特征
-        + https://zhuanlan.zhihu.com/p/29555001
-    + TFIDF 获得特征权重
-
-+ 词组表示法
-	+ 统计自然语言处理 P419
-
-+ 概念表示法
-	+ 统计自然语言处理 P419
-
-### 文本特征选择
-
-+ http://sklearn.apachecn.org/cn/0.19.0/modules/feature_extraction.html
-+ 文档频率
-	+ 从训练预料中统计包含某个特征的频率（个数），然后设定阈值（两个）
-	+ 当特征项的DF小与某个阈值（小）时，去掉该特征：因为该特征项使文档出现的频率太低，没有代表性
-	+ 当特征项的DF大于某个阈值（大）时，去掉改特征：因为该特征项使文档出现的频率太高，没有区分度
-	+ 优点：简单易行，去掉一部分噪声
-	+ 缺点: 借用方法，理论依据不足;根据信息论可知某些特征虽然出现频率低，但包含较多得信息
-+ 信息增益
-	+ 根据某个特征项能为整个分类所能提供得信息量得多少来衡量该特征项得重要程度，从而决定该特征项得取舍
-	+ 某个特征项的信息增益是指有该特征和没有该特征时，为整个分类能提供信息量得差别
-+ 卡方统计量
-	+ 特征量$t_i$ 和 类别$C_j$ 之间得相关联程度, 且假设 $t_i$ 和 类别$C_j$ 满足具有一阶自由度得卡方分布
-+ 互信息
-	+ 互信息越大，特征量$t_i$ 和 类别$C_j$ 共现得程度就越大
-
-+ 其他方法
-
-### 特征权重计算
-
-+ 特征权重是衡量某个特征项在文档表示中得重要程度
-+ 方法
-	+ 布尔权重
-	+ 绝对词频
-	+ 逆文档频率
-	+ TF-IDF
-	+ TFC
-	+ ITC
-	+ 熵权重
-	+ TF-IWF
-
-### 文本数据分布
-
-## Machine Learning Classification Algorithms
-+ SVM
-+ Decision Tree and Ensemble Learning
-+ Navie Bayesian
-+ NBSVM
 
 # Reference
 
@@ -146,15 +139,3 @@
 
 - <https://github.com/jiangxinyang227/textClassifier>
 - <https://github.com/brightmart/text_classification>
-
-## Ideas
-
-- 领域相关性研究
-  - 跨领域时保持一定的分类能力
-- 数据不平衡研究
-  - 有监督
-    - 将多的类进行内部聚类
-    - 在聚类后进行类内部层次采样，获得同少的类相同数据规模得样本
-    - 使用采样样本，并结合类的中心向量构建新的向量，并进行学习
-  - 不平衡数据的半监督问题
-  - 不平衡数据的主动学习问题
