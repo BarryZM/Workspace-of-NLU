@@ -10,6 +10,7 @@
     - [Anomaly Detection](#anomaly-detection)
 - [Advance Research](#advance-research)
     - [Ideas](#ideas)
+    - [AutoML for Classification](#automl-for-classification)
     - [Unsupervised Classification](#unsupervised-classification)
     - [Unbalance Classification](#unbalance-classification)
 - [Reference](#reference)
@@ -89,6 +90,9 @@
   - 不平衡数据的半监督问题
   - 不平衡数据的主动学习问题
 
+## AutoML for Classification
++ 
+
 ## Unsupervised Classification
 - Step 1. self learning / co learning
 - Step 2. 聚类
@@ -96,18 +100,22 @@
 - Step 4. Open-GPT Tranasformer
 
 ## Unbalance Classification
-+ 改loss
++ + 改loss
 “”“
     class_weights = tf.constant([1.0, 10.0, 15.0, 1.0])
     self.loss = tf.nn.weighted_cross_entropy_with_logits(logits=tf.cast(logits, tf.float64), targets=tf.cast(self.input_y, tf.float64), pos_weight=tf.cast(class_weights, tf.float64))
     loss = tf.reduce_mean(self.loss)
 ”“”
-+ 数据平衡
++ 数据增强
+    + 见[workspace-of-preprocessing/data-augement](https://github.com/Apollo2Mars/Workspace-of-Preprocessing)
 
 + 数据扩充
+    + 反向翻译
+        + 见 [workspace-of-preprocessing/data-visulizaiton](https://github.com/Apollo2Mars/Workspace-of-Preprocessing)
     + uda
-    + semantic_analysis
-        + clustering
+    + 相似实体替换
+        + semantic_analysis
+            + clustering
 
 
 # Reference
