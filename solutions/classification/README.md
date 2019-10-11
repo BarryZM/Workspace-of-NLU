@@ -1,5 +1,24 @@
 <!-- TOC -->
-autoauto- [Summary for Text Classification](#summary-for-text-classification)auto- [Supervised Classification](#supervised-classification)auto- [Unsupervised Classification](#unsupervised-classification)auto- [Unbalance Classification](#unbalance-classification)auto- [Anomaly Detection](#anomaly-detection)auto- [Feature Engineering && Machine Learning Algorithm](#feature-engineering--machine-learning-algorithm)auto        - [Feature Engineering](#feature-engineering)auto        - [文本关键词](#文本关键词)auto        - [文本表示（Text Represent）](#文本表示text-represent)auto        - [文本特征选择](#文本特征选择)auto        - [特征权重计算](#特征权重计算)auto        - [文本数据分布](#文本数据分布)auto    - [Machine Learning Classification Algorithms](#machine-learning-classification-algorithms)auto- [Reference](#reference)auto    - [Papers](#papers)auto    - [Links](#links)auto    - [Projects](#projects)auto    - [Ideas](#ideas)autoauto
+
+- [Summary for Text Classification](#summary-for-text-classification)
+- [Supervised Classification](#supervised-classification)
+- [Unsupervised Classification](#unsupervised-classification)
+- [Unbalance Classification](#unbalance-classification)
+- [Anomaly Detection](#anomaly-detection)
+- [Feature Engineering && Machine Learning Algorithm](#feature-engineering--machine-learning-algorithm)
+        - [Feature Engineering](#feature-engineering)
+        - [文本关键词](#文本关键词)
+        - [文本表示（Text Represent）](#文本表示text-represent)
+        - [文本特征选择](#文本特征选择)
+        - [特征权重计算](#特征权重计算)
+        - [文本数据分布](#文本数据分布)
+    - [Machine Learning Classification Algorithms](#machine-learning-classification-algorithms)
+- [Reference](#reference)
+    - [Papers](#papers)
+    - [Links](#links)
+    - [Projects](#projects)
+    - [Ideas](#ideas)
+
 <!-- /TOC -->
 
 # Summary for Text Classification
