@@ -3,69 +3,67 @@
 
 import numpy as np
 
-def preprocess_with_label(dataset_clf, corpus)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             :
+def preprocess_with_label(dataset_clf, corpus):
+    fin = open(corpus, 'r', encoding='utf-8', newline='\n', errors='ignore')
+    lines = fin.readlines()
+    fin.close()
 
-        fin = open(corpus, 'r', encoding='utf-8', newline='\n', errors='ignore')
-        lines = fin.readlines()
-        fin.close()
+    words = []
+    labels = []
 
-        words = []
-        labels = []
+    for line in lines:
+        line = line.strip('\t')
+        line = line.rstrip('\n')
+        cut_list = line.split('\t')
 
-        for line in lines:
-            line = line.strip('\t')
-            line = line.rstrip('\n')
-            cut_list = line.split('\t')
+        # TODO
+        if len(cut_list) == 2:
+            words.append("".join(cut_list[1:]))
+            labels.append(cut_list[0])
+        else:
+            raise Exception("Raise Exception")
 
-            # TODO
-            if len(cut_list) == 2:
-                words.append("".join(cut_list[1:]))
-                labels.append(cut_list[0])
-            else:
-                raise Exception("Raise Exception")
+    result_text = []
 
-        result_text = []
+    print(">>> words top 3", words[:3])
 
-        print(">>> words top 3", words[:3])
+    for text in words:
+        tmp = dataset_clf.encode_text_sequence(text, True, False)
+        result_text.append(tmp)
 
-        for text in words:
-            tmp = dataset_clf.encode_text_sequence(text, True, False)
-            result_text.append(tmp)
+    result_label = []
 
-        result_label = []
+    for item in labels:
+        if item in ["商品/品类", "搜优惠", "搜活动/会场"]:
+            result_label.append(dataset_clf.tag_dict_onehot[item])
+        else:
+            result_label.append(dataset_clf.tag_dict_onehot['闲聊'])
 
-        for item in labels:
-            if item in ["商品/品类", "搜优惠", "搜活动/会场"]:
-                result_label.append(dataset_clf.tag_dict_onehot[item])
-            else:
-                result_label.append(dataset_clf.tag_dict_onehot['闲聊'])
+    text_list = np.asarray(result_text)
+    label_list = np.asarray(result_label)
 
-        text_list = np.asarray(result_text)
-        label_list = np.asarray(result_label)
+    print(">>> words top 3", text_list[:3])
+    print(">>> labels top 3", label_list[:3])
 
-        print(">>> words top 3", text_list[:3])
-        print(">>> labels top 3", label_list[:3])
+    return text_list, label_list
 
-        return text_list, label_list
+def preprocess_with_label(dataset_clf, corpus):
+    fin = open(corpus, 'r', encoding='utf-8', newline='\n', errors='ignore')
+    lines = fin.readlines()
+    fin.close()
 
-def preprocess_without_label(dataset_clf, corpus)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             :
+    result_text = []
 
-        fin = open(corpus, 'r', encoding='utf-8', newline='\n', errors='ignore')
-        lines = fin.readlines()
-        fin.close()
+    print(">>> lines top 3", lines[:3])
 
-        result_text = []
+    for text in lines:
+        tmp = dataset_clf.encode_text_sequence(text, True, False)
+        result_text.append(tmp)
 
-        print(">>> lines top 3", lines[:3])
+    text_list = np.asarray(result_text)
 
-        for text in lines:
-            tmp = dataset_clf.encode_text_sequence(text, True, False)
-            result_text.append(tmp)
-
-        text_list = np.asarray(result_text)
-
-        print(">>> words top 3", text_list[:3])
-        print(text_list)
+    print(">>> words top 3", text_list[:3])
+    print(text_list)
 
 
 class Dataset_CLF():
