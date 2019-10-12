@@ -24,9 +24,11 @@ def preprocess_with_label(dataset_clf, corpus)                                  
             else:
                 raise Exception("Raise Exception")
 
-        result_text = []
 
         print(">>> words top 3", words[:3])
+        result_text = []
+
+
 
         for text in words:
             tmp = dataset_clf.encode_text_sequence(text, True, False)
