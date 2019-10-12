@@ -29,7 +29,7 @@ class Instructor:
         """
         parameter
         """
-        self.max_seq_len = do_predict_batchmax_seq_len
+        self.max_seq_len = args.max_seq_len
         self.tag_list = args.tag_list
         self.lr = args.lr
         self.optimizer = args.optimizer

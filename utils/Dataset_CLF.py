@@ -3,6 +3,7 @@
 
 import numpy as np
 
+<<<<<<< HEAD
 def preprocess_with_label(dataset_clf, corpus):
     fin = open(corpus, 'r', encoding='utf-8', newline='\n', errors='ignore')
     lines = fin.readlines()
@@ -24,6 +25,34 @@ def preprocess_with_label(dataset_clf, corpus):
             raise Exception("Raise Exception")
 
     result_text = []
+=======
+def preprocess_with_label(dataset_clf, corpus)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             :
+
+        fin = open(corpus, 'r', encoding='utf-8', newline='\n', errors='ignore')
+        lines = fin.readlines()
+        fin.close()
+
+        words = []
+        labels = []
+
+        for line in lines:
+            line = line.strip('\t')
+            line = line.rstrip('\n')
+            cut_list = line.split('\t')
+
+            # TODO
+            if len(cut_list) == 2:
+                words.append("".join(cut_list[1:]))
+                labels.append(cut_list[0])
+            else:
+                raise Exception("Raise Exception")
+
+
+        print(">>> words top 3", words[:3])
+        result_text = []
+
+
+>>>>>>> 2abef2b53a3f76e84ad15884784438dc3a3e0f92
 
     print(">>> words top 3", words[:3])
 
