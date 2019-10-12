@@ -81,34 +81,42 @@ class Instructor:
         """
 
         """
-        train set
+        dataset build
         """
-        self.trainset = Dataset_CLF(corpus=self.dataset_file['train'], tokenizer=self.tokenizer, max_seq_len=self.max_seq_len, data_type='normal', tag_list=self.tag_list)
-        # train set augment
+        dataset_clf = Dataset_CLF(tokenizer=self.tokenizer, max_seq_len=self.max_seq_len, data_type='normal', tag_list=self.tag_list)
+        train_text_list, train_label_list = preprocess_with_label(dataset_clf, self.dataset_file['train'])
+        test_text_list, test_label_list = preprocess_with_label(dataset_clf, self.dataset_file['test'])
+        predict_text_list = preprocess_without_label(dataset_clf, self.dataset_file['predict'])
+
+        """
+        imbalance
+        """
         from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
 
-        #ros = RandomOverSampler(random_state=0)
-        #x_resampled, y_resampled = ros.fit_sample(self.trainset.text_list, self.trainset.label_list)
+        # ros = RandomOverSampler(random_state=0)
+        # x_resampled, y_resampled = ros.fit_sample(self.trainset.text_list, self.trainset.label_list)
 
         # x_resampled, y_resampled = SMOTE(kind='borderline1').fit_sample(self.trainset.text_list, self.trainset.label_list)
         # print(">>> y_resampled", y_resampled[:4])
-        x_resampled = self.trainset.text_list
-        y_resampled = self.trainset.label_list
+        # x_resampled = self.trainset.text_list
+        # y_resampled = self.trainset.label_list
 
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': x_resampled, 'label': y_resampled}).batch(self.batch_size).shuffle(10000)
+        """
+        train set
+        """
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': train_text_list, 'label': train_label_list}).batch(self.batch_size)
+        
         """
         test and dev set
         """
-        self.testset = Dataset_CLF(corpus=self.dataset_file['test'], tokenizer=self.tokenizer, max_seq_len=self.max_seq_len,data_type='normal', tag_list=self.tag_list)
-        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list, 'label': self.testset.label_list}).batch(self.batch_size)
-
+        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': test_text_list, 'label': test_label_list}).batch(self.batch_size)
         self.val_data_loader = self.test_data_loader
+
         """
         predict set
         """
-        if self.do_predict is True:
-            self.predictset = Dataset_CLF(corpus=self.dataset_file['predict'], tokenizer=self.tokenizer, max_seq_len=self.max_seq_len, data_type='normal', tag_list=self.tag_list)
-            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.batch_size)
+        if self.do_predict_batch is True or self.do_predict_single is True:
+            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': predict_text_list, 'label': self.predict_label_list}).batch(self.batch_size)
 
         logger.info('>> load data done')
 
