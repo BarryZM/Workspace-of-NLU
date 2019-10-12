@@ -19,34 +19,34 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 
 
 class Instructor:
-    def __init__(self, opt):
+    def __init__(self, args):
         """
-        :param opt: parameters for build model
+        :param args: parameters for build model
         """
-        self.opt = opt
-        logger.info("parameters for programming :  {}".format(self.opt))
+        self.args = args
+        logger.info("parameters for programming :  {}".format(self.args))
 
         """
         parameter
         """
-        self.max_seq_len = opt.max_seq_len
-        self.tag_list = opt.tag_list
-        self.lr = opt.lr
-        self.optimizer = opt.optimizer
-        self.initializer = opt.initializer
-        self.epochs = opt.epochs
-        self.output_dir = opt.output_dir
-        self.result_file = opt.result_file
-        self.batch_size = opt.batch_size
-        self.dataset_file = opt.dataset_file
-        self.dataset_name = opt.dataset_name
-        self.model_name = opt.model_name
-        self.model_class = opt.model_class
-        self.do_train = opt.do_train
-        self.do_test = opt.do_test
-        self.do_predict_batch = opt.do_predict_batch
-        self.do_predict_single = opt.do_predict_single
-        self.es = opt.es
+        self.max_seq_len = do_predict_batchmax_seq_len
+        self.tag_list = args.tag_list
+        self.lr = args.lr
+        self.optimizer = args.optimizer
+        self.initializer = args.initializer
+        self.epochs = args.epochs
+        self.output_dir = args.output_dir
+        self.result_file = args.result_file
+        self.batch_size = args.batch_size
+        self.dataset_file = args.dataset_file
+        self.dataset_name = args.dataset_name
+        self.model_name = args.model_name
+        self.model_class = args.model_class
+        self.do_train = args.do_train
+        self.do_test = args.do_test
+        self.do_predict_batch = args.do_predict_batch
+        self.do_predict_single = args.do_predict_single
+        self.es = args.es
 
         """
         build tokenizer
@@ -57,7 +57,7 @@ class Instructor:
         """
         build model
         """
-        model = self.model_class(self.opt, tokenizer)
+        model = self.model_class(self.args, tokenizer)
         self.model = model
 
         """
