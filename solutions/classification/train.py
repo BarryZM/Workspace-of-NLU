@@ -63,7 +63,11 @@ class Instructor:
         """
         set session
         """
-        # self.session = model.session
+        
+        config = tf.ConfigProto(allow_soft_placement=True)
+        config.gpu_options.allow_growth = True
+        session = tf.Session(config=config)
+        self.session = session
 
         """
         set saver and max_to_keep 
