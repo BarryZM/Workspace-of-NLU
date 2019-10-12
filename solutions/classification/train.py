@@ -63,7 +63,7 @@ class Instructor:
         """
         set session
         """
-        
+
         config = tf.ConfigProto(allow_soft_placement=True)
         config.gpu_options.allow_growth = True
         session = tf.Session(config=config)
@@ -136,6 +136,8 @@ class Instructor:
 
         max_f1 = 0
         path = None
+
+        self.session.run(tf.global_variables_initializer())
 
         logger.info("$" * 50)
         logger.info(" >>>>>> train begin")
