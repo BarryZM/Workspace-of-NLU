@@ -44,7 +44,7 @@ class Instructor:
         self.model_class = opt.model_class
         self.do_train = opt.do_train
         self.do_test = opt.do_test
-        self.do_predict = opt.do_predict
+        self.do_predict_batch = opt.do_predict_batch
         self.es = opt.es
 
         """
@@ -309,7 +309,7 @@ class Instructor:
 
         elif self.do_train is False and self.do_test is True:
             self._test()
-        elif self.do_predict is True:
+        elif self.do_predict_batch is True:
             self._predict()
         else:
             logger.info("@@@ Not Include This Situation")
@@ -343,7 +343,7 @@ def main():
 
     parser.add_argument('--do_train', action='store_true', default='false')
     parser.add_argument('--do_test', action='store_true', default='false')
-    parser.add_argument('--do_predict', action='store_true', default='false')
+    parser.add_argument('--do_predict_batch', action='store_true', default='false')
      
     args = parser.parse_args()
     
