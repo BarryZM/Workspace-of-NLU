@@ -8,7 +8,7 @@ sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 from sklearn import metrics
 
 from pathlib import Path
-from utils.Dataset_CLF import Dataset_CLF
+from utils.Dataset_CLF import Dataset_CLF, preprocess_with_label, preprocess_without_label
 from utils.Tokenizer import build_tokenizer
 from solutions.classification.models.TextCNN import TextCNN
 from solutions.classification.models.BERT_CNN import BERTCNN
