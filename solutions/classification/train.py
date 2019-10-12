@@ -45,6 +45,7 @@ class Instructor:
         self.do_train = opt.do_train
         self.do_test = opt.do_test
         self.do_predict_batch = opt.do_predict_batch
+        self.do_predict_single = opt.do_predict_single
         self.es = opt.es
 
         """
@@ -344,6 +345,7 @@ def main():
     parser.add_argument('--do_train', action='store_true', default='false')
     parser.add_argument('--do_test', action='store_true', default='false')
     parser.add_argument('--do_predict_batch', action='store_true', default='false')
+    parser.add_argument('--do_predict_single', action='store_true', default='false')
      
     args = parser.parse_args()
     
