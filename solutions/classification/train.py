@@ -90,8 +90,13 @@ class Instructor:
         """
         dataset_clf = Dataset_CLF(tokenizer=self.tokenizer, max_seq_len=self.max_seq_len, data_type='normal', tag_list=self.tag_list)
         train_text_list, train_label_list = preprocess_with_label(dataset_clf, self.dataset_file['train'])
+        print("train text top 10", train_text_list[:10])
+        print("train label top 10", train_label_list[:10])
         test_text_list, test_label_list = preprocess_with_label(dataset_clf, self.dataset_file['test'])
-        predict_text_list = preprocess_without_label(dataset_clf, self.dataset_file['predict'])
+        print("test text top 10", test_text_list[:10])
+        print("test label top 10", test_label_list[:10])
+        if self.do_predict_batch or self.do_predict_single:
+            predict_text_list = preprocess_without_label(dataset_clf, self.dataset_file['predict'])
 
         """
         imbalance
@@ -348,10 +353,10 @@ def main():
     parser.add_argument('--epochs', type=int, default=100, help='epochs for trianing')
     parser.add_argument('--es', type=int, default=3, help='early stopping epochs')
 
-    parser.add_argument('--do_train', action='store_true', default='false')
-    parser.add_argument('--do_test', action='store_true', default='false')
-    parser.add_argument('--do_predict_batch', action='store_true', default='false')
-    parser.add_argument('--do_predict_single', action='store_true', default='false')
+    parser.add_argument('--do_train', action='store_true', default=False)
+    parser.add_argument('--do_test', action='store_true', default=False)
+    parser.add_argument('--do_predict_batch', action='store_true', default=False)
+    parser.add_argument('--do_predict_single', action='store_true', default=False)
      
     args = parser.parse_args()
     

@@ -23,9 +23,11 @@ def preprocess_with_label(dataset_clf, corpus):
         else:
             raise Exception("Raise Exception")
 
-    result_text = []
     print(">>> words top 3", words[:3])
+    print(">>> labels top 3", labels[:3])
 
+
+    result_text = []
     for text in words:
         tmp = dataset_clf.encode_text_sequence(text, True, False)
         result_text.append(tmp)
@@ -33,16 +35,13 @@ def preprocess_with_label(dataset_clf, corpus):
     result_label = []
 
     for item in labels:
-        if item in ["商品/品类", "搜优惠", "搜活动/会场"]:
-            result_label.append(dataset_clf.tag_dict_onehot[item])
-        else:
-            result_label.append(dataset_clf.tag_dict_onehot['闲聊'])
+        result_label.append(dataset_clf.tag_dict_onehot[item])
 
     text_list = np.asarray(result_text)
     label_list = np.asarray(result_label)
 
-    print(">>> words top 3", text_list[:3])
-    print(">>> labels top 3", label_list[:3])
+    print(">>> words top 3 after encoder", text_list[:3])
+    print(">>> labels top 3 after encoder", label_list[:3])
 
     return text_list, label_list
 
@@ -53,7 +52,7 @@ def preprocess_without_label(dataset_clf, corpus):
 
     result_text = []
 
-    print(">>> lines top 3", lines[:3])
+    print(">>> predict corpus  top 3 before encoder", lines[:3])
 
     for text in lines:
         tmp = dataset_clf.encode_text_sequence(text, True, False)
@@ -61,7 +60,7 @@ def preprocess_without_label(dataset_clf, corpus):
 
     text_list = np.asarray(result_text)
 
-    print(">>> words top 3", text_list[:3])
+    print(">>> predict corpus top 3 after encoder", text_list[:3])
     print(text_list)
 
 
@@ -79,18 +78,9 @@ class Dataset_CLF():
         self.__set_tag2id()
         self.__set_tag2onehot()
 
-        self.text_list = []
-        self.label_list = []
-
         print(tag_list)
         print(self.tag2idx)
         print(self.idx2tag)
-
-    def __getitem__(self, index):
-        return self.text_list[index]
-
-    def __len__(self):
-        return len(self.text_list)
 
     def __set_tag2id(self):
         tag2idx = {}
