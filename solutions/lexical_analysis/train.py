@@ -62,7 +62,12 @@ class Instructor:
         build model and session
         """
         self.model = self.model_class(self.opt, tokenizer)
-        self.session = self.model.session
+
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        session = tf.Session(config=config)
+        session.run(tf.global_variables_initializer())
+        self.session = session
 
         """
         set saver and max_to_keep 
@@ -180,7 +185,7 @@ class Instructor:
         ckpt = tf.train.get_checkpoint_state(os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name)))
 
         if ckpt and ckpt.model_checkpoint_path:
-            logger.info('>>> load ckpt model path for predict', ckpt.model_checkpoint_path)
+            logger.info('>>> load ckpt model path for predict'.format(ckpt.model_checkpoint_path))
             self.saver.restore(self.session, ckpt.model_checkpoint_path)
             self._output_result(data_loader)
             logger.info('>> predict done')
@@ -273,15 +278,13 @@ class Instructor:
             best_model_path = self._train(None, optimizer, self.train_data_loader, self.test_data_loader)
             self.saver.restore(self.session, best_model_path)
             test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
-            logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
-
-        elif self.do_train is False and self.do_test is True:
-            self._test()
+            logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1)) 
+        elif self.do_train is False and self.do_test is True: 
+            self._test() 
         elif self.do_predict is True:
-            self._predict(self.predict_data_loader)
-        else:
-            logger.info("@@@ Not Include This Situation")
-
+            self._predict(self.predict_data_loader) 
+        else: 
+            logger.info("@@@ Not Include This Situation") 
 
 def main():
     parser = argparse.ArgumentParser()
@@ -293,9 +296,9 @@ def main():
     parser.add_argument('--max_seq_len', type=str, default=64)
     parser.add_argument('--batch_size', type=int, default=256)
     parser.add_argument('--hidden_dim', type=int, default=500, help='hidden dim of dense')
-    parser.add_argument('--es', type=int, default=10, help='early stopping epochs')
+    parser.add_argument('--es', type=int, default=5, help='early stopping epochs')
     parser.add_argument('--learning_rate', type=float, default=1e-2)
-    parser.add_argument('--epochs', type=int, default=5)
+    parser.add_argument('--epochs', type=int, default=50)
 
     parser.add_argument('--model_name', type=str, default='birnn_crf')
     parser.add_argument('--inputs_cols', type=str, default='text')
@@ -347,7 +350,8 @@ def main():
             'predict': prefix_path + args.dataset_name + predict_path},
     }
 
-    prefix_list = ['B', 'I', 'E', 'O', 'S']
+    prefix_list = ['B', 'I', 'E', 'S']
+    # prefix_list = ['B', 'I', 'E', 'S']
 
     promotion_type = ['DATE', 'PRODUCT', 'BRAND', 'SHOP', 'COLOR', 'PRICE',
                       'AMOUT', 'ATTRIBUTE']

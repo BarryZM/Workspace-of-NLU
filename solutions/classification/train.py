@@ -62,7 +62,7 @@ class Instructor:
         """
         set session
         """
-        self.session = model.session
+        # self.session = model.session
 
         """
         set saver and max_to_keep 

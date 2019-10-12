@@ -133,7 +133,7 @@ def get_results_by_line(text_lines, ground_lines, predict_lines):
     assert count_predict == count_predict
 
     for item_t, item_g, item_p in zip(text_lines, ground_lines, predict_lines):
-        print("#" * 200)
+        print("#" * 100)
         print(" item text", item_t)
         print(" item ground", item_g)
         print(" item predict", item_p)

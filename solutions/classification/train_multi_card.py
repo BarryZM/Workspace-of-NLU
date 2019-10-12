@@ -67,7 +67,7 @@ class Instructor:
         """
         set saver and max_to_keep 
         """
-        self.saver = tf.train.Saver(max_to_keep=1)
+        # self.saver = tf.train.Saver(max_to_keep=1)
 
         """
         dataset
