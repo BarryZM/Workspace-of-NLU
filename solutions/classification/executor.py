@@ -31,16 +31,10 @@ class Instructor:
         """
         parameter
         """
-        self.optimizer = argsoptimizer
+        self.optimizer = args.optimizer
         self.initializer = args.initializer
 
         self.tag_list = args.tag_list
-
-        self.max_seq_len = args.max_seq_len
-
-        self.lr = args.lr
-
-        self.epochs = args.epochs
         self.output_dir = args.output_dir
         self.result_file = args.result_file
         self.batch_size = args.batch_size
@@ -48,10 +42,17 @@ class Instructor:
         self.dataset_name = args.dataset_name
         self.model_name = args.model_name
         self.model_class = args.model_class
+
+        self.max_seq_len = args.max_seq_len
+        self.lr = args.lr
+        self.gpu_list = [int(item) for item in args.gpu_list.split(",")]
+        self.epochs = args.epochs
+        self.es = args.es
+
         self.do_train = args.do_train
         self.do_test = args.do_test
         self.do_predict_batch = args.do_predict_batch
-        self.es = args.es
+        self.do_predict_single = args.do_predict_single
 
         """
         build tokenizer
@@ -67,6 +68,28 @@ class Instructor:
         config.gpu_options.allow_growth = True
         session = tf.Session(config=config)
         self.session = session
+
+        """
+        set model
+        """
+        model_list = []
+       
+        tower_grads = []
+
+        for gpu_id in self.gpu_list:
+            with tf.device('/gpu:%d' % gpu_id):
+                print('tower:%d...' % gpu_id)
+                with tf.name_scope('tower_%d' % gpu_id) as scope:
+                    model = self.model_class(self.args, self.tokenizer)
+                    model_list.append(model)
+                    grads = self.optimizer.compute_gradients(model.loss)
+                    tower_grads.append(grads)
+                    tf.get_variable_scope().reuse_variables()  # we reuse variables here after we initiate one model
+
+        with tf.variable_scope("tower_gradient", reuse=tf.AUTO_REUSE):
+            self.apply_gradient_op = optimizer.apply_gradients(self.average_gradients(tower_grads))
+
+        self.model_list = model_list
 
         """
         set saver and max_to_keep 
@@ -123,83 +146,6 @@ class Instructor:
 
         logger.info('>> load data done')
 
-    def _train(self, criterion, optimizer, train_data_loader, val_data_loader):
-        """
-        :param criterion: no use, select loss function
-        :param optimizer: no use, select optimizer
-        :param train_data_loader: ..
-        :param val_data_loader: ..
-        :return: best model ckpt path
-        """
-
-        max_f1 = 0
-        path = None
-
-        logger.info("$" * 50)
-        logger.info(" >>>>>> train begin")
-        for _epoch in range(self.epochs):
-            logger.info('>' * 50)
-            logger.info(' >>>>>> epoch: {}'.format(_epoch))
-
-            iterator = train_data_loader.make_one_shot_iterator()
-            one_element = iterator.get_next()
-
-            model = self.model
-            self.session.run(tf.global_variables_initializer())
-
-            while True:
-                try:
-                    sample_batched = self.session.run(one_element)    
-                    inputs = sample_batched['text']
-                    labels = sample_batched['label']
-                    _ = self.session.run(model.trainer, feed_dict={model.input_x: inputs, model.input_y: labels, model.global_step : _epoch, model.keep_prob: 1.0})
-                except tf.errors.OutOfRangeError:
-                    break
-            
-            self.model = model
-
-            val_p, val_r, val_f1 = self._evaluate_metric(val_data_loader)
-            logger.info('>>>>>> val_p: {:.4f}, val_r:{:.4f}, val_f1: {:.4f}'.format(val_p, val_r, val_f1))
-            
-            if val_f1 > max_f1:
-                logger.info(">> val f1 > max_f1, enter save model part")
-                """
-                update max_f1
-                """
-                max_f1 = val_f1
-                """
-                output path for pb and ckpt model
-                """
-                if not os.path.exists(self.output_dir):
-                    os.mkdir(self.output_dir)
-                ckpt_path = os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name), '{0}'.format(round(val_f1, 4)))
-                """
-                flag for early stopping
-                """
-                last_improved = _epoch
-                """
-                save ckpt model
-                """
-                self.saver.save(sess=self.session, save_path=ckpt_path,)
-                logger.info('>> ckpt model saved in : {}'.format(ckpt_path))
-                """
-                save pb model
-                """
-                
-                pb_dir = os.path.join(self.output_dir,'{0}_{1}'.format(self.model_name,  self.dataset_name))
-
-                from tensorflow.python.framework import graph_util
-                trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def, output_node_names=['logits/output_argmax'])
-                tf.train.write_graph(trained_graph, pb_dir, "model.pb", as_text=False)
-                logger.info('>> pb model saved in : {}'.format(pb_dir))
-
-            if abs(last_improved - _epoch) > self.es:
-                logging.info(">> too many epochs not imporve, break")
-                break
-        if ckpt_path is None:
-            logging.warning(">> return path is None")
-
-        return ckpt_path
 
     def _test(self,data_loader):
         """
@@ -263,7 +209,7 @@ class Instructor:
         else:
             logger.info('@@@ Error:load ckpt error')
 
-    def _evaluate_metric(self, model, data_loader):
+    def _evaluate_metric(self, data_loader):
         """
         use model calculate metric
         """
@@ -271,11 +217,13 @@ class Instructor:
         iterator = data_loader.make_one_shot_iterator()
         one_element = iterator.get_next()
 
+        model = self.model_list[0]
+
         while True:
             try:
                 sample_batched = self.session.run(one_element)    
                 inputs = sample_batched['text']
-                labels = sample_batched['label']
+
                 outputs = self.session.run(model.output_onehot, feed_dict={model.input_x: inputs, model.input_y: labels, model.global_step: 1, model.keep_prob: 1.0})
                 t_targets_all.extend(labels)
                 t_outputs_all.extend(outputs)
@@ -332,22 +280,8 @@ class Instructor:
         :return: best model ckpt path
         """
         
-        max_f1, path, tower_grads = 0, None, []
-        model_list = []
-        
-        for gpu_id in gpu_list:
-            with tf.device('/gpu:%d' % gpu_id):
-                print('tower:%d...' % gpu_id)
-                with tf.name_scope('tower_%d' % gpu_id) as scope:
-                    model = self.model_class(self.opt, self.tokenizer)
-                    model_list.append(model)
-                    grads = optimizer.compute_gradients(model.loss)
-                    tower_grads.append(grads)
+        max_f1, path  = 0, None
 
-                    tf.get_variable_scope().reuse_variables()  # we reuse variables here after we initiate one model
-
-        with tf.variable_scope("tower_gradient", reuse=tf.AUTO_REUSE):
-            apply_gradient_op = optimizer.apply_gradients(self.average_gradients(tower_grads))
         
         self.session.run(tf.global_variables_initializer())
 
@@ -374,7 +308,7 @@ class Instructor:
                         feed_dict[model_list[gpu_id].keep_prob] = 1.0
 
                     # gradient, loss = self.session.run([apply_gradient_op, loss], feed_dict=feed_dict)
-                    gradient = self.session.run(apply_gradient_op, feed_dict=feed_dict)
+                    gradient = self.session.run(self.apply_gradient_op, feed_dict=feed_dict)
                     # TODO loss
 
                 except tf.errors.OutOfRangeError:
@@ -426,8 +360,11 @@ class Instructor:
     def run(self):
         optimizer = self.optimizer(learning_rate=self.lr)
 
-        if self.do_train is True and self.do_test is True:
-            best_model_path = self._train_multi_gpu([0,1,2], optimizer, self.train_data_loader, self.test_data_loader)
+        best_model_path = ""
+        if self.do_train is True:
+            best_model_path = self._train_multi_gpu(self.gpu_list, optimizer, self.train_data_loader, self.test_data_loader)
+
+        if self.do_test in True:
             # best_model_path = self._train(None, optimizer, self.train_data_loader, self.test_data_loader)
             self.saver.restore(self.session, best_model_path)
             test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
@@ -457,7 +394,7 @@ def main():
     parser.add_argument('--optimizer', type=str, default='adam')
 
     parser.add_argument('--emb_dim', type=int, default='200')
-    parser.add_argument('--gpu', type=str, default='0')
+    parser.add_argument('--gpu_list', type=str, default='0,1,2')
     parser.add_argument('--max_seq_len', type=int, default=256)
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--lr', type=float, default=1e-3, help="learning rate")

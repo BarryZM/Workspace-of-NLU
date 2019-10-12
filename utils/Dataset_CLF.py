@@ -62,14 +62,6 @@ def preprocess_without_label(dataset_clf, corpus)                               
             tmp = dataset_clf.encode_text_sequence(text, True, False)
             result_text.append(tmp)
 
-        result_label = []
-
-        for item in labels:
-            if item in ["商品/品类", "搜优惠", "搜活动/会场"]:
-                result_label.append(dataset_clf.tag_dict_onehot[item])
-            else:
-                result_label.append(dataset_clf.tag_dict_onehot['闲聊'])
-
         text_list = np.asarray(result_text)
 
         print(">>> words top 3", text_list[:3])
@@ -79,7 +71,6 @@ def preprocess_without_label(dataset_clf, corpus)                               
 class Dataset_CLF():
 
     def __init__(self, tokenizer, max_seq_len, data_type, tag_list):
-        self.corpus = corpus
         self.tokenizer = tokenizer
 
         self.word2idx = self.tokenizer.word2idx
