@@ -66,73 +66,9 @@
 
 ## Part I : Lexical Analysis
 
-### Seg && Pos && NER
-
-#### Dataset 
-
-| lexical Dataset                                              | SOTA | Tips                                                         |
-| ------------------------------------------------------------ | ---- | ------------------------------------------------------------ |
-| [中国自然语言开源组织](http://www.nlpcn.org/)                |      |                                                              |
-| [国内免费语料库](https://www.cnblogs.com/mo-wang/p/4444858.html) |      |                                                              |
-| [corpusZH](https://github.com/liwenzhu/corpusZh)             |      | 总词汇量在7400W+                                             |
-| National-Language-council                                    |      |                                                              |
-| [SIGHAN的汉语处理评测的Bakeoff语料](http://sighan.cs.uchicago.edu/bakeoff2005/) |      |                                                              |
-| Conll-2000                                                   |      |                                                              |
-| WSJ-PTB                                                      |      |                                                              |
-| ccks2017                                                     |      | 一个中文的电子病例测评相关的数据                             |
-| [BosonNLP](https://link.zhihu.com/?target=http%3A//bosonnlp.com/dev/resource) |      |                                                              |
-| [CoNLL 2002）Annotated Corpus for Named Entity Recognition](https://link.zhihu.com/?target=https%3A//www.kaggle.com/abhinavwalia95/entity-annotated-corpus) |      |                                                              |
-| Weibo NER corpus                                             |      | 1890条, person, organization, location and geo-political entity |
-| **MSRA-NER**                                                 |      |                                                              |
-
-#### Solution 
-
-| Model                                                        | Tips                                                         | Results                      |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------- |
-| BiLSTM CRF [paper](https://arxiv.org/pdf/1508.01991.pdf)[code](https://github.com/Determined22/zh-NER-TF) | BiLSTM 进行表示学习，CRF解码                                 |                              |
-| IDCNN CRF [paper](https://arxiv.org/abs/1511.07122)[source-code](https://github.com/iesl/dilated-cnn-ner)[code](https://github.com/crownpku/Information-Extraction-Chinese/tree/master/NER_IDCNN_CRF)[blog](https://www.cnblogs.com/pinking/p/9192546.html) | CNN in NLP Trick;添加空洞，增加感受野;速度较快               |                              |
-| Lattice-LSTM CRF [paper](https://arxiv.org/abs/1805.02023)[source-code](https://github.com/jiesutd/LatticeLSTM)[blog](https://new.qq.com/omn/20180630/20180630A0IH3X.html) | 中文 char-embedding 和 word embedding 的结合；SOTA with static embedding |                              |
-| BERT-BIGRU CRF [code](https://github.com/macanv/BERT-BiLSTM-CRF-NER) | SOTA                                                         |                              |
-| DBN CRF                                                      |                                                              |                              |
-| NCRF++ [paper](https://arxiv.org/abs/1806.04470)             | Colling 2018                                                 | CoNLL2003 上能达到91.35的 F1 |
-
-#### Metric 
-
-- strict/type/partial/overlap/
-- 准确率(Precision)和召回率(Recall)
-  - Precision = 正确切分出的词的数目/切分出的词的总数
-  - Recall = 正确切分出的词的数目/应切分出的词的总数
-- 综合性能指标F-measure
-  - Fβ = (β2 + 1)*Precision*Recall/(β2*Precision + Recall)*
-  - *β为权重因子，如果将准确率和召回率同等看待，取β = 1，就得到最常用的F1-measure*
-  - *F1 = 2*Precisiton*Recall/(Precision+Recall)
-- 未登录词召回率(R_OOV)和词典中词的召回率(R_IV)
-  - R_OOV = 正确切分出的未登录词的数目/标准答案中未知词的总数
-  - R_IV = 正确切分出的已知词的数目/标准答案中已知词的总数
+### Seg && Pos && NER 
 
 ### Relation Extraction
-
-#### Dataset 
-
-| Relation Extraction Dataset | SOTA | Tips                          |
-| --------------------------- | ---- | ----------------------------- |
-| SemEval 2010 Task 8         |      |                               |
-| FewRel                      |      | EMNLP2018，清华               |
-| NYT10                       |      | https://github.com/thunlp/NRE |
-| 百度实体链接 CCKS2019       |      |                               |
-
-#### Solution
-
-| Model                                       | Tips                         |
-| ------------------------------------------- | ---------------------------- |
-| [THUNLP/NRE](https://github.com/thunlp/NRE) | CNN, PCNN, CNN+ATT, PCNN+ATT |
-|                                             |                              |
-|                                             |                              |
-
-#### Metric
-
-+ Pass
-
 
 
 ## Part II : Syntactic Analysis
