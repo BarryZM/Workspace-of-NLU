@@ -7,8 +7,8 @@
     - [Solution](#solution)
     - [Metric](#metric)
 - [Seg && Pos](#seg--pos)
-    - [Dataset](#dataset-1)
-    - [Solution](#solution-1)
+    - [Dataset](#dataset)
+    - [Solution](#solution)
         - [基于字符串匹配](#基于字符串匹配)
             - [正向最大匹配/反向最大匹配/最少切分词](#正向最大匹配反向最大匹配最少切分词)
         - [基于统计](#基于统计)
@@ -16,21 +16,21 @@
         - [N元统计模型](#n元统计模型)
         - [歧义切分](#歧义切分)
         - [未登录词](#未登录词)
-    - [Metric](#metric-1)
+    - [Metric](#metric)
 - [NER](#ner)
-    - [Dataset](#dataset-2)
-    - [Solution](#solution-2)
+    - [Dataset](#dataset)
+    - [Solution](#solution)
         - [基于规则和词典](#基于规则和词典)
         - [基于统计的方法](#基于统计的方法)
         - [混合方法](#混合方法)
         - [基于神经网路](#基于神经网路)
-    - [Metric](#metric-2)
+    - [Metric](#metric)
 - [Relation Extraction](#relation-extraction)
-    - [Dataset](#dataset-3)
-    - [Solution](#solution-3)
+    - [Dataset](#dataset)
+    - [Solution](#solution)
         - [单纯关系抽取](#单纯关系抽取)
         - [远程监督](#远程监督)
-    - [Metric](#metric-3)
+    - [Metric](#metric)
 - [Knowledge Base](#knowledge-base)
     - [TransE](#transe)
 - [Reference](#reference)
@@ -242,6 +242,7 @@
 
 ## Links
 
+- [八款中文词性标注工具使用及在线测试](http://www.52nlp.cn/%e5%85%ab%e6%ac%be%e4%b8%ad%e6%96%87%e8%af%8d%e6%80%a7%e6%a0%87%e6%b3%a8%e5%b7%a5%e5%85%b7%e4%bd%bf%e7%94%a8%e5%8f%8a%e5%9c%a8%e7%ba%bf%e6%b5%8b%e8%af%95)
 - 统计自然语言处理 Chapter 7
 - 匹配分词， 统计分词 https://blog.csdn.net/cuixianpeng/article/details/43234235
 - https://www.jianshu.com/p/cd937f20bf55
