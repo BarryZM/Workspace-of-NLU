@@ -155,5 +155,5 @@ class Dataset_CLF():
     def del_unbalance_label(self):
         pass
 
-    
-
+    def visualization(self):
+        pass
