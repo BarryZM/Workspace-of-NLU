@@ -28,11 +28,16 @@
 - [Relation Extraction](#relation-extraction)
     - [Dataset](#dataset)
     - [Solution](#solution)
+        - [Pipeline](#pipeline)
         - [单纯关系抽取](#单纯关系抽取)
         - [远程监督](#远程监督)
     - [Metric](#metric)
 - [Knowledge Base](#knowledge-base)
-    - [TransE](#transe)
+    - [Dataset](#dataset)
+    - [Solution](#solution)
+        - [TransE(推理)](#transe推理)
+        - [PRA](#pra)
+    - [Metric](#metric)
 - [Reference](#reference)
     - [Links](#links)
     - [Papers](#papers)
@@ -213,6 +218,9 @@
 
 ## Solution
 
+### Pipeline
++ 实体识别/消歧/关系抽取
+
 ### 单纯关系抽取
 
 - SemEval 2010 task 8
@@ -226,7 +234,7 @@
 | Model                                       | Tips                         |
 | ------------------------------------------- | ---------------------------- |
 | [THUNLP/NRE](https://github.com/thunlp/NRE) | CNN, PCNN, CNN+ATT, PCNN+ATT |
-|                                             |                              |
+| [THUNLP/OpenNRE](https://github.com/thunlp/OpenNRE) |                              |
 |                                             |                              |
 
 ## Metric
@@ -236,7 +244,24 @@
 
 # Knowledge Base
 
-## TransE
+## Dataset
+
+| Dataset                                       | Tips                        |
+| ------------------------------------------- | ---------------------------- |
+| Baidu 百科知识图谱 |  |
+| Sogou |  |
+| google |    |
+| yoga |   |
+| Depedia  |   |
+| Hownet |  |
+
+
+## Solution
++ https://www.zhihu.com/question/26385031
+### TransE(推理)
+### PRA
+
+## Metric
 
 # Reference
 
@@ -284,6 +309,10 @@
     - EMNLP2018
     - 同时执行实体识别和关系抽取的multi-head selection 联合模型
     - 实验证明该文提出的方法在大多数数据集上, 可以不依赖NLP工具,且不使用人工特征设置的情况下,同步解决多关系问题
+
+- Knowledge Base
+    - Tianxing Wu, Shaowei Ling, Guilin Qi, Haofen Wang:Mining Type Information from Chinese Online Encyclopedias. JIST 2014: 213-229Xing Niu, Xinruo Sun, Haofen Wang, Shu Rong, Guilin Qi, Yong Yu:http://Zhishi.me - Weaving Chinese Linking Open Data. International Semantic Web Conference (2) 2011: 205-220
+
 
 ## Tools
 

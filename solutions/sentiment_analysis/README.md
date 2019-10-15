@@ -1,4 +1,39 @@
-[TOC]
+<!-- TOC -->
+
+- [Summary of Sentiment Analysis](#summary-of-sentiment-analysis)
+- [Tips](#tips)
+- [Dataset](#dataset)
+- [Solution](#solution)
+    - [Aspect Extraction](#aspect-extraction)
+- [Metric](#metric)
+- [Reference](#reference)
+    - [Papers](#papers)
+    - [Sentiment Analysis based on Extracted Aspect](#sentiment-analysis-based-on-extracted-aspect)
+        - [BERT Post-Training for Review Reading Comprehension and Aspect-based Sentiment Analysis](#bert-post-training-for-review-reading-comprehension-and-aspect-based-sentiment-analysis)
+        - [Exploiting Document Knowledge  for Aspect-level Sentiment Classification](#exploiting-document-knowledge--for-aspect-level-sentiment-classification)
+        - [Attentional Encoder Network for Targeted Sentiment Classification](#attentional-encoder-network-for-targeted-sentiment-classification)
+        - [Bert for Sentence Pair Classification](#bert-for-sentence-pair-classification)
+        - [Multi-grained Attention Network for Aspect-Level Sentiment Classification](#multi-grained-attention-network-for-aspect-level-sentiment-classification)
+        - [Aspect Level Sentiment Classification with Attention-over-Attention Neural Networks](#aspect-level-sentiment-classification-with-attention-over-attention-neural-networks)
+        - [Transformation Networks for Target-Oriented Sentiment Classification](#transformation-networks-for-target-oriented-sentiment-classification)
+        - [Content Attention Model for Aspect Based Sentiment Analysis](#content-attention-model-for-aspect-based-sentiment-analysis)
+        - [Recurrent Attention Network on Memory for Aspect Sentiment Analysis](#recurrent-attention-network-on-memory-for-aspect-sentiment-analysis)
+        - [Aspect Level Sentiment Classification with Deep Memory Network](#aspect-level-sentiment-classification-with-deep-memory-network)
+        - [Interactive Attention Networks for Aspect-Level Sentiment Classification](#interactive-attention-networks-for-aspect-level-sentiment-classification)
+        - [Attention-based LSTM for Aspect-level Sentiment Classification](#attention-based-lstm-for-aspect-level-sentiment-classification)
+        - [TD-LSTM](#td-lstm)
+        - [Multi-Entity Sentiment Analysis](#multi-entity-sentiment-analysis)
+        - [SemEval 2014](http://alt.qcri.org/semeval2014/task4/)](#semeval-2014httpaltqcriorgsemeval2014task4)
+        - [Code Review](#code-review)
+        - [Benchmarking Multimodal Sentiment Analysis](#benchmarking-multimodal-sentiment-analysis)
+        - [Aspect Level Sentiment Classification with Deep Memory Network](#aspect-level-sentiment-classification-with-deep-memory-network)
+        - [Attention-based LSTM for Aspect-level Sentiment Classification](#attention-based-lstm-for-aspect-level-sentiment-classification)
+        - [Learning Sentiment Memories for Sentiment Modification without Parallel](#learning-sentiment-memories-for-sentiment-modification-without-parallel)
+        - [ABSA-BERT-pair](#absa-bert-pair)
+        - [Deep Learning for sentiment Analysis - A survey](#deep-learning-for-sentiment-analysis---a-survey)
+    - [Projects](#projects)
+
+<!-- /TOC -->
 
 # Summary of Sentiment Analysis
 
@@ -6,15 +41,45 @@
 
 - 文本分类更侧重与文本得客观性，情感分类更侧重主观性
 
-# Document Level Sentiment Analysis
+#  Dataset
 
-+ pass
+| Sentiment Analysis Dataset                                   | SOTA                                                         | Tips                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Sentiment140                                                 | Assessing State-of-the-Art Sentiment Models on State-of-the-Art Sentiment Datasets | Sentiment140是一个可用于情感分析的数据集。一个流行的数据集，非常适合开始你的NLP旅程。情绪已经从数据中预先移除 最终的数据集具有以下6个特征：  极性/ID/日期/问题/用户名/文本 大小：80 MB（压缩） 记录数量：160,000条推文 |
+| https://challenger.ai/dataset/fsaouord2018)                  |                                                              |                                                              |
+| Stanford Sentiment Treebank                                  |                                                              |                                                              |
+| SemEval 2014 dataset task4](http://alt.qcri.org/semeval2014/task4/) |                                                              |                                                              |
+| SemEval-2015 Task12                                          |                                                              |                                                              |
+| SemEval-2016 Task 5                                          |                                                              |                                                              |
+| Twitter                                                      |                                                              |                                                              |
+| MPQA                                                         |                                                              |                                                              |
+| Hindi                                                        |                                                              |                                                              |
+| SentiHood                                                    |                                                              |                                                              |
+| Mitchell                                                     |                                                              |                                                              |
+| tripAdvisor                                                  |                                                              |                                                              |
+| openTable                                                    |                                                              |                                                              |
+| [清华ATAE 源码及数据](http://coai.cs.tsinghua.edu.cn/media/files/atae-lstm_uVgRmdb.rar) |                                                              |                                                              |
+| [Kaggle Twitter Sentiment Analysis](https://www.kaggle.com/c/si650winter11/leaderboard) |                                                              |                                                              |
+| **ChnSentiCorp**                                             | 中文情感分析数据集                                           |                                                              |
 
-# Sentence Level Sentiment Analysis
+# Solution 
 
-- pass
+| Model                                                        | Tips                                                |
+| ------------------------------------------------------------ | --------------------------------------------------- |
+| TD-LSTM [paper](https://link.zhihu.com/?target=http%3A//www.aclweb.org/anthology/C16-1311) [code](https://link.zhihu.com/?target=https%3A//github.com/jimmyyfeng/TD-LSTM) | COLING 2016；两个LSTM 分别编码 context 和 target    |
+| TC-LSTM [paper]() [blog](https://zhuanlan.zhihu.com/p/43100493) | 两个LSTM 分别添加 target words 的 average embedding |
+| AT-LSTM                                                      | softmax 之前加入 aspect embedding                   |
+| ATAE-LSTM [paper](Wang, Yequan, Minlie Huang, and Li Zhao. "Attention-based lstm for aspect-level sentiment classification." Proceedings of the 2016 conference on empirical methods in natural language processing. 2016) [source-code](http://coai.cs.tsinghua.edu.cn/media/files/atae-lstm_uVgRmdb.rar) | EMNLP 2016；输入端加入 aspect embedding             |
+| BERT-SPC [paper](https://arxiv.org/pdf/1810.04805.pdf) [code](https://github.com/songyouwei/ABSA-PyTorch) |                                                     |
+| MGAN [paper](http://aclweb.org/anthology/D18-1380) [code](https://github.com/songyouwei/ABSA-PyTorch) | ACL 2018                                            |
+| AEN-BERT [paper](https://arxiv.org/pdf/1902.09314.pdf) [code](https://github.com/songyouwei/ABSA-PyTorch) | ACL 2019                                            |
+| AOA                                                          |                                                     |
+| TNet                                                         |                                                     |
+| Cabasc                                                       |                                                     |
+| RAM                                                          | EMNLP 2017                                          |
+| MemNet                                                       | EMNLP 2016                                          |
+| IAN                                                          |                                                     |
 
-# Aspect Level Sentiment Analysis
 
 ## Aspect Extraction
 
@@ -27,6 +92,18 @@
   - 序列标注，HMM/CRF
 - 主题模型
   - pLSA 和 LDA
+
+
+
+# Metric 
+
++ p/r/f1
+
+
+# Reference
+
+## Papers
+
 
 ## Sentiment Analysis based on Extracted Aspect
 
@@ -107,14 +184,14 @@
 
 
 
-# Multi-Entity Sentiment Analysis
+### Multi-Entity Sentiment Analysis
 
 - Multi-Entity Aspect-Based Sentiment Analysis with Context，Entity and Aspect Memory
 - ![](http://ww1.sinaimg.cn/large/006tNc79ly1g3vukbx9kjj30uh0gfjz3.jpg)
 
 
 
-# [SemEval 2014](http://alt.qcri.org/semeval2014/task4/](http://alt.qcri.org/semeval2014/task4/))
+### [SemEval 2014](http://alt.qcri.org/semeval2014/task4/](http://alt.qcri.org/semeval2014/task4/))
 
 - [Data v2.0]([http://metashare.ilsp.gr:8080/repository/browse/semeval-2014-absa-train-data-v20-annotation-guidelines/683b709298b811e3a0e2842b2b6a04d7c7a19307f18a4940beef6a6143f937f0/](http://metashare.ilsp.gr:8080/repository/browse/semeval-2014-absa-train-data-v20-annotation-guidelines/683b709298b811e3a0e2842b2b6a04d7c7a19307f18a4940beef6a6143f937f0/))
 
@@ -126,7 +203,7 @@
 
 ![](https://ws3.sinaimg.cn/large/006tNc79ly1g30y6ew3p7j30ih0me0x1.jpg)
 
-# Code Review
+### Code Review
 
 - 当前工程代码
   - embedding 是随机的
@@ -157,8 +234,6 @@
 ![](https://ws1.sinaimg.cn/large/006tNc79ly1g30ws8c9o9j30n30guwhd.jpg)
 
 ![](https://ws1.sinaimg.cn/large/006tNc79ly1g30wu60uj3j30pd0dbgno.jpg)
-
-# View
 
 ### Benchmarking Multimodal Sentiment Analysis
 
@@ -212,22 +287,6 @@
   
   - [http://zhaoxueli.win/2017/03/06/%E5%9F%BA%E4%BA%8E-Aspect-%E7%9A%84%E6%83%85%E6%84%9F%E5%88%86%E6%9E%90/](http://zhaoxueli.win/2017/03/06/基于-Aspect-的情感分析/)
   
-- ### Sentiment Analysis
-
-  - Zhang, Lei, Shuai Wang, and Bing Liu. "Deep Learning for Sentiment Analysis: A Survey." arXiv preprint arXiv:1801.07883 (2018). [[pdf]](https://arxiv.org/pdf/1801.07883)
-
-  - Song, Youwei, et al. "Attentional Encoder Network for Targeted Sentiment Classification." arXiv preprint arXiv:1902.09314 (2019). [[pdf]](https://arxiv.org/pdf/1902.09314.pdf)
-  - Devlin, Jacob, et al. "Bert: Pre-training of deep bidirectional transformers for language understanding." arXiv preprint arXiv:1810.04805 (2018). [[pdf]](https://arxiv.org/pdf/1810.04805.pdf)
-  - Fan, Feifan, et al. "Multi-grained Attention Network for Aspect-Level Sentiment Classification." Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing. 2018. [[pdf]](http://aclweb.org/anthology/D18-1380)
-  - Huang, Binxuan, et al. "Aspect Level Sentiment Classification with Attention-over-Attention Neural Networks." arXiv preprint arXiv:1804.06536 (2018). [[pdf]](https://arxiv.org/pdf/1804.06536.pdf)
-  - Li, Xin, et al. "Transformation Networks for Target-Oriented Sentiment Classification." arXiv preprint arXiv:1805.01086 (2018). [[pdf]](https://arxiv.org/pdf/1805.01086)
-  - Liu, Qiao, et al. "Content Attention Model for Aspect Based Sentiment Analysis." Proceedings of the 2018 World Wide Web Conference on World Wide Web. International World Wide Web Conferences Steering Committee, 2018.
-  - Chen, Peng, et al. "Recurrent Attention Network on Memory for Aspect Sentiment Analysis." Proceedings of the 2017 Conference on Empirical Methods in Natural Language Processing. 2017. [[pdf]](http://www.aclweb.org/anthology/D17-1047)
-  - Tang, Duyu, B. Qin, and T. Liu. "Aspect Level Sentiment Classification with Deep Memory Network." Conference on Empirical Methods in Natural Language Processing 2016:214-224. [[pdf]](https://arxiv.org/pdf/1605.08900)
-  - Ma, Dehong, et al. "Interactive Attention Networks for Aspect-Level Sentiment Classification." arXiv preprint arXiv:1709.00893 (2017). [[pdf]](https://arxiv.org/pdf/1709.00893)
-  - Wang, Yequan, Minlie Huang, and Li Zhao. "Attention-based lstm for aspect-level sentiment classification." Proceedings of the 2016 conference on empirical methods in natural language processing. 2016.
-  - Tang, Duyu, et al. "Effective LSTMs for Target-Dependent Sentiment Classification." Proceedings of COLING 2016, the 26th International Conference on Computational Linguistics: Technical Papers. 2016. [[pdf]](
-
-- 
+## Projects
 - <https://github.com/songyouwei/ABSA-PyTorch>
 - https://github.com/12190143/Deep-Learning-for-Aspect-Level-Sentiment-Classification-Baselines
