@@ -72,6 +72,12 @@ class Instructor:
         """
         set model
         """
+
+        model = self.model_class(self.args, self.tokenizer)
+        
+        """
+        set model list
+        """
         model_list = []
        
         tower_grads = []
@@ -80,14 +86,7 @@ class Instructor:
             with tf.device('/gpu:%d' % gpu_id):
                 print('tower:%d...' % gpu_id)
                 with tf.name_scope('tower_%d' % gpu_id) as scope:
-                    model = self.model_class(self.args, self.tokenizer)
                     model_list.append(model)
-                    grads = self.optimizer.compute_gradients(model.loss)
-                    tower_grads.append(grads)
-                    tf.get_variable_scope().reuse_variables()  # we reuse variables here after we initiate one model
-
-        with tf.variable_scope("tower_gradient", reuse=tf.AUTO_REUSE):
-            self.apply_gradient_op = optimizer.apply_gradients(self.average_gradients(tower_grads))
 
         self.model_list = model_list
 
@@ -282,7 +281,6 @@ class Instructor:
         
         max_f1, path  = 0, None
 
-        
         self.session.run(tf.global_variables_initializer())
 
         logger.info("$" * 50)
@@ -306,6 +304,13 @@ class Instructor:
                         feed_dict[model_list[gpu_id].input_y] = labels
                         feed_dict[model_list[gpu_id].global_step] = 1
                         feed_dict[model_list[gpu_id].keep_prob] = 1.0
+                        
+                        grads = self.optimizer.compute_gradients(model_list[gpu_id].loss)
+                        tower_grads.append(grads)
+                        tf.get_variable_scope().reuse_variables()  # we reuse variables here after we initiate one model
+
+                    with tf.variable_scope("tower_gradient", reuse=tf.AUTO_REUSE):
+                        self.apply_gradient_op = optimizer.apply_gradients(self.average_gradients(tower_grads))
 
                     # gradient, loss = self.session.run([apply_gradient_op, loss], feed_dict=feed_dict)
                     gradient = self.session.run(self.apply_gradient_op, feed_dict=feed_dict)
