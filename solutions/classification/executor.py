@@ -272,6 +272,69 @@ class Instructor:
             average_grads.append(grad_and_var)
             return average_grads
 
+    # def multi_gpu_model(gpu_list):
+    #     grads = []
+    #     for i in gpu_list:
+    #         with tf.device("/gpu:%d"%i):
+    #             with tf.name_scope("tower_%d"%i):
+    #                 model = Model(is_training, config, scope)
+    #                 tf.add_to_collection("train_model", model)
+    #                 grads.append(model.grad) 
+    #                 tf.add_to_collection("loss",model.loss)
+    #                 tf.add_to_collection("predict", model.predict)
+    #                 tf.add_to_collection("merge_summary", model.merge_summary)
+    #     with tf.device("cpu:0"):
+    #         averaged_gradients = average_gradients(grads)
+    #         opt = tf.train.GradientDescentOptimizer(learning_rate)
+    #         train_op=opt.apply_gradients(zip(average_gradients,tf.trainable_variables()))
+    #     return train_op
+
+    # def generate_feed_dic(model, feed_dict, batch_generator):
+    #     x, y = batch_generator.next_batch()
+    #     feed_dict[model.x] = x
+    #     feed_dict[model.y] = y
+    # def run_epoch(session, data_set, scope, train_op=None, is_training=True):
+    #     batch_generator = BatchGenerator(data_set, batch_size)
+    #     ...
+    #     ...
+    #     if is_training and train_op is not None:
+    #         models = tf.get_collection("train_model")
+    #         feed_dic = {}
+    #         for model in models:
+    #         generate_feed_dic(model, feed_dic, batch_generator)
+    #         losses = tf.get_collection("loss", scope)
+    #         ...
+    #         ...
+    # #main process
+    # data_process()
+    # with tf.name_scope("train") as train_scope:
+    #     train_op = multi_gpu_model(..)
+    # with tf.name_scope("test") as test_scope:
+    #     model = Model(...)
+    # saver = tf.train.Saver()
+    # with tf.Session() as sess:
+    #     writer = tf.summary.FileWriter(...)
+    #     ...
+    #     run_epoch(...,train_scope)
+    #     run_epoch(...,test_scope)
+
+    # def multi_gpu_model(gpu_list):
+    #     grads = []
+    #     for i in gpu_list:
+    #         with tf.device("/gpu:%d"%i):
+    #             with tf.name_scope("tower_%d"%i):
+    #                 model = Model(is_training, config, scope)
+    #                 tf.add_to_collection("train_model", model)
+    #                 grads.append(model.grad) 
+    #                 tf.add_to_collection("loss",model.loss)
+    #                 tf.add_to_collection("predict", model.predict)
+    #                 tf.add_to_collection("merge_summary", model.merge_summary)
+    #     with tf.device("cpu:0"):
+    #         averaged_gradients = average_gradients(grads)
+    #         opt = tf.train.GradientDescentOptimizer(learning_rate)
+    #         train_op=opt.apply_gradients(zip(average_gradients,tf.trainable_variables()))
+    #     return train_op
+
     def _train_multi_gpu(self, gpu_list, optimizer, train_data_loader, val_data_loader):
         """
         :param criterion: no use, select loss function
@@ -282,6 +345,21 @@ class Instructor:
         """
         
         max_f1, path  = 0, None
+
+        for gpu_id in gpu_list:
+            with tf.device('/gpu:%d' % gpu_id):
+                print('tower:%d...' % gpu_id)
+                with tf.name_scope('tower_%d' % gpu_id) as scope:
+                    model = self.model_class(self.opt, self.tokenizer)
+                    model_list.append(model)
+                    grads = optimizer.compute_gradients(model.loss)
+                    tower_grads.append(grads)
+
+                    tf.get_variable_scope().reuse_variables()  # we reuse variables here after we initiate one model
+                    
+        with tf.variable_scope("tower_gradient", reuse=tf.AUTO_REUSE):
+            apply_gradient_op = optimizer.apply_gradients(self.average_gradients(tower_grads))
+
 
         self.session.run(tf.global_variables_initializer())
 
@@ -298,6 +376,7 @@ class Instructor:
                 try:
                     feed_dict = {}
                     for gpu_id in gpu_list:
+                        model = self.model_class(self.args, self.tokenizer)
                         sample_batched = self.session.run(one_element)
                         inputs = sample_batched['text']
                         labels = sample_batched['label']
@@ -307,13 +386,6 @@ class Instructor:
                         feed_dict[model_list[gpu_id].global_step] = 1
                         feed_dict[model_list[gpu_id].keep_prob] = 1.0
                         
-                        grads = self.optimizer.compute_gradients(model_list[gpu_id].loss)
-                        tower_grads.append(grads)
-                        tf.get_variable_scope().reuse_variables()  # we reuse variables here after we initiate one model
-
-                    with tf.variable_scope("tower_gradient", reuse=tf.AUTO_REUSE):
-                        self.apply_gradient_op = optimizer.apply_gradients(self.average_gradients(tower_grads))
-
                     # gradient, loss = self.session.run([apply_gradient_op, loss], feed_dict=feed_dict)
                     gradient = self.session.run(self.apply_gradient_op, feed_dict=feed_dict)
                     # TODO loss
