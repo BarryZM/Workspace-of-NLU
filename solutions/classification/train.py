@@ -114,7 +114,10 @@ class Instructor:
         """
         train set
         """
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': train_text_list, 'label': train_label_list}).batch(self.batch_size)
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text':
+                                                                     train_text_list,
+                                                                     'label':
+                                                                     train_label_list}).batch(self.batch_size).shuffle(100000)
         
         """
         test and dev set
@@ -349,9 +352,9 @@ def main():
     parser.add_argument('--initializer', type=str, default='random_normal')
     parser.add_argument('--optimizer', type=str, default='adam')
 
-    parser.add_argument('--lr', type=float, default=1e-3, help="learning rate")
+    parser.add_argument('--lr', type=float, default=1e-4, help="learning rate")
     parser.add_argument('--epochs', type=int, default=100, help='epochs for trianing')
-    parser.add_argument('--es', type=int, default=3, help='early stopping epochs')
+    parser.add_argument('--es', type=int, default=10, help='early stopping epochs')
 
     parser.add_argument('--do_train', action='store_true', default=False)
     parser.add_argument('--do_test', action='store_true', default=False)
