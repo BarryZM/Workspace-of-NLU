@@ -94,7 +94,8 @@ class Instructor:
             self.predictset = Dataset_NER(self.dataset_file['predict'], self.tokenizer, self.max_seq_len, 'entity', self.label_list)
             self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.batch_size)
         
-        print(self.tokenizer.word2idx)
+        # print(self.tokenizer.word2idx)
+        print(self.trainset.text_list[0:10])
         print(self.trainset.label2idx)
         print(self.trainset.idx2label)
 
@@ -117,8 +118,10 @@ class Instructor:
                 try:
                     sample_batched = self.session.run(one_element)
                     inputs = sample_batched['text']
+                    print("inputs >>> ", inputs)
                     labels = sample_batched['label']
-                    
+                    print("inputs >>> ", labels)
+
                     model = self.model
                     _ = self.session.run(model.trainer, feed_dict={model.input_x: inputs, model.input_y: labels, model.global_step: _epoch, model.keep_prob: 1.0})
                     self.model = model
@@ -198,6 +201,8 @@ class Instructor:
         iterator = data_loader.make_one_shot_iterator()
         one_element = iterator.get_next()
 
+        print(self.trainset.label2idx)
+
         def convert_text(encode_list):
             return [self.tokenizer.idx2word[item] for item in encode_list if item not in [self.tokenizer.word2idx["<PAD>"]]]
 
@@ -240,7 +245,8 @@ class Instructor:
             return [self.tokenizer.idx2word[item] for item in encode_list if item not in [self.tokenizer.word2idx["<PAD>"] ]]
 
         def convert_label(encode_list):
-            return [self.trainset.idx2label[item] for item in encode_list if item not in [0] ]
+            return [self.trainset.idx2label[item] for item in encode_list if item not in [self.trainset.label2idx["<PAD>"]]]
+            # return [self.trainset.idx2label[item] for item in encode_list if item not in [self.trainset.label2idx["<PAD>"]] ]
 
         while True:
             try:
@@ -266,6 +272,10 @@ class Instructor:
                             f.write(str(item) + '\n')
 
                 break
+
+        #print(t_texts_all)
+        #print(t_targets_all)
+        #print(t_outputs_all)
 
         p, r, f1 = get_results_by_line(t_texts_all, t_targets_all, t_outputs_all)
 
@@ -356,9 +366,11 @@ def main():
     promotion_type = ['DATE', 'PRODUCT', 'BRAND', 'SHOP', 'COLOR', 'PRICE',
                       'AMOUT', 'ATTRIBUTE']
 
-    promotion_list = [ item_prefix + '-' + item_promotion for item_prefix in
+    promotion_list_1 = [ item_prefix + '-' + item_promotion for item_prefix in
                       prefix_list for item_promotion in promotion_type]
+    promotion_list = []
     promotion_list.append("<PAD>")
+    promotion_list.extend(promotion_list_1)
     promotion_list.append("O")
 
     comment_list = ['<PAD>', 'O', 'B-3', 'I-3']

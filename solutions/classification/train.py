@@ -96,7 +96,7 @@ class Instructor:
         print("test text top 10", test_text_list[:10])
         print("test label top 10", test_label_list[:10])
         if self.do_predict_batch or self.do_predict_single:
-            predict_text_list = preprocess_without_label(dataset_clf, self.dataset_file['predict'])
+            predict_text_list, predict_label_list = preprocess_with_label(dataset_clf, self.dataset_file['predict'])
 
         """
         imbalance
@@ -129,7 +129,7 @@ class Instructor:
         predict set
         """
         if self.do_predict_batch is True or self.do_predict_single is True:
-            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': predict_text_list, 'label': self.predict_label_list}).batch(self.batch_size)
+            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': predict_text_list, 'label':predict_label_list}).batch(self.batch_size)
 
         logger.info('>> load data done')
 
