@@ -73,27 +73,23 @@ class Instructor:
         set model
         """
 
-        model = self.model_class(self.args, self.tokenizer)
+        # model = self.model_class(self.args, self.tokenizer)
         
         """
         set model list
         """
-        model_list = []
+        #model_list = []
        
-        tower_grads = []
+        #tower_grads = []
 
-        for gpu_id in self.gpu_list:
-            with tf.device('/gpu:%d' % gpu_id):
-                print('tower:%d...' % gpu_id)
-                with tf.name_scope('tower_%d' % gpu_id) as scope:
-                    model_list.append(model)
+        #for gpu_id in self.gpu_list:
+        #    with tf.device('/gpu:%d' % gpu_id):
+        #        print('tower:%d...' % gpu_id)
+        #        with tf.name_scope('tower_%d' % gpu_id) as scope:
+        #            model_list.append(model)
 
-        self.model_list = model_list
+        #self.model_list = model_list
 
-        """
-        set saver and max_to_keep 
-        """
-        self.saver = tf.train.Saver(max_to_keep=1)
 
         """
         dataset
@@ -131,7 +127,10 @@ class Instructor:
         """
         train set
         """
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': train_text_list, 'label': train_label_list}).batch(self.batch_size)
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text':
+                                                                     train_text_list,
+                                                                     'label':
+                                                                     train_label_list}).batch(self.batch_size).shuffle(100000)
         
         """
         test and dev set
@@ -183,6 +182,7 @@ class Instructor:
         else:
             logger.info('@@@ Error:load ckpt error')
 
+
     def _output_result(self, data_loader):
         """
         output result for predict
@@ -224,6 +224,7 @@ class Instructor:
             try:
                 sample_batched = self.session.run(one_element)    
                 inputs = sample_batched['text']
+                labels = sample_batched['label']
 
                 outputs = self.session.run(model.output_onehot, feed_dict={model.input_x: inputs, model.input_y: labels, model.global_step: 1, model.keep_prob: 1.0})
                 t_targets_all.extend(labels)
@@ -343,14 +344,14 @@ class Instructor:
         :param val_data_loader: ..
         :return: best model ckpt path
         """
-        
-        max_f1, path  = 0, None
+        max_f1, path, model_list, tower_grads = 0, None, [], []
 
+        # for gpu_id in gpu_list:
         for gpu_id in gpu_list:
             with tf.device('/gpu:%d' % gpu_id):
                 print('tower:%d...' % gpu_id)
                 with tf.name_scope('tower_%d' % gpu_id) as scope:
-                    model = self.model_class(self.opt, self.tokenizer)
+                    model = self.model_class(self.args, self.tokenizer)
                     model_list.append(model)
                     grads = optimizer.compute_gradients(model.loss)
                     tower_grads.append(grads)
@@ -360,6 +361,7 @@ class Instructor:
         with tf.variable_scope("tower_gradient", reuse=tf.AUTO_REUSE):
             apply_gradient_op = optimizer.apply_gradients(self.average_gradients(tower_grads))
 
+        self.saver = tf.train.Saver(max_to_keep=1)
 
         self.session.run(tf.global_variables_initializer())
 
@@ -375,23 +377,27 @@ class Instructor:
             while True:
                 try:
                     feed_dict = {}
-                    for gpu_id in gpu_list:
-                        model = self.model_class(self.args, self.tokenizer)
+                    for idx, gpu_id in enumerate(gpu_list):
+                        print(gpu_id)
                         sample_batched = self.session.run(one_element)
                         inputs = sample_batched['text']
                         labels = sample_batched['label']
-                        
-                        feed_dict[model_list[gpu_id].input_x] = inputs
-                        feed_dict[model_list[gpu_id].input_y] = labels
-                        feed_dict[model_list[gpu_id].global_step] = 1
-                        feed_dict[model_list[gpu_id].keep_prob] = 1.0
+                        feed_dict[model_list[idx].input_x] = inputs
+                        feed_dict[model_list[idx].input_y] = labels
+                        feed_dict[model_list[idx].global_step] = 1
+                        feed_dict[model_list[idx].keep_prob] = 1.0
                         
                     # gradient, loss = self.session.run([apply_gradient_op, loss], feed_dict=feed_dict)
-                    gradient = self.session.run(self.apply_gradient_op, feed_dict=feed_dict)
+                    gradient = self.session.run(apply_gradient_op, feed_dict=feed_dict)
                     # TODO loss
 
                 except tf.errors.OutOfRangeError:
                     break
+            
+            print("$" * 50)
+            print("length of model list", len(model_list))
+            print("$" * 50)
+            self.model_list = model_list
 
             val_p, val_r, val_f1 = self._evaluate_metric(val_data_loader)
             logger.info('>>>>>> val_p: {:.4f}, val_r:{:.4f}, val_f1: {:.4f}'.format(val_p, val_r, val_f1))
@@ -421,10 +427,16 @@ class Instructor:
                 save pb model
                 """
                 pb_dir = os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name))
+                
+                print("*"*50)
+                print("graph node")
+                print([n.name for n in self.session.graph_def.node])
 
                 from tensorflow.python.framework import graph_util
-                trained_graph = graph_util.convert_variables_to_constants(self.session, self.session.graph_def,
-                                                                          output_node_names=['logits/output_argmax'])
+                trained_graph = graph_util.convert_variables_to_constants(self.session,
+                                                          self.session.graph_def,
+                                                          output_node_names=['tower_0/logits/output_argmax'])
+                # 此处可以修改为 多卡汇总的 node
                 tf.train.write_graph(trained_graph, pb_dir, "model.pb", as_text=False)
                 logger.info('>> pb model saved in : {}'.format(pb_dir))
 
@@ -449,10 +461,10 @@ class Instructor:
             test_p, test_r, test_f1 = self._evaluate_metric(self.test_data_loader)
             logger.info('>> test_p: {:.4f}, test_r:{:.4f}, test_f1: {:.4f}'.format(test_p, test_r, test_f1))
 
-        elif self.do_train is False and self.do_test is True:
-            self._test(self.test_data_loader)
         elif self.do_predict_batch is True:
-            self._predict(self.data_loader)
+            self._predict(self.predict_data_loader)
+        elif self.do_predict_single is True:
+            self._predict_single(self.single_text)
         else:
             logger.info("@@@ Not Include This Situation")
 

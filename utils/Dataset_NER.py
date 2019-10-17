@@ -92,7 +92,7 @@ class Dataset_NER():
 
         if do_padding:
             sequence = self.__pad_and_truncate(sequence, self.max_seq_len,
-                                               value=0)
+                                               value=self.label2idx['<PAD>'])
         
         return sequence
 
@@ -114,7 +114,7 @@ class Dataset_NER():
 
         if do_padding:
             sequence = self.__pad_and_truncate(sequence, self.max_seq_len,
-                                               value=0)
+                                               value=self.word2idx['<PAD>'])
 
         return sequence
         # return [self.embedding_matrix[item] for item in sequence]
