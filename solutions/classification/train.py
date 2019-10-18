@@ -240,7 +240,7 @@ class Instructor:
         ckpt = tf.train.get_checkpoint_state(os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name)))
 
         if ckpt and ckpt.model_checkpoint_path:
-            logger.info('>>> load ckpt model path for predict', ckpt.model_checkpoint_path)
+            logger.info('>>> load ckpt model path for predict {}'.format(ckpt.model_checkpoint_path))
             self.saver.restore(self.session, ckpt.model_checkpoint_path)
             self._output_result(self.predict_data_loader)
             logger.info('>> predict done')
@@ -345,7 +345,7 @@ def main():
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--hidden_dim', type=int, default=512, help='hidden dim of dense')
     parser.add_argument('--filters_num', type=int, default=256, help='number of filters')
-    parser.add_argument('--filters_size', type=int, default=[4,3,2], help='size of filters')
+    parser.add_argument('--filters_size', type=int, default=[6,5,4,3,2,1], help='size of filters')
 
     parser.add_argument('--model_name', type=str, default='text_cnn')
     parser.add_argument('--inputs_cols', type=str, default='text')
@@ -371,6 +371,11 @@ def main():
     prefix_path = '/export/home/sunhongchao1/Workspace-of-NLU/corpus/nlu'
 
     dataset_files = {
+        'simple': {
+            'train': os.path.join(prefix_path, args.dataset_name,'clf/train-simple.txt'),
+            'dev': os.path.join(prefix_path, args.dataset_name, 'clf/dev-simple.txt'),
+            'test': os.path.join(prefix_path, args.dataset_name, 'clf/test-simple.txt'),
+            'predict': os.path.join(prefix_path, args.dataset_name, 'clf/predict-simple.txt')},
         'promotion': {
             'train': os.path.join(prefix_path, args.dataset_name,'clf/train.txt'),
             'dev': os.path.join(prefix_path, args.dataset_name, 'clf/dev.txt'),
@@ -380,6 +385,7 @@ def main():
 
     tag_lists ={
         'promotion': ['商品/品类', '搜优惠', '搜活动/会场', '闲聊'],
+        'simple': ['商品/品类', '搜优惠', '搜活动/会场', '闲聊'],
         #'promotion': ['商品/品类', '搜优惠', '搜活动/会场', '闲聊', '其它属性', '看不懂的'],
     }
 

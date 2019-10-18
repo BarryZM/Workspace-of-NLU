@@ -21,6 +21,7 @@ def preprocess_with_label(dataset_clf, corpus):
             words.append("".join(cut_list[1:]))
             labels.append(cut_list[0])
         else:
+            print("error line", line)
             raise Exception("Raise Exception")
 
     print(">>> words top 3", words[:3])
