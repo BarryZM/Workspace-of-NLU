@@ -114,10 +114,7 @@ class Instructor:
         """
         train set
         """
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text':
-                                                                     train_text_list,
-                                                                     'label':
-                                                                     train_label_list}).batch(self.batch_size).shuffle(100000)
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': train_text_list, 'label': train_label_list}).batch(self.batch_size).shuffle(100000)
         
         """
         test and dev set
@@ -341,7 +338,7 @@ def main():
     parser.add_argument('--tag_list', type=str)
 
     parser.add_argument('--gpu', type=str, default='0')
-    parser.add_argument('--max_seq_len', type=str, default=256)
+    parser.add_argument('--max_seq_len', type=str, default=32)
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--hidden_dim', type=int, default=512, help='hidden dim of dense')
     parser.add_argument('--filters_num', type=int, default=256, help='number of filters')

@@ -138,8 +138,7 @@ class Dataset_CLF():
         """
         words = list(text)
 
-        sequence = [self.word2idx[w] if w in self.word2idx else
-                    self.word2idx['<UNK>'] for w in words]
+        sequence = [self.word2idx[w] if w in self.word2idx else self.word2idx['<UNK>'] for w in words]
 
         if len(sequence) == 0:
             sequence = [0]
@@ -147,7 +146,7 @@ class Dataset_CLF():
             sequence = sequence[::-1]
 
         if do_padding:
-            sequence = self.__pad_and_truncate(sequence, self.max_seq_len, value=0)
+            sequence = self.__pad_and_truncate(sequence, self.max_seq_len, value=self.word2idx["<PAD>"])
 
         return sequence
 

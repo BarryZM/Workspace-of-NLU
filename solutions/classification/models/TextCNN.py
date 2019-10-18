@@ -76,7 +76,7 @@ class TextCNN(object):
             pooled_outputs = []
             for i, filter_size in enumerate(self.filters_size):
                 with tf.variable_scope("conv-maxpool-%s" % filter_size, reuse=tf.AUTO_REUSE):
-                    conv = tf.layers.conv1d(inputs, self.filters_num, filter_size, name='conv1d')
+                    conv = tf.layers.conv1d(inputs, self.filters_num, filter_size, name='conv1d', padding='same')
                     pooled = tf.reduce_max(conv, axis=[1], name='gmp')
                     pooled_outputs.append(pooled)
             outputs = tf.concat(pooled_outputs, 1)
