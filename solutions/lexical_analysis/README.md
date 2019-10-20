@@ -1,7 +1,56 @@
-[TOC]
+<!-- TOC -->
+
+- [Summary of Lexical Analysis](#summary-of-lexical-analysis)
+- [Target](#target)
+- [Steam && Lemma](#steam--lemma)
+    - [Dataset](#dataset)
+    - [Solution](#solution)
+    - [Metric](#metric)
+- [Seg && Pos](#seg--pos)
+    - [Dataset](#dataset)
+    - [Solution](#solution)
+        - [基于字符串匹配](#基于字符串匹配)
+            - [正向最大匹配/反向最大匹配/最少切分词](#正向最大匹配反向最大匹配最少切分词)
+        - [基于统计](#基于统计)
+            - [互信息](#互信息)
+        - [N元统计模型](#n元统计模型)
+        - [歧义切分](#歧义切分)
+        - [未登录词](#未登录词)
+    - [Metric](#metric)
+- [NER](#ner)
+    - [Dataset](#dataset)
+    - [Solution](#solution)
+        - [基于规则和词典](#基于规则和词典)
+        - [基于统计的方法](#基于统计的方法)
+        - [混合方法](#混合方法)
+        - [基于神经网路](#基于神经网路)
+    - [Metric](#metric)
+- [Relation Extraction](#relation-extraction)
+    - [Dataset](#dataset)
+    - [Solution](#solution)
+        - [Pipeline](#pipeline)
+        - [单纯关系抽取](#单纯关系抽取)
+        - [远程监督](#远程监督)
+    - [Metric](#metric)
+- [Knowledge Base](#knowledge-base)
+    - [Dataset](#dataset)
+    - [Solution](#solution)
+        - [TransE(推理)](#transe推理)
+        - [PRA](#pra)
+    - [Metric](#metric)
+- [Reference](#reference)
+    - [Links](#links)
+    - [Papers](#papers)
+    - [Tools](#tools)
+        - [NCRF++:An Open-source Neural Sequence Labeling Toolkit](#ncrfan-open-source-neural-sequence-labeling-toolkit)
+        - [Neural CRF](#neural-crf)
+        - [FoolNLTK](#foolnltk)
+    - [Projects](#projects)
+    - [Chanllenge](#chanllenge)
+
+<!-- /TOC -->
 
 # Summary of Lexical Analysis
-
 
 
 # Target
@@ -10,18 +59,22 @@
 + view
 
 
+# Steam && Lemma
 
-# Steam
+## Dataset
 
+## Solution
 
+## Metric
 
-# Lemma
+# Seg && Pos
 
-# Segment
+## Dataset
 
-## 基于字符串匹配
+## Solution
+### 基于字符串匹配 
 
-### 正向最大匹配/反向最大匹配/最少切分词
+#### 正向最大匹配/反向最大匹配/最少切分词
 
 + 从左到右将待分词文本中的几个连续字符与词表匹配，如果匹配上，则切分出一个词
 + 例子:
@@ -33,9 +86,9 @@
   + 当扫描content[5]的时候，发现"中华民族从"并不是词表中的词，也不是词的前缀。因此可以切分出前面最大的词——"中华民族"
   + 由此可见，最大匹配出的词必须保证下一个扫描不是词表中的词或词的前缀才可以结束。
 
-## 基于统计
+### 基于统计
 
-### 互信息
+#### 互信息
 
 + pass
 
@@ -43,23 +96,38 @@
 
 + pass
 
-## 歧义切分
+### 歧义切分
 
 + pass
 
-## 未登录词
+### 未登录词
 
 + pass
 
+## Metric
 
-# Pos tagging
+# NER
 
-+ 词性标注集
-	+ https://www.biaodianfu.com/pos-tagging-set.html
+## Dataset 
 
-# NER 
+| lexical Dataset                                              | SOTA | Tips                                                         |
+| ------------------------------------------------------------ | ---- | ------------------------------------------------------------ |
+| [中国自然语言开源组织](http://www.nlpcn.org/)                |      |                                                              |
+| [国内免费语料库](https://www.cnblogs.com/mo-wang/p/4444858.html) |      |                                                              |
+| [corpusZH](https://github.com/liwenzhu/corpusZh)             |      | 总词汇量在7400W+                                             |
+| National-Language-council                                    |      |                                                              |
+| [SIGHAN的汉语处理评测的Bakeoff语料](http://sighan.cs.uchicago.edu/bakeoff2005/) |      |                                                              |
+| Conll-2000                                                   |      |                                                              |
+| WSJ-PTB                                                      |      |                                                              |
+| ccks2017                                                     |      | 一个中文的电子病例测评相关的数据                             |
+| [BosonNLP](https://link.zhihu.com/?target=http%3A//bosonnlp.com/dev/resource) |      |                                                              |
+| [CoNLL 2002）Annotated Corpus for Named Entity Recognition](https://link.zhihu.com/?target=https%3A//www.kaggle.com/abhinavwalia95/entity-annotated-corpus) |      |                                                              |
+| Weibo NER corpus                                             |      | 1890条, person, organization, location and geo-political entity |
+| **MSRA-NER**                                                 |      |                                                              |
 
-## 基于规则和词典
+## Solution 
+
+### 基于规则和词典
 
 + 基于规则的方法多采用**语言学专家手工构造规则模板**,选用特征包括统计信息、标点符号、关键字、指示词和方向词、位置词(如尾字)、中心词等方法，以模式和字符串相匹配为主要手段，这类系统大多依赖于知识库和词典的建立。
 
@@ -68,7 +136,7 @@
   - 系统可移植性不好，对于不同的系统需要语言学专家重新书写规则
   - 代价太大，系统建设周期长。
 
-## 基于统计的方法
+### 基于统计的方法
 
 + **隐马尔可夫模型(HiddenMarkovMode,HMM)**、**最大熵(MaxmiumEntropy)**、**支持向量机(Support VectorMachine,SVM)**、**条件随机场(ConditionalRandom Fields)**
 + 最大熵模型有**较好的通用性**，主要缺点是训练时间复杂性非常高。
@@ -77,14 +145,14 @@
 + 最大熵和支持向量机在正确率上要比隐马尔可夫模型高。
 + 基于统计的方法对语料库的依赖也比较大
 
-## 混合方法
+### 混合方法
 
 + 自然语言处理并不完全是一个随机过程,单独使用基于统计的方法使状态搜索空间非常庞大，必须借助规则知识提前进行过滤修剪处理。目前几乎没有单纯使用统计模型而不使用规则知识的命名实体识别系统，在很多情况下是使用混合方法，主要包括：
   + 统计学习方法之间或内部层叠融合
   + 规则、词典和机器学习方法之间的融合，其核心是融合方法技术。在基于统计的学习方法中引入部分规则，将机器学习和人工知识结合起来
   + 将各类模型、算法结合起来，将前一级模型的结果作为下一级的训练数据，并用这些训练数据对模型进行训练，得到下一级模型。
 
-## 基于神经网路
+### 基于神经网路
 
 + 近年来，随着硬件能力的发展以及词的分布式表示（word embedding）的出现，神经网络成为可以有效处理许多NLP任务的模型。主要的模型有NN/CNN-CRF、RNN-CRF、LSTM-CRF
 
@@ -100,31 +168,111 @@
 - 缺点
   - 网络变种多、对参数设置依赖大
   - 模型可解释性差
-  - 每个token打标签的过程中是独立的分类，不能直接利用上文已经预测的标签。
+  - 每个token打标签的过程中是独立的分类，不能直接利用上文已经预测的标签
++ 基于字符串匹配 : 正向最大匹配/反向最大匹配/最少切分词
+
++ 从左到右将待分词文本中的几个连续字符与词表匹配，如果匹配上，则切分出一个词
++ 例子:
+  + 待分词文本：   content[]={"中"，"华"，"民"，"族"，"从"，"此"，"站"，"起"，"来"，"了"，"。"}
+  + 词表：   dict[]={"中华"， "中华民族" ， "从此"，"站起来"}
+  + 从content[1]开始，当扫描到content[2]的时候，发现"中华"已经在词表dict[]中了。但还不能切分出来，因为我们不知道后面的词语能不能组成更长的词(最大匹配)
+  + 继续扫描content[3]，发现"中华民"并不是dict[]中的词。但是我们还不能确定是否前面找到的"中华"已经是最大的词了。因为"中华民"是dict[2]的前缀
+  + 扫描content[4]，发现"中华民族"是dict[]中的词。继续扫描下去
+  + 当扫描content[5]的时候，发现"中华民族从"并不是词表中的词，也不是词的前缀。因此可以切分出前面最大的词——"中华民族"
+  + 由此可见，最大匹配出的词必须保证下一个扫描不是词表中的词或词的前缀才可以结束。
+
+| Model                                                        | Tips                                                         | Results                      |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------- |
+| BiLSTM CRF [paper](https://arxiv.org/pdf/1508.01991.pdf)[code](https://github.com/Determined22/zh-NER-TF) | BiLSTM 进行表示学习，CRF解码                                 |                              |
+| IDCNN CRF [paper](https://arxiv.org/abs/1511.07122)[source-code](https://github.com/iesl/dilated-cnn-ner)[code](https://github.com/crownpku/Information-Extraction-Chinese/tree/master/NER_IDCNN_CRF)[blog](https://www.cnblogs.com/pinking/p/9192546.html) | CNN in NLP Trick;添加空洞，增加感受野;速度较快               |                              |
+| Lattice-LSTM CRF [paper](https://arxiv.org/abs/1805.02023)[source-code](https://github.com/jiesutd/LatticeLSTM)[blog](https://new.qq.com/omn/20180630/20180630A0IH3X.html) | 中文 char-embedding 和 word embedding 的结合；SOTA with static embedding |                              |
+| BERT-BIGRU CRF [code](https://github.com/macanv/BERT-BiLSTM-CRF-NER) | SOTA                                                         |                              |
+| DBN CRF                                                      |                                                              |                              |
+| NCRF++ [paper](https://arxiv.org/abs/1806.04470)             | Colling 2018                                                 | CoNLL2003 上能达到91.35的 F1 |
+
+
+## Metric 
+
+- strict/type/partial/overlap/
+- 准确率(Precision)和召回率(Recall)
+  - Precision = 正确切分出的词的数目/切分出的词的总数
+  - Recall = 正确切分出的词的数目/应切分出的词的总数
+- 综合性能指标F-measure
+  - Fβ = (β2 + 1)*Precision*Recall/(β2*Precision + Recall)*
+  - *β为权重因子，如果将准确率和召回率同等看待，取β = 1，就得到最常用的F1-measure*
+  - *F1 = 2*Precisiton*Recall/(Precision+Recall)
+- 未登录词召回率(R_OOV)和词典中词的召回率(R_IV)
+  - R_OOV = 正确切分出的未登录词的数目/标准答案中未知词的总数
+  - R_IV = 正确切分出的已知词的数目/标准答案中已知词的总数
 
 # Relation Extraction
 
-## 单纯关系抽取
+## Dataset 
+
+| Relation Extraction Dataset | SOTA | Tips                          |
+| --------------------------- | ---- | ----------------------------- |
+| SemEval 2010 Task 8         |      |                               |
+| FewRel                      |      | EMNLP2018，清华               |
+| NYT10                       |      | https://github.com/thunlp/NRE |
+| 百度实体链接 CCKS2019       |      |                               |
+
+## Solution
+
+### Pipeline
++ 实体识别/消歧/关系抽取
+
+### 单纯关系抽取
 
 - SemEval 2010 task 8
 
-## 远程监督
+### 远程监督
 
 - NYT10
 - 将已有知识库对应到非结构话数据中, 生产大量训练数据，从而训练关系抽取器
 - 远程监督的做法是假设现在我有一对三元组，比如特朗普和美国，他们的关系是is the president of，那么接下来我拿特朗普和美国这两个词去检索一堆文本，只要出现这两个词的句子，我们都规定他是is the president of的关系，这样的做法的确能产生大量的数据，但同时这些数据也会有很大的噪声，比如特朗普和美国还有born in的关系
 
+| Model                                       | Tips                         |
+| ------------------------------------------- | ---------------------------- |
+| [THUNLP/NRE](https://github.com/thunlp/NRE) | CNN, PCNN, CNN+ATT, PCNN+ATT |
+| [THUNLP/OpenNRE](https://github.com/thunlp/OpenNRE) |                              |
+|                                             |                              |
+
+## Metric
+
++ Pass
+
+
 # Knowledge Base
 
-## TransE
+## Dataset
+
+| Dataset                                       | Tips                        |
+| ------------------------------------------- | ---------------------------- |
+| Baidu 百科知识图谱 |  |
+| Sogou |  |
+| google |    |
+| yoga |   |
+| Depedia  |   |
+| Hownet |  |
+
+
+## Solution
++ https://www.zhihu.com/question/26385031
+### TransE(推理)
+### PRA
+
+## Metric
 
 # Reference
 
 ## Links
 
+- [八款中文词性标注工具使用及在线测试](http://www.52nlp.cn/%e5%85%ab%e6%ac%be%e4%b8%ad%e6%96%87%e8%af%8d%e6%80%a7%e6%a0%87%e6%b3%a8%e5%b7%a5%e5%85%b7%e4%bd%bf%e7%94%a8%e5%8f%8a%e5%9c%a8%e7%ba%bf%e6%b5%8b%e8%af%95)
 - 统计自然语言处理 Chapter 7
 - 匹配分词， 统计分词 https://blog.csdn.net/cuixianpeng/article/details/43234235
 - https://www.jianshu.com/p/cd937f20bf55
++ 词性标注集
+	+ https://www.biaodianfu.com/pos-tagging-set.html
 
 ## Papers
 
@@ -161,6 +309,10 @@
     - EMNLP2018
     - 同时执行实体识别和关系抽取的multi-head selection 联合模型
     - 实验证明该文提出的方法在大多数数据集上, 可以不依赖NLP工具,且不使用人工特征设置的情况下,同步解决多关系问题
+
+- Knowledge Base
+    - Tianxing Wu, Shaowei Ling, Guilin Qi, Haofen Wang:Mining Type Information from Chinese Online Encyclopedias. JIST 2014: 213-229Xing Niu, Xinruo Sun, Haofen Wang, Shu Rong, Guilin Qi, Yong Yu:http://Zhishi.me - Weaving Chinese Linking Open Data. International Semantic Web Conference (2) 2011: 205-220
+
 
 ## Tools
 

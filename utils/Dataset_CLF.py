@@ -3,11 +3,71 @@
 
 import numpy as np
 
+def preprocess_with_label(dataset_clf, corpus):
+    fin = open(corpus, 'r', encoding='utf-8', newline='\n', errors='ignore')
+    lines = fin.readlines()
+    fin.close()
+
+    words = []
+    labels = []
+
+    for line in lines:
+        line = line.strip('\t')
+        line = line.rstrip('\n')
+        cut_list = line.split('\t')
+
+        # TODO
+        if len(cut_list) == 2:
+            words.append("".join(cut_list[1:]))
+            labels.append(cut_list[0])
+        else:
+            print("error line", line)
+            raise Exception("Raise Exception")
+
+    print(">>> words top 3", words[:3])
+    print(">>> labels top 3", labels[:3])
+
+
+    result_text = []
+    for text in words:
+        tmp = dataset_clf.encode_text_sequence(text, True, False)
+        result_text.append(tmp)
+
+    result_label = []
+
+    for item in labels:
+        result_label.append(dataset_clf.tag_dict_onehot[item])
+
+    text_list = np.asarray(result_text)
+    label_list = np.asarray(result_label)
+
+    print(">>> words top 3 after encoder", text_list[:3])
+    print(">>> labels top 3 after encoder", label_list[:3])
+
+    return text_list, label_list
+
+def preprocess_without_label(dataset_clf, corpus):
+    fin = open(corpus, 'r', encoding='utf-8', newline='\n', errors='ignore')
+    lines = fin.readlines()
+    fin.close()
+
+    result_text = []
+
+    print(">>> predict corpus  top 3 before encoder", lines[:3])
+
+    for text in lines:
+        tmp = dataset_clf.encode_text_sequence(text, True, False)
+        result_text.append(tmp)
+
+    text_list = np.asarray(result_text)
+
+    print(">>> predict corpus top 3 after encoder", text_list[:3])
+    print(text_list)
+
 
 class Dataset_CLF():
 
-    def __init__(self, corpus, tokenizer, max_seq_len, data_type, tag_list):
-        self.corpus = corpus
+    def __init__(self, tokenizer, max_seq_len, data_type, tag_list):
         self.tokenizer = tokenizer
 
         self.word2idx = self.tokenizer.word2idx
@@ -19,20 +79,9 @@ class Dataset_CLF():
         self.__set_tag2id()
         self.__set_tag2onehot()
 
-        self.text_list = []
-        self.label_list = []
-
-        self.preprocess()
-
         print(tag_list)
         print(self.tag2idx)
         print(self.idx2tag)
-
-    def __getitem__(self, index):
-        return self.text_list[index]
-
-    def __len__(self):
-        return len(self.text_list)
 
     def __set_tag2id(self):
         tag2idx = {}
@@ -89,8 +138,7 @@ class Dataset_CLF():
         """
         words = list(text)
 
-        sequence = [self.word2idx[w] if w in self.word2idx else
-                    self.word2idx['<UNK>'] for w in words]
+        sequence = [self.word2idx[w] if w in self.word2idx else self.word2idx['<UNK>'] for w in words]
 
         if len(sequence) == 0:
             sequence = [0]
@@ -98,7 +146,7 @@ class Dataset_CLF():
             sequence = sequence[::-1]
 
         if do_padding:
-            sequence = self.__pad_and_truncate(sequence, self.max_seq_len, value=0)
+            sequence = self.__pad_and_truncate(sequence, self.max_seq_len, value=self.word2idx["<PAD>"])
 
         return sequence
 
@@ -107,49 +155,5 @@ class Dataset_CLF():
     def del_unbalance_label(self):
         pass
 
-    def preprocess(self):
-
-        fin = open(self.corpus, 'r', encoding='utf-8', newline='\n', errors='ignore')
-        lines = fin.readlines()
-        fin.close()
-
-        words = []
-        labels = []
-
-        for line in lines:
-            line = line.strip('\t')
-            line = line.rstrip('\n')
-            cut_list = line.split('\t')
-
-            # TODO
-            if len(cut_list) == 2:
-                words.append("".join(cut_list[1:]))
-                labels.append(cut_list[0])
-            else:
-                raise Exception("Raise Exception")
-
-        result_text = []
-
-        print(">>> words top 3", words[:3])
-
-        for text in words:
-            tmp = self.encode_text_sequence(text, True, False)
-            result_text.append(tmp)
-
-        # result_label = [self.label_dict_onehot[item] for item in labels]
-        result_label = []
-
-        for item in labels:
-            if item in ["商品/品类", "搜优惠", "搜活动/会场"]:
-                result_label.append(self.tag_dict_onehot[item])
-            else:
-                result_label.append(self.tag_dict_onehot['闲聊'])
-
-
-        self.text_list = np.asarray(result_text)
-        self.label_list = np.asarray(result_label)
-
-        print("word2idx", self.word2idx)
-        print(">>> words top 3", self.text_list[:3])
-        print(">>> labels top 3", self.label_list[:3])
-
+    def visualization(self):
+        pass

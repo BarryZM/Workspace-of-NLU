@@ -8,7 +8,7 @@ sys.path.append(path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 from sklearn import metrics
 
 from pathlib import Path
-from utils.Dataset_CLF import Dataset_CLF
+from utils.Dataset_CLF import Dataset_CLF, preprocess_with_label, preprocess_without_label
 from utils.Tokenizer import build_tokenizer
 from solutions.classification.models.TextCNN import TextCNN
 from solutions.classification.models.BERT_CNN import BERTCNN
@@ -19,33 +19,34 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 
 
 class Instructor:
-    def __init__(self, opt):
+    def __init__(self, args):
         """
-        :param opt: parameters for build model
+        :param args: parameters for build model
         """
-        self.opt = opt
-        logger.info("parameters for programming :  {}".format(self.opt))
+        self.args = args
+        logger.info("parameters for programming :  {}".format(self.args))
 
         """
         parameter
         """
-        self.max_seq_len = opt.max_seq_len
-        self.tag_list = opt.tag_list
-        self.lr = opt.lr
-        self.optimizer = opt.optimizer
-        self.initializer = opt.initializer
-        self.epochs = opt.epochs
-        self.output_dir = opt.output_dir
-        self.result_file = opt.result_file
-        self.batch_size = opt.batch_size
-        self.dataset_file = opt.dataset_file
-        self.dataset_name = opt.dataset_name
-        self.model_name = opt.model_name
-        self.model_class = opt.model_class
-        self.do_train = opt.do_train
-        self.do_test = opt.do_test
-        self.do_predict = opt.do_predict
-        self.es = opt.es
+        self.max_seq_len = args.max_seq_len
+        self.tag_list = args.tag_list
+        self.lr = args.lr
+        self.optimizer = args.optimizer
+        self.initializer = args.initializer
+        self.epochs = args.epochs
+        self.output_dir = args.output_dir
+        self.result_file = args.result_file
+        self.batch_size = args.batch_size
+        self.dataset_file = args.dataset_file
+        self.dataset_name = args.dataset_name
+        self.model_name = args.model_name
+        self.model_class = args.model_class
+        self.do_train = args.do_train
+        self.do_test = args.do_test
+        self.do_predict_batch = args.do_predict_batch
+        self.do_predict_single = args.do_predict_single
+        self.es = args.es
 
         """
         build tokenizer
@@ -56,13 +57,17 @@ class Instructor:
         """
         build model
         """
-        model = self.model_class(self.opt, tokenizer)
+        model = self.model_class(self.args, tokenizer)
         self.model = model
 
         """
         set session
         """
-        self.session = model.session
+
+        config = tf.ConfigProto(allow_soft_placement=True)
+        config.gpu_options.allow_growth = True
+        session = tf.Session(config=config)
+        self.session = session
 
         """
         set saver and max_to_keep 
@@ -81,34 +86,47 @@ class Instructor:
         """
 
         """
-        train set
+        dataset build
         """
-        self.trainset = Dataset_CLF(corpus=self.dataset_file['train'], tokenizer=self.tokenizer, max_seq_len=self.max_seq_len, data_type='normal', tag_list=self.tag_list)
-        # train set augment
+        dataset_clf = Dataset_CLF(tokenizer=self.tokenizer, max_seq_len=self.max_seq_len, data_type='normal', tag_list=self.tag_list)
+        train_text_list, train_label_list = preprocess_with_label(dataset_clf, self.dataset_file['train'])
+        print("train text top 10", train_text_list[:10])
+        print("train label top 10", train_label_list[:10])
+        test_text_list, test_label_list = preprocess_with_label(dataset_clf, self.dataset_file['test'])
+        print("test text top 10", test_text_list[:10])
+        print("test label top 10", test_label_list[:10])
+        if self.do_predict_batch or self.do_predict_single:
+            predict_text_list, predict_label_list = preprocess_with_label(dataset_clf, self.dataset_file['predict'])
+
+        """
+        imbalance
+        """
         from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
 
-        #ros = RandomOverSampler(random_state=0)
-        #x_resampled, y_resampled = ros.fit_sample(self.trainset.text_list, self.trainset.label_list)
+        # ros = RandomOverSampler(random_state=0)
+        # x_resampled, y_resampled = ros.fit_sample(self.trainset.text_list, self.trainset.label_list)
 
         # x_resampled, y_resampled = SMOTE(kind='borderline1').fit_sample(self.trainset.text_list, self.trainset.label_list)
         # print(">>> y_resampled", y_resampled[:4])
-        x_resampled = self.trainset.text_list
-        y_resampled = self.trainset.label_list
+        # x_resampled = self.trainset.text_list
+        # y_resampled = self.trainset.label_list
 
-        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': x_resampled, 'label': y_resampled}).batch(self.batch_size).shuffle(10000)
+        """
+        train set
+        """
+        self.train_data_loader = tf.data.Dataset.from_tensor_slices({'text': train_text_list, 'label': train_label_list}).batch(self.batch_size).shuffle(100000)
+        
         """
         test and dev set
         """
-        self.testset = Dataset_CLF(corpus=self.dataset_file['test'], tokenizer=self.tokenizer, max_seq_len=self.max_seq_len,data_type='normal', tag_list=self.tag_list)
-        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.testset.text_list, 'label': self.testset.label_list}).batch(self.batch_size)
-
+        self.test_data_loader = tf.data.Dataset.from_tensor_slices({'text': test_text_list, 'label': test_label_list}).batch(self.batch_size)
         self.val_data_loader = self.test_data_loader
+
         """
         predict set
         """
-        if self.do_predict is True:
-            self.predictset = Dataset_CLF(corpus=self.dataset_file['predict'], tokenizer=self.tokenizer, max_seq_len=self.max_seq_len, data_type='normal', tag_list=self.tag_list)
-            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': self.predictset.text_list, 'label': self.predictset.label_list}).batch(self.batch_size)
+        if self.do_predict_batch is True or self.do_predict_single is True:
+            self.predict_data_loader = tf.data.Dataset.from_tensor_slices({'text': predict_text_list, 'label':predict_label_list}).batch(self.batch_size)
 
         logger.info('>> load data done')
 
@@ -123,6 +141,8 @@ class Instructor:
 
         max_f1 = 0
         path = None
+
+        self.session.run(tf.global_variables_initializer())
 
         logger.info("$" * 50)
         logger.info(" >>>>>> train begin")
@@ -217,7 +237,7 @@ class Instructor:
         ckpt = tf.train.get_checkpoint_state(os.path.join(self.output_dir, '{0}_{1}'.format(self.model_name, self.dataset_name)))
 
         if ckpt and ckpt.model_checkpoint_path:
-            logger.info('>>> load ckpt model path for predict', ckpt.model_checkpoint_path)
+            logger.info('>>> load ckpt model path for predict {}'.format(ckpt.model_checkpoint_path))
             self.saver.restore(self.session, ckpt.model_checkpoint_path)
             self._output_result(self.predict_data_loader)
             logger.info('>> predict done')
@@ -301,7 +321,7 @@ class Instructor:
 
         elif self.do_train is False and self.do_test is True:
             self._test()
-        elif self.do_predict is True:
+        elif self.do_predict_batch is True:
             self._predict()
         else:
             logger.info("@@@ Not Include This Situation")
@@ -318,24 +338,25 @@ def main():
     parser.add_argument('--tag_list', type=str)
 
     parser.add_argument('--gpu', type=str, default='0')
-    parser.add_argument('--max_seq_len', type=str, default=256)
+    parser.add_argument('--max_seq_len', type=str, default=32)
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--hidden_dim', type=int, default=512, help='hidden dim of dense')
     parser.add_argument('--filters_num', type=int, default=256, help='number of filters')
-    parser.add_argument('--filters_size', type=int, default=[4,3,2], help='size of filters')
+    parser.add_argument('--filters_size', type=int, default=[6,5,4,3,2,1], help='size of filters')
 
     parser.add_argument('--model_name', type=str, default='text_cnn')
     parser.add_argument('--inputs_cols', type=str, default='text')
     parser.add_argument('--initializer', type=str, default='random_normal')
     parser.add_argument('--optimizer', type=str, default='adam')
 
-    parser.add_argument('--lr', type=float, default=1e-3, help="learning rate")
+    parser.add_argument('--lr', type=float, default=1e-4, help="learning rate")
     parser.add_argument('--epochs', type=int, default=100, help='epochs for trianing')
-    parser.add_argument('--es', type=int, default=3, help='early stopping epochs')
+    parser.add_argument('--es', type=int, default=10, help='early stopping epochs')
 
-    parser.add_argument('--do_train', action='store_true', default='false')
-    parser.add_argument('--do_test', action='store_true', default='false')
-    parser.add_argument('--do_predict', action='store_true', default='false')
+    parser.add_argument('--do_train', action='store_true', default=False)
+    parser.add_argument('--do_test', action='store_true', default=False)
+    parser.add_argument('--do_predict_batch', action='store_true', default=False)
+    parser.add_argument('--do_predict_single', action='store_true', default=False)
      
     args = parser.parse_args()
     
@@ -347,6 +368,11 @@ def main():
     prefix_path = '/export/home/sunhongchao1/Workspace-of-NLU/corpus/nlu'
 
     dataset_files = {
+        'simple': {
+            'train': os.path.join(prefix_path, args.dataset_name,'clf/train-simple.txt'),
+            'dev': os.path.join(prefix_path, args.dataset_name, 'clf/dev-simple.txt'),
+            'test': os.path.join(prefix_path, args.dataset_name, 'clf/test-simple.txt'),
+            'predict': os.path.join(prefix_path, args.dataset_name, 'clf/predict-simple.txt')},
         'promotion': {
             'train': os.path.join(prefix_path, args.dataset_name,'clf/train.txt'),
             'dev': os.path.join(prefix_path, args.dataset_name, 'clf/dev.txt'),
@@ -356,6 +382,7 @@ def main():
 
     tag_lists ={
         'promotion': ['商品/品类', '搜优惠', '搜活动/会场', '闲聊'],
+        'simple': ['商品/品类', '搜优惠', '搜活动/会场', '闲聊'],
         #'promotion': ['商品/品类', '搜优惠', '搜活动/会场', '闲聊', '其它属性', '看不懂的'],
     }
 

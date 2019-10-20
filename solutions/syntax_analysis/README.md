@@ -1,21 +1,12 @@
-# Summary of Syntax Analysis
+# Summary of Syntactic Analysis
 
+# Dataset
 
+# Solution
+## Context-free grammers(CFGs)句法结构分析
 
-### Reference
-
-+ 统计自然语言处理 第8章
-
-# 结构分析
-
-## RST 树结构分析
-
-## 依存结构分析
-
-## 隐含语篇关系分析
-
-# 指代消解
+## Dependency Parsing
 
 # Reference
-
-- 统计自然语言处理 第10章
+## Links
++ 统计自然语言处理 第8章

@@ -1,3 +1,5 @@
+serving/
+.vscode/
 GitToc/
 *.pkl
 *.xlsx

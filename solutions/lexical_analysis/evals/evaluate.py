@@ -19,6 +19,11 @@ def process_boundary(tag: list, sent: list):
         tag = "O" if tag==0 else tag
         # filter out "O"
         try:
+            if tag.startswith('S-'):
+                entity_tag = tag[2:]
+                entity_val = tok
+                tup_list.append((entity_tag, entity_val))
+
             if tag.startswith('B-'):
                 if len(entity_val) > 0:
                     tup_list.append((entity_tag, entity_val))
@@ -88,6 +93,10 @@ def cut_result_2_sentence_for_file(text_list, ground_list, predict_list):
 
 
 def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
+    
+    print(tag_predict_list)
+    print(tag_ground_list)
+    print(char_list)
 
     entity_predict_list, entity_ground_list = process_boundary(tag_predict_list, char_list), process_boundary(tag_ground_list, char_list)
     print("%" * 20)
@@ -114,12 +123,15 @@ def sentence_evaluate(char_list, tag_ground_list, tag_predict_list):
 def get_results_by_line(text_lines, ground_lines, predict_lines):
 
 
-    print("text lines top 3", text_lines)
-    print("ground lines top 3", ground_lines)
-    print("predict lines top 3", predict_lines)
+    #print("text lines top 3", text_lines)
+    #print("ground lines top 3", ground_lines)
+    #print("predict lines top 3", predict_lines)
+    
 
     assert len(text_lines) == len(ground_lines) == len(predict_lines)
-    assert len(text_lines[0]) == len(ground_lines[0]) == len(predict_lines[0])
+
+
+    # assert len(text_lines[0]) == len(ground_lines[0]) == len(predict_lines[0])
 
     count_predict = 0
     count_ground = 0
@@ -133,7 +145,7 @@ def get_results_by_line(text_lines, ground_lines, predict_lines):
     assert count_predict == count_predict
 
     for item_t, item_g, item_p in zip(text_lines, ground_lines, predict_lines):
-        print("#" * 200)
+        print("#" * 100)
         print(" item text", item_t)
         print(" item ground", item_g)
         print(" item predict", item_p)
