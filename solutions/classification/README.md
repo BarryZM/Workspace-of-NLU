@@ -5,6 +5,10 @@
 - [Solution](#solution)
     - [TextCNN](#textcnn)
 - [Metric](#metric)
+        - [AUCROC](#aucroc)
+        - [mean Average Precesion （mAP）](#mean-average-precesion-map)
+        - [Precision@Rank k](#precisionrank-k)
+    - [confusion matrix](#confusion-matrix)
 - [Application](#application)
     - [Intent Detection](#intent-detection)
     - [Sentiment Polarity Detection](#sentiment-polarity-detection)
@@ -12,8 +16,9 @@
 - [Advance Research](#advance-research)
     - [Ideas](#ideas)
     - [AutoML for Classification](#automl-for-classification)
+    - [Semi supervised Classification](#semi-supervised-classification)
     - [Unsupervised Classification](#unsupervised-classification)
-    - [Unbalance Classification](#unbalance-classification)
+    - [Unbalance Classification && Few Data Augement](#unbalance-classification--few-data-augement)
         - [Data Augement at Preprocessin](#data-augement-at-preprocessin)
         - [改loss](#改loss)
             - [weight loss](#weight-loss)
@@ -84,6 +89,19 @@
 
 + https://www.machinelearningplus.com/machine-learning/evaluation-metrics-classification-models-r/
 
+### AUC_ROC
+
+### mean Average Precesion （mAP）
++ 指的是在不同召回下的最大精确度的平均值
+
+### Precision@Rank k
++ 假设共有*n*个点，假设其中*k*个点是少数样本时的Precision。这个评估方法在推荐系统中也常常会用
+
+## confusion matrix
++ 观察混淆矩阵，找到需要重点增强的类别
+
+
+
 
 # Application
 ## Intent Detection
@@ -110,13 +128,17 @@
 ## AutoML for Classification
 + 
 
+## Semi supervised Classification
+
++ Heterogeneous Graph Attention Networks for Semi-supervised Short Text Classification
+
 ## Unsupervised Classification
 - Step 1. self learning / co learning
 - Step 2. 聚类
 - Step 3. Transfer Learning
 - Step 4. Open-GPT Tranasformer
 
-## Unbalance Classification
+## Unbalance Classification && Few Data Augement
 
 ### Data Augement at Preprocessin
 
@@ -149,6 +171,10 @@
 
 
 ## EDA
+
++ https://towardsdatascience.com/these-are-the-easiest-data-augmentation-techniques-in-natural-language-processing-you-can-think-of-88e393fd610
++ https://arxiv.org/abs/1901.11196
++ https://github.com/jasonwei20/eda_nlp
 
 ## UDA 无监督数据扩充
 
