@@ -180,6 +180,10 @@
 + Young, Tom, et al. "Recent trends in deep learning based natural language processing." arXiv preprint arXiv:1708.02709 (2017). [[pdf\]](https://arxiv.org/pdf/1708.02709)
 + https://ieeexplore.ieee.org/document/8726353
 
+- Knowledge-Aware Natural Language Understanding 
+    - http://www.cs.cmu.edu/~pdasigi/
+    - http://www.cs.cmu.edu/~pdasigi/assets/pdf/pdasigi_thesis.pdf
+
 
 # Contributions
 
