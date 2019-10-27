@@ -3,34 +3,34 @@
 - [Workspace of Nature Language Understanding](#workspace-of-nature-language-understanding)
 - [Target](#target)
 - [Dataset && Solution && Metric](#dataset--solution--metric)
-    - [Part I : Lexical Analysis](#part-i--lexical-analysis)
-        - [Seg && Pos && NER](#seg--pos--ner)
-        - [Relation Extraction](#relation-extraction)
-    - [Part II : Syntactic Analysis](#part-ii--syntactic-analysis)
-    - [Part III : Semantic Analysis](#part-iii--semantic-analysis)
-    - [Part IV : Classification && Sentiment Analysis](#part-iv--classification--sentiment-analysis)
-        - [Classification](#classification)
-        - [Sentiment Analysis](#sentiment-analysis)
-    - [Parr V : Summarization](#parr-v--summarization)
-        - [Dataset](#dataset)
-        - [Solution](#solution)
-    - [Part VI : Retrieval](#part-vi--retrieval)
-        - [Dataset](#dataset)
+  - [Part I : Lexical Analysis](#part-i--lexical-analysis)
+    - [Seg && Pos && NER](#seg--pos--ner)
+    - [Relation Extraction](#relation-extraction)
+  - [Part II : Syntactic Analysis](#part-ii--syntactic-analysis)
+  - [Part III : Semantic Analysis](#part-iii--semantic-analysis)
+  - [Part IV : Classification && Sentiment Analysis](#part-iv--classification--sentiment-analysis)
+    - [Classification](#classification)
+    - [Sentiment Analysis](#sentiment-analysis)
+  - [Parr V : Summarization](#parr-v--summarization)
+    - [Dataset](#dataset)
+    - [Solution](#solution)
+  - [Part VI : Retrieval](#part-vi--retrieval)
+    - [Dataset](#dataset-1)
 - [Advance Solutions](#advance-solutions)
-    - [Joint Learning for NLU](#joint-learning-for-nlu)
-    - [Semi-Supervised NLU](#semi-supervised-nlu)
+  - [Joint Learning for NLU](#joint-learning-for-nlu)
+  - [Semi-Supervised NLU](#semi-supervised-nlu)
 - [Service](#service)
 - [Resource](#resource)
-    - [Stop words](#stop-words)
-    - [Pretrained Embedding](#pretrained-embedding)
-    - [NLU APIs](#nlu-apis)
+  - [Stop words](#stop-words)
+  - [Pretrained Embedding](#pretrained-embedding)
+  - [NLU APIs](#nlu-apis)
 - [Milestone](#milestone)
 - [Usages](#usages)
 - [Reference](#reference)
-    - [Links](#links)
-    - [Projects](#projects)
-    - [Papers](#papers)
-        - [Survey](#survey)
+  - [Links](#links)
+  - [Projects](#projects)
+  - [Papers](#papers)
+    - [Survey](#survey)
 - [Contributions](#contributions)
 - [Licence](#licence)
 
@@ -168,6 +168,7 @@
 
 ## Projects
 
++ [nlp-architect])(https://github.com/NervanaSystems/nlp-architect)
 + https://snips-nlu.readthedocs.io/
 + https://github.com/crownpku/Rasa_NLU_Chi
 + GluonNLP: Your Choice of Deep Learning for NLP
@@ -179,6 +180,10 @@
 + Zhang, Lei, Shuai Wang, and Bing Liu. "Deep Learning for Sentiment Analysis: A Survey." arXiv preprint arXiv:1801.07883 (2018). [[pdf\]](https://arxiv.org/pdf/1801.07883)
 + Young, Tom, et al. "Recent trends in deep learning based natural language processing." arXiv preprint arXiv:1708.02709 (2017). [[pdf\]](https://arxiv.org/pdf/1708.02709)
 + https://ieeexplore.ieee.org/document/8726353
+
+- Knowledge-Aware Natural Language Understanding 
+    - http://www.cs.cmu.edu/~pdasigi/
+    - http://www.cs.cmu.edu/~pdasigi/assets/pdf/pdasigi_thesis.pdf
 
 
 # Contributions
@@ -194,7 +199,4 @@ Apache License
 
 
 ![](https://pic3.zhimg.com/80/v2-3d2cc9e84d5912dac812dc51ddee54fa_hd.jpg)
-
-
-
 
