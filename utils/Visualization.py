@@ -39,3 +39,7 @@ def read_list_and_draw_pie(input_list:list):
 	plt.pie(x=num_list, labels=name_list, autopct='%3.1f %%')
 	plt.show()
 
+import fasttext
+
+model = fasttext.train_supervised()
+model.test_label()
