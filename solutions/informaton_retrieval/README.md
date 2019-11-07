@@ -1,3 +1,11 @@
+<!--
+ * @Author: your name
+ * @Date: 2019-01-22 18:16:19
+ * @LastEditTime: 2019-11-07 20:18:42
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: /craft/Workspace-of-NLU/solutions/informaton_retrieval/README.md
+ -->
 # Outline of Information Retrieval
 
 # Dataset
@@ -5,15 +13,21 @@
 	+ BioASQ
 	+ TREC Robust 2004
 
+### Dataset
 
-### Reference
-+ Text Similarity
-	+ https://github.com/Apollo2Mars/Knowledge/tree/master/04%20Natural%20Language%20Processing/03%20Text%20Similarity
+| Information Retrieval                                        | SOTA | Tips |
+| ------------------------------------------------------------ | ---- | ---- |
+| [LETOR](http://research.microsoft.com/en-us/um/beijing/projects/letor/) |      |      |
+| [Microsoft Learning to Rank Dataset](http://research.microsoft.com/en-us/projects/mslr/) |      |      |
+| [Yahoo Learning to Rank Challenge](http://webscope.sandbox.yahoo.com/) |      |      |
+
 
 ### Outline
 (1) 基于内容(content-based)的特定领域(domain-specific)度量方法，如匹配文本相似度，计算项集合的重叠区域等； 
 (2) 基于链接（对象间的关系）的方法，如PageRank、SimRank和PageSim等。最近的研究表明，第二类方法度量出的对象间相似性更加符合人的直觉判断
 
+# Reference
++ https://ynuwm.github.io/2017/11/15/%E7%BB%BC%E8%BF%B0%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86NLP/
 
 
 # View of Metric
