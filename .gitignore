@@ -1,3 +1,4 @@
+*.bin
 serving/
 .vscode/
 GitToc/
