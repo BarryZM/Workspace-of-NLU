@@ -1,45 +1,35 @@
-<!--
- * @Author: your name
- * @Date: 2019-01-22 18:16:19
- * @LastEditTime: 2019-11-07 18:15:45
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: /craft/Workspace-of-NLU/solutions/best_syntax_analysis/README.md
- -->
-
-<!-- TOC -->
 
 1. [Summary of Syntactic Analysis](#summary-of-syntactic-analysis)
 2. [Application](#application)
-   1. [opinion extraiction](#opinion-extraiction)
-   2. [information retrieval](#information-retrieval)
+    1. [opinion extraiction](#opinion-extraiction)
+    2. [information retrieval](#information-retrieval)
 3. [Dataset](#dataset)
 4. [Solution](#solution)
-   1. [Syntactic Structure Parsing 句法结构分析](#syntactic-structure-parsing-%e5%8f%a5%e6%b3%95%e7%bb%93%e6%9e%84%e5%88%86%e6%9e%90)
-      1. [概念](#%e6%a6%82%e5%bf%b5)
-      2. [标注规范](#%e6%a0%87%e6%b3%a8%e8%a7%84%e8%8c%83)
-      3. [方法](#%e6%96%b9%e6%b3%95)
-         1. [规则](#%e8%a7%84%e5%88%99)
-         2. [统计](#%e7%bb%9f%e8%ae%a1)
-            1. [PCFG(结合统计与规则)](#pcfg%e7%bb%93%e5%90%88%e7%bb%9f%e8%ae%a1%e4%b8%8e%e8%a7%84%e5%88%99)
-            2. [Lexical PCFG](#lexical-pcfg)
-   2. [Dependency Parsing 依存句法分析](#dependency-parsing-%e4%be%9d%e5%ad%98%e5%8f%a5%e6%b3%95%e5%88%86%e6%9e%90)
-      1. [概念](#%e6%a6%82%e5%bf%b5-1)
-      2. [标志规范](#%e6%a0%87%e5%bf%97%e8%a7%84%e8%8c%83)
-      3. [方法](#%e6%96%b9%e6%b3%95-1)
-         1. [规则](#%e8%a7%84%e5%88%99-1)
-         2. [统计](#%e7%bb%9f%e8%ae%a1-1)
-         3. [深度学习](#%e6%b7%b1%e5%ba%a6%e5%ad%a6%e4%b9%a0)
-      4. [评价](#%e8%af%84%e4%bb%b7)
-   3. [深层文法句法分析](#%e6%b7%b1%e5%b1%82%e6%96%87%e6%b3%95%e5%8f%a5%e6%b3%95%e5%88%86%e6%9e%90)
-   4. [语义依存分析](#%e8%af%ad%e4%b9%89%e4%be%9d%e5%ad%98%e5%88%86%e6%9e%90)
-   5. [语义角色标注](#%e8%af%ad%e4%b9%89%e8%a7%92%e8%89%b2%e6%a0%87%e6%b3%a8)
+    1. [Syntactic Structure Parsing 句法结构分析](#syntactic-structure-parsing-句法结构分析)
+        1. [概念](#概念)
+        2. [标注规范](#标注规范)
+        3. [方法](#方法)
+            1. [规则](#规则)
+            2. [统计](#统计)
+                1. [PCFG(结合统计与规则)](#pcfg结合统计与规则)
+                2. [Lexical PCFG](#lexical-pcfg)
+    2. [Dependency Parsing 依存句法分析](#dependency-parsing-依存句法分析)
+        1. [概念](#概念-1)
+        2. [标志规范](#标志规范)
+        3. [方法](#方法-1)
+            1. [规则](#规则-1)
+            2. [统计](#统计-1)
+            3. [深度学习](#深度学习)
+        4. [评价](#评价)
+    3. [深层文法句法分析](#深层文法句法分析)
+    4. [语义依存分析](#语义依存分析)
+    5. [语义角色标注](#语义角色标注)
 5. [Problems](#problems)
 6. [Reference](#reference)
-   1. [Links](#links)
-   2. [Tools](#tools)
-   3. [Projects](#projects)
-   4. [Papers](#papers)
+    1. [Links](#links)
+    2. [Tools](#tools)
+    3. [Projects](#projects)
+    4. [Papers](#papers)
 
 <!-- /TOC -->
 
@@ -83,11 +73,13 @@
 
 ### 方法
 #### 规则
++ pass
 
 #### 统计
 ##### PCFG(结合统计与规则)
   + 结合上下文无关文法（CFG）中最左派生规则(left-most derivations)和不同的rules概率，计算所有可能的树结构概率，取最大值对应的树作为该句子的句法分析结果
 ##### Lexical PCFG
++ pass
 
 ## Dependency Parsing 依存句法分析
 

@@ -1,4 +1,71 @@
-[TOC]
+<!-- TOC -->
+
+1. [Summary of Embedding](#summary-of-embedding)
+2. [Define](#define)
+    1. [Static and Dynamic](#static-and-dynamic)
+        1. [Static](#static)
+        2. [Dynamic](#dynamic)
+    2. [AR and AE](#ar-and-ae)
+        1. [Auto-Regressive LM:AR](#auto-regressive-lmar)
+        2. [Auto-Encoder LM:AE](#auto-encoder-lmae)
+        3. [AR+AE](#arae)
+3. [Metric](#metric)
+4. [Fine tune](#fine-tune)
+    1. [Reference](#reference)
+    2. [Embedding Fine tune](#embedding-fine-tune)
+5. [Word2Vec](#word2vec)
+6. [Glove](#glove)
+7. [Cove](#cove)
+8. [ELMo](#elmo)
+    1. [Tips](#tips)
+    2. [Bidirectional language models（biLM）](#bidirectional-language-modelsbilm)
+    3. [Framework](#framework)
+    4. [Evaluation](#evaluation)
+    5. [Analysis](#analysis)
+    6. [Feature-based](#feature-based)
+9. [ULM-Fit](#ulm-fit)
+10. [GPT-2](#gpt-2)
+    1. [Tips](#tips-1)
+    2. [Unsupervised-Learning](#unsupervised-learning)
+    3. [Supervised-Learning](#supervised-learning)
+    4. [Task specific input transformation](#task-specific-input-transformation)
+11. [BERT](#bert)
+    1. [Tips](#tips-2)
+    2. [Motivation](#motivation)
+    3. [Pretrain-Task 1 : Masked LM](#pretrain-task-1--masked-lm)
+    4. [Pretrain-task 2 : Next Sentence Prediction](#pretrain-task-2--next-sentence-prediction)
+    5. [Fine Tune](#fine-tune)
+    6. [Experiment](#experiment)
+    7. [View](#view)
+    8. [Abstract](#abstract)
+    9. [Introduction](#introduction)
+        1. [预训练language representation 的两种策略](#预训练language-representation-的两种策略)
+        2. [Contributions of this paper](#contributions-of-this-paper)
+    10. [Related Work](#related-work)
+    11. [Train Embedding](#train-embedding)
+        1. [Model Architecture](#model-architecture)
+        2. [Input](#input)
+        3. [Loss](#loss)
+    12. [Use Bert for Downstream Task](#use-bert-for-downstream-task)
+12. [BERT-WWW](#bert-www)
+13. [ERNIE - 百度](#ernie---百度)
+    1. [ERNIE - 清华/华为](#ernie---清华华为)
+        1. [把英文字变成中文词](#把英文字变成中文词)
+        2. [使用TransE 编码知识图谱](#使用transe-编码知识图谱)
+14. [MASS](#mass)
+    1. [Tips](#tips-3)
+    2. [Framework](#framework-1)
+    3. [Experiment](#experiment-1)
+    4. [Advantage of MASS](#advantage-of-mass)
+    5. [Reference](#reference-1)
+15. [Uni-LM](#uni-lm)
+16. [XLNet](#xlnet)
+17. [Doc2Vec](#doc2vec)
+18. [Tools](#tools)
+    1. [gensim](#gensim)
+19. [Reference](#reference-2)
+
+<!-- /TOC -->
 
 # Summary of Embedding
 
@@ -318,12 +385,18 @@
 - Single Sentence Tagging Task
 
 
+# BERT-WWW
++ https://www.jiqizhixin.com/articles/2019-06-21-01
 
-## BERTs
 
+# ERNIE - 百度
 
+- https://zhuanlan.zhihu.com/p/76757794
+- https://cloud.tencent.com/developer/article/1495731
 
-# ERNIE
+## ERNIE - 清华/华为
+
+- https://zhuanlan.zhihu.com/p/69941989
 
 ### 把英文字变成中文词
 
