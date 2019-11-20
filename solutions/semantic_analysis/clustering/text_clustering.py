@@ -1,11 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
-# In[3]:
-
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.manifold import TSNE
@@ -51,8 +43,6 @@ print("n_clusters is ", n_clusters)
 kmeans = KMeans(n_clusters)
 kmeans.fit(tfidf)
 
-# 显示聚类结果
-# print(kmeans.cluster_centers_)
 
 result_dict = {}
 print(len(kmeans.labels_))
@@ -73,7 +63,3 @@ print(result_dict)
 
 for key, value in result_dict.items():
     print("key : {}, number {}".format(key, len(value)))
-
-# print(result_dict[0])
-# print(result_dict[1])
-

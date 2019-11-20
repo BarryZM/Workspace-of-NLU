@@ -3,44 +3,37 @@
 1. [Summary of Lexical Analysis](#summary-of-lexical-analysis)
 2. [Target](#target)
 3. [Steam && Lemma](#steam--lemma)
-   1. [Dataset](#dataset)
-   2. [Solution](#solution)
-   3. [Metric](#metric)
+    1. [Dataset](#dataset)
+    2. [Solution](#solution)
+    3. [Metric](#metric)
 4. [Seg && Pos](#seg--pos)
-   1. [Dataset](#dataset-1)
-   2. [Solution](#solution-1)
-      1. [基于字符串匹配](#%e5%9f%ba%e4%ba%8e%e5%ad%97%e7%ac%a6%e4%b8%b2%e5%8c%b9%e9%85%8d)
-         1. [正向最大匹配/反向最大匹配/最少切分词](#%e6%ad%a3%e5%90%91%e6%9c%80%e5%a4%a7%e5%8c%b9%e9%85%8d%e5%8f%8d%e5%90%91%e6%9c%80%e5%a4%a7%e5%8c%b9%e9%85%8d%e6%9c%80%e5%b0%91%e5%88%87%e5%88%86%e8%af%8d)
-      2. [基于统计](#%e5%9f%ba%e4%ba%8e%e7%bb%9f%e8%ae%a1)
-         1. [互信息](#%e4%ba%92%e4%bf%a1%e6%81%af)
-      3. [N元统计模型](#n%e5%85%83%e7%bb%9f%e8%ae%a1%e6%a8%a1%e5%9e%8b)
-      4. [歧义切分](#%e6%ad%a7%e4%b9%89%e5%88%87%e5%88%86)
-      5. [未登录词](#%e6%9c%aa%e7%99%bb%e5%bd%95%e8%af%8d)
-   3. [Metric](#metric-1)
+    1. [Dataset](#dataset-1)
+    2. [Solution](#solution-1)
+        1. [基于字符串匹配](#基于字符串匹配)
+            1. [正向最大匹配/反向最大匹配/最少切分词](#正向最大匹配反向最大匹配最少切分词)
+        2. [基于统计](#基于统计)
+            1. [互信息](#互信息)
+        3. [N元统计模型](#n元统计模型)
+        4. [歧义切分](#歧义切分)
+        5. [未登录词](#未登录词)
+    3. [Metric](#metric-1)
 5. [NER](#ner)
-   1. [Dataset](#dataset-2)
-   2. [Solution](#solution-2)
-      1. [基于规则和词典](#%e5%9f%ba%e4%ba%8e%e8%a7%84%e5%88%99%e5%92%8c%e8%af%8d%e5%85%b8)
-      2. [基于统计的方法](#%e5%9f%ba%e4%ba%8e%e7%bb%9f%e8%ae%a1%e7%9a%84%e6%96%b9%e6%b3%95)
-      3. [混合方法](#%e6%b7%b7%e5%90%88%e6%96%b9%e6%b3%95)
-      4. [基于神经网路](#%e5%9f%ba%e4%ba%8e%e7%a5%9e%e7%bb%8f%e7%bd%91%e8%b7%af)
-   3. [Metric](#metric-2)
-6. [Relation Extraction](#relation-extraction)
-   1. [Dataset](#dataset-3)
-   2. [Solution](#solution-3)
-      1. [Pipeline](#pipeline)
-      2. [单纯关系抽取](#%e5%8d%95%e7%ba%af%e5%85%b3%e7%b3%bb%e6%8a%bd%e5%8f%96)
-      3. [远程监督](#%e8%bf%9c%e7%a8%8b%e7%9b%91%e7%9d%a3)
-   3. [Metric](#metric-3)
-7. [Reference](#reference)
-   1. [Links](#links)
-   2. [Papers](#papers)
-   3. [Tools](#tools)
-      1. [NCRF++:An Open-source Neural Sequence Labeling Toolkit](#ncrfan-open-source-neural-sequence-labeling-toolkit)
-      2. [Neural CRF](#neural-crf)
-      3. [FoolNLTK](#foolnltk)
-   4. [Projects](#projects)
-   5. [Chanllenge](#chanllenge)
+    1. [Dataset](#dataset-2)
+    2. [Solution](#solution-2)
+        1. [基于规则和词典](#基于规则和词典)
+        2. [基于统计的方法](#基于统计的方法)
+        3. [混合方法](#混合方法)
+        4. [基于神经网路](#基于神经网路)
+    3. [Metric](#metric-2)
+6. [Reference](#reference)
+    1. [Links](#links)
+    2. [Papers](#papers)
+    3. [Tools](#tools)
+        1. [NCRF++:An Open-source Neural Sequence Labeling Toolkit](#ncrfan-open-source-neural-sequence-labeling-toolkit)
+        2. [Neural CRF](#neural-crf)
+        3. [FoolNLTK](#foolnltk)
+    4. [Projects](#projects)
+    5. [Chanllenge](#chanllenge)
 
 <!-- /TOC -->
 
@@ -199,41 +192,6 @@
   - R_OOV = 正确切分出的未登录词的数目/标准答案中未知词的总数
   - R_IV = 正确切分出的已知词的数目/标准答案中已知词的总数
 
-# Relation Extraction
-
-## Dataset 
-
-| Relation Extraction Dataset | SOTA | Tips                          |
-| --------------------------- | ---- | ----------------------------- |
-| SemEval 2010 Task 8         |      |                               |
-| FewRel                      |      | EMNLP2018，清华               |
-| NYT10                       |      | https://github.com/thunlp/NRE |
-| 百度实体链接 CCKS2019       |      |                               |
-
-## Solution
-
-### Pipeline
-+ 实体识别/消歧/关系抽取
-
-### 单纯关系抽取
-
-- SemEval 2010 task 8
-
-### 远程监督
-
-- NYT10
-- 将已有知识库对应到非结构话数据中, 生产大量训练数据，从而训练关系抽取器
-- 远程监督的做法是假设现在我有一对三元组，比如特朗普和美国，他们的关系是is the president of，那么接下来我拿特朗普和美国这两个词去检索一堆文本，只要出现这两个词的句子，我们都规定他是is the president of的关系，这样的做法的确能产生大量的数据，但同时这些数据也会有很大的噪声，比如特朗普和美国还有born in的关系
-
-| Model                                       | Tips                         |
-| ------------------------------------------- | ---------------------------- |
-| [THUNLP/NRE](https://github.com/thunlp/NRE) | CNN, PCNN, CNN+ATT, PCNN+ATT |
-| [THUNLP/OpenNRE](https://github.com/thunlp/OpenNRE) |                              |
-|                                             |                              |
-
-## Metric
-
-+ Pass
 
 
 # Reference
