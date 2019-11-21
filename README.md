@@ -1,42 +1,37 @@
 <!-- TOC -->
 
-- [Workspace of Nature Language Understanding](#workspace-of-nature-language-understanding)
-- [Target](#target)
-- [Todo list](#todo-list)
-- [Dataset && Solution && Metric](#dataset--solution--metric)
-    - [Part I : Lexical Analysis](#part-i--lexical-analysis)
-        - [Seg](#seg)
-        - [POS](#pos)
-    - [Part II : Syntactic Analysis](#part-ii--syntactic-analysis)
-        - [句法结构](#句法结构)
-        - [依存句法](#依存句法)
-    - [Part III : Semantic Analysis](#part-iii--semantic-analysis)
-    - [Part IV : Classification && Sentiment Analysis](#part-iv--classification--sentiment-analysis)
-        - [Classification](#classification)
-        - [Sentiment Analysis](#sentiment-analysis)
-    - [Parr V : Summarization](#parr-v--summarization)
-    - [Part VI : Retrieval](#part-vi--retrieval)
-    - [Part VII : Information Retrieval](#part-vii--information-retrieval)
-        - [Named Entity Recognition](#named-entity-recognition)
-        - [Relation Extraction](#relation-extraction)
-        - [Event Detection](#event-detection)
-- [Resource](#resource)
-    - [Stop words](#stop-words)
-    - [Pretrained Embedding](#pretrained-embedding)
-    - [NLU APIs](#nlu-apis)
-- [Milestone](#milestone)
-- [Usages](#usages)
-- [Reference](#reference)
-    - [Links](#links)
-    - [Projects](#projects)
-    - [Papers](#papers)
-        - [Survey](#survey)
-- [Contributions](#contributions)
-- [Licence](#licence)
+1. [Target](#target)
+2. [Todo list](#todo-list)
+3. [Milestone](#milestone)
+4. [Usages](#usages)
+5. [Todo list](#todo-list-1)
+6. [Dataset && Solution && Metric](#dataset--solution--metric)
+    1. [Part I : Lexical Analysis](#part-i--lexical-analysis)
+        1. [Seg](#seg)
+        2. [POS](#pos)
+    2. [Part II : Syntactic Analysis](#part-ii--syntactic-analysis)
+        1. [句法结构](#句法结构)
+        2. [依存句法](#依存句法)
+    3. [Part III : Chapter Analysis](#part-iii--chapter-analysis)
+    4. [Part IIIV : Semantic Analysis](#part-iiiv--semantic-analysis)
+    5. [Part V : Classification](#part-v--classification)
+        1. [Classification](#classification)
+    6. [Part VI Sentiment Analysis](#part-vi-sentiment-analysis)
+7. [Resource](#resource)
+    1. [Stop words](#stop-words)
+    2. [Pretrained Embedding](#pretrained-embedding)
+    3. [NLU APIs](#nlu-apis)
+8. [Reference](#reference)
+    1. [Links](#links)
+    2. [Projects](#projects)
+    3. [Papers](#papers)
+        1. [Survey](#survey)
+9. [Contributions](#contributions)
+10. [Licence](#licence)
 
 <!-- /TOC -->
 
-# Workspace of Nature Language Understanding
+![.jpg-2019-11-21-14-37-49](https://blog-picture-bed.oss-cn-beijing.aliyuncs.com/blog/upload/.jpg-2019-11-21-14-37-49)
 
 # Target
 
@@ -50,6 +45,17 @@
     + Dataset
     + Solution
     + Metric
+    
+# Todo list
+
+# Milestone
+
++ 2019/10/08 : multi-card gnu training
+
+# Usages
+
++ Service 
++ Will be used for other module
 
 # Todo list
 + 
@@ -69,29 +75,20 @@
 
 ### 依存句法
 
+## Part III : Chapter Analysis
 
-## Part III : Semantic Analysis
+
+## Part IIIV : Semantic Analysis
 
 
-## Part IV : Classification && Sentiment Analysis
+## Part V : Classification
 
 ### Classification
 
-### Sentiment Analysis
+## Part VI Sentiment Analysis
 
 
-## Parr V : Summarization
 
-
-## Part VI : Retrieval
-
-## Part VII : Information Retrieval
-
-### Named Entity Recognition
-
-### Relation Extraction
-
-### Event Detection 
 
 # Resource
 
@@ -113,14 +110,6 @@
 | pytorch_pretrained_bert    |      |      |
 |         |      |      |
 
-# Milestone
-
-+ 2019/10/08 : multi-card gnu training
-
-# Usages
-
-+ Service 
-+ Will be used for other module
 
 # Reference
 
@@ -162,7 +151,4 @@ You can raise an issue or submit a pull request, whichever is more convenient fo
 
 Apache License
 
-
-
-![](https://pic3.zhimg.com/80/v2-3d2cc9e84d5912dac812dc51ddee54fa_hd.jpg)
 
