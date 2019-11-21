@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Outline of Text Clustering
 
 ### Reference
@@ -118,5 +117,4 @@
 
 # Reference
 + Machine Learning(周志华) Chapter 9
-+ LHY ML 2017 Video 17
->>>>>>> a12645688a5df7dcf0e2e98a0d5bf5632ff4ca94
++ LHY ML 2017 Video 17git 

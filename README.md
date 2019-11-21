@@ -1,37 +1,38 @@
 <!-- TOC -->
 
-1. [Workspace of Nature Language Understanding](#workspace-of-nature-language-understanding)
-2. [Target](#target)
-3. [Dataset && Solution && Metric](#dataset--solution--metric)
-    1. [Part I : Lexical Analysis](#part-i--lexical-analysis)
-        1. [Seg](#seg)
-        2. [POS](#pos)
-    2. [Part II : Syntactic Analysis](#part-ii--syntactic-analysis)
-        1. [句法结构](#句法结构)
-        2. [依存句法](#依存句法)
-    3. [Part III : Semantic Analysis](#part-iii--semantic-analysis)
-    4. [Part IV : Classification && Sentiment Analysis](#part-iv--classification--sentiment-analysis)
-        1. [Classification](#classification)
-        2. [Sentiment Analysis](#sentiment-analysis)
-    5. [Parr V : Summarization](#parr-v--summarization)
-    6. [Part VI : Retrieval](#part-vi--retrieval)
-    7. [Part VII : Information Retrieval](#part-vii--information-retrieval)
-        1. [Named Entity Recognition](#named-entity-recognition)
-        2. [Relation Extraction](#relation-extraction)
-        3. [Event Detection](#event-detection)
-4. [Resource](#resource)
-    1. [Stop words](#stop-words)
-    2. [Pretrained Embedding](#pretrained-embedding)
-    3. [NLU APIs](#nlu-apis)
-5. [Milestone](#milestone)
-6. [Usages](#usages)
-7. [Reference](#reference)
-    1. [Links](#links)
-    2. [Projects](#projects)
-    3. [Papers](#papers)
-        1. [Survey](#survey)
-8. [Contributions](#contributions)
-9. [Licence](#licence)
+- [Workspace of Nature Language Understanding](#workspace-of-nature-language-understanding)
+- [Target](#target)
+- [Todo list](#todo-list)
+- [Dataset && Solution && Metric](#dataset--solution--metric)
+    - [Part I : Lexical Analysis](#part-i--lexical-analysis)
+        - [Seg](#seg)
+        - [POS](#pos)
+    - [Part II : Syntactic Analysis](#part-ii--syntactic-analysis)
+        - [句法结构](#句法结构)
+        - [依存句法](#依存句法)
+    - [Part III : Semantic Analysis](#part-iii--semantic-analysis)
+    - [Part IV : Classification && Sentiment Analysis](#part-iv--classification--sentiment-analysis)
+        - [Classification](#classification)
+        - [Sentiment Analysis](#sentiment-analysis)
+    - [Parr V : Summarization](#parr-v--summarization)
+    - [Part VI : Retrieval](#part-vi--retrieval)
+    - [Part VII : Information Retrieval](#part-vii--information-retrieval)
+        - [Named Entity Recognition](#named-entity-recognition)
+        - [Relation Extraction](#relation-extraction)
+        - [Event Detection](#event-detection)
+- [Resource](#resource)
+    - [Stop words](#stop-words)
+    - [Pretrained Embedding](#pretrained-embedding)
+    - [NLU APIs](#nlu-apis)
+- [Milestone](#milestone)
+- [Usages](#usages)
+- [Reference](#reference)
+    - [Links](#links)
+    - [Projects](#projects)
+    - [Papers](#papers)
+        - [Survey](#survey)
+- [Contributions](#contributions)
+- [Licence](#licence)
 
 <!-- /TOC -->
 
@@ -49,6 +50,9 @@
     + Dataset
     + Solution
     + Metric
+
+# Todo list
++ 
 
 # Dataset && Solution && Metric
 
