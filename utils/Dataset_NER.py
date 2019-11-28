@@ -6,40 +6,39 @@ import numpy as np
 
 class Dataset_NER():
     
-    def __init__(self, corpus, tokenizer, data_type, label_str):
+    def __init__(self, corpus, tokenizer, max_seq_len, data_type, label_list):
         self.corpus = corpus
         self.tokenizer = tokenizer
 
         self.word2idx = self.tokenizer.word2idx
+        self.max_seq_len = max_seq_len
 
-        self.label_str = label_str
         self.data_type = data_type
-        self.label_list = self.set_label_list()
-        self.label2id = self.set_label2id()
-        self.label2onehot = self.set_label2onehot()
+        self.label_list = label_list
+
+        self.set_label2id()
+        self.set_label2onehot()
 
         self.text_list = []
         self.label_list = []
 
         self.preprocess()
-
+        
     def __getitem__(self, index):
         return self.text_list[index]
 
     def __len__(self):
         return len(self.text_list)
 
-    def set_label_list(self):
-        label_list = [item.strip().strip("'") for item in self.label_str.split(',')]
-        print(label_list)
-        return label_list
-
     def set_label2id(self):
-        label_dict = {}
+        label2idx = {}
+        idx2label = {}
         for idx, item in enumerate(self.label_list):
-            label_dict[item] = idx
-        print(label_dict)
-        return label_dict
+            label2idx[item] = idx
+            idx2label[idx] = item
+
+        self.label2idx = label2idx
+        self.idx2label = idx2label
 
     def set_label2onehot(self):
         label_list = self.label_list
@@ -50,10 +49,11 @@ class Dataset_NER():
         label_dict = {}
         for aspect, vector in zip(label_list, one_hot_df):
             label_dict[aspect] = vector
-        print(label_dict)
-        return label_dict
+        self.label2onehot = label_dict
 
-    def __pad_and_truncate(self, sequence, maxlen, dtype='int64', padding='post', truncating='post', value=0):
+    def __pad_and_truncate(self, sequence, maxlen, dtype='int64',
+                           padding='post', truncating='post',
+                           value=0):
         """
         :param sequence:
         :param maxlen:
@@ -70,28 +70,51 @@ class Dataset_NER():
         else:
             trunc = sequence[:maxlen]
             trunc = np.asarray(trunc, dtype=dtype)
+        
         if padding == 'post':
             x[:len(trunc)] = trunc
         else:
             x[-len(trunc):] = trunc
         return x
 
-    def encode(self, text, do_padding, do_reverse):
+    def encode_label_sequence(self, label, do_padding, do_reverse):
         """
-        :param text:
-        :return: convert text to numberical digital features with max length, paddding
-        and truncating
         """
-        words = list(text)
-        unknown_idx = 0
-        sequence = [self.word2idx[w] if w in self.word2idx else unknown_idx for w in words]
+        labels = list(label)
+
+        sequence = [self.label2idx[w] if w in self.label2idx else
+                    self.word2idx['<UNK>'] for w in labels]
+        
         if len(sequence) == 0:
             sequence = [0]
         if do_reverse:
             sequence = sequence[::-1]
 
         if do_padding:
-            sequence = self.__pad_and_truncate(sequence, self.max_seq_len)
+            sequence = self.__pad_and_truncate(sequence, self.max_seq_len,
+                                               value=self.label2idx['<PAD>'])
+        
+        return sequence
+
+    def encode_text_sequence(self, text, do_padding, do_reverse):
+        """
+        :param text:
+        :return: convert text to numberical digital features with max length, paddding
+        and truncating
+        """
+        words = list(text)
+
+        sequence = [self.word2idx[w] if w in self.word2idx else
+                    self.word2idx['<UNK>'] for w in words]
+        
+        if len(sequence) == 0:
+            sequence = [0]
+        if do_reverse:
+            sequence = sequence[::-1]
+
+        if do_padding:
+            sequence = self.__pad_and_truncate(sequence, self.max_seq_len,
+                                               value=self.word2idx['<PAD>'])
 
         return sequence
         # return [self.embedding_matrix[item] for item in sequence]
@@ -146,34 +169,19 @@ class Dataset_NER():
             else:
                 raise Exception("Raise Exception")
 
-        text_list = np.asarray(text_list)
-        label_list = np.asarray(label_list)
-        assert text_list.shape == label_list.shape
-
         result_text = []
         result_label = []
 
+
         for text in text_list:
-            tmp = self.encode(text, False, False)
+            tmp = self.encode_text_sequence(text, True, False)
             result_text.append(tmp)
 
-        for target in label_list:  # [[B, I, ..., I], [B, I, ..., O], [O, O, ..., O], [B, I, ..., O]]
-            tmp_list = []
-            for item in list(target):
-                tmp_list.append(self.label2id[item])
+        for label in label_list:  # [[B, I, ..., I], [B, I, ..., O], [O, O, ..., O], [B, I, ..., O]]
+            tmp = self.encode_label_sequence(label, True, False)
+            result_label.append(tmp)
 
-            result_label.append(tmp_list.copy())
-
-        result_text = np.asarray(result_text)
-        result_label = np.asarray(result_label)
-
-        print(text_list.shape)
-        print(label_list.shape)
-        print(result_text.shape)
-        print(result_label.shape)
-        assert result_text.shape == result_label.shape
-
-        self.text_list = result_text
-        self.label_list = result_label
+        self.text_list = np.asarray(result_text)
+        self.label_list = np.asarray(result_label)
 
 
