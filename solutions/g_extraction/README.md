@@ -1,30 +1,38 @@
 <!-- TOC -->
 
-- [实体抽取](#实体抽取)
-- [关系抽取](#关系抽取)
-- [事件抽取](#事件抽取)
-- [关键词抽取](#关键词抽取)
-    - [TF-IDF](#tf-idf)
-    - [Topic-Model](#topic-model)
-    - [RAKE](#rake)
-    - [PMI](#pmi)
-- [文本摘要](#文本摘要)
-        - [Dataset](#dataset)
-        - [Solution](#solution)
-- [知识抽取](#知识抽取)
-- [Knowledge Extract](#knowledge-extract)
-        - [Reference Website](#reference-website)
-        - [知识类型](#知识类型)
-        - [实体关系](#实体关系)
-        - [知识提取任务](#知识提取任务)
-        - [当前工业界的知识库](#当前工业界的知识库)
-- [Reference](#reference)
+1. [实体抽取](#实体抽取)
+2. [关系抽取](#关系抽取)
+3. [事件抽取](#事件抽取)
+4. [关键词抽取](#关键词抽取)
+    1. [TF-IDF](#tf-idf)
+    2. [Topic-Model](#topic-model)
+    3. [RAKE](#rake)
+    4. [PMI](#pmi)
+5. [文本摘要](#文本摘要)
+        1. [Dataset](#dataset)
+        2. [Solution](#solution)
+6. [知识抽取](#知识抽取)
+7. [Knowledge Extract](#knowledge-extract)
+        1. [Reference Website](#reference-website)
+        2. [知识类型](#知识类型)
+        3. [实体关系](#实体关系)
+        4. [知识提取任务](#知识提取任务)
+        5. [当前工业界的知识库](#当前工业界的知识库)
+8. [Reference](#reference)
 
 <!-- /TOC -->
 
 # 实体抽取
 
 # 关系抽取
+Matching the Blanks: Distributional Similarity for Relation Learning 
+
+史上最大实体精标注关系抽取数据集FewRel上超过了人类
+论文关注于通用目的关系抽取
+使用Bert进行关系表示
+并提出了一种用于关系抽取的预训练方法
+并且在小样本的情况下提升明显
+论文链接：https://www.aclweb.org/anthology/P19-1279.pdf 
 
 # 事件抽取
 
