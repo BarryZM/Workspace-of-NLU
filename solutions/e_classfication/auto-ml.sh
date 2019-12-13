@@ -1,1 +1,0 @@
-#!/usr/bin/env bash# imbalance trick# learning rate# hidden state# es# dropout# initializers

@@ -524,4 +524,6 @@ model = Doc2Vec(dm=1, size=100, window=5, negative=5, hs=0, min_count=2, workers
 - [embedding summary blog](https://www.cnblogs.com/robert-dlut/p/9824346.html)
 - [ulm-fit](http://nlp.fast.ai/classification/2018/05/15/introducting-ulmfit.html)
 - [open gpt](https://blog.floydhub.com/gpt2/)
+- 从Word2Vec 到 Bert paper weekly
+- Jay Alammar 博客， 对每个概念进行了可视化
 
