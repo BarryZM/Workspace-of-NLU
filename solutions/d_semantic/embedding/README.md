@@ -265,6 +265,7 @@ $\prod_{i=1}^{3}P_i=(1−\frac{1}{1+e^{−x^Tw_{θ_1}}})(1−\frac{1}{1+e^{−x^
   - 从输入层到投影层，需要对2c个词的词向量进行加和平均
   $\vec{x_w} = \frac{1}{2c}\sum^{2c}_{i=1}\vec{x_i}$
   - 通过梯度上升更新$\theta^w_{j-1}$和$x_w$， 注意这边的$x_w$是多个向量加和，所以需要对每个向量进行各自的更新，我们做梯度更新完毕后会用梯度项直接更新原始的各个$x_i(i=1,2,,,,2c)$
+
       $\theta_{j-1}^w = \theta_{j-1}^w+\eta (1−d^w_j−\sigma(x^T_w\theta^w_{j−1}))x_w$  $\forall j=2 \ to \ l_w $
       对于
       $x_i = x_i + \eta\sum^{l_w}_{j=2}(1-d^w_j-\sigma(x^T_w\theta^w_{j-1}))\theta^w_{j-1}$  $forall i = \ 1 \ to 2c$
