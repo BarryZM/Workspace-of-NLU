@@ -1,7 +1,6 @@
 <!-- TOC -->
 
-1. [Summary of Embedding](#summary-of-embedding)
-2. [Define](#define)
+1. [Category](#category)
     1. [Static and Dynamic](#static-and-dynamic)
         1. [Static](#static)
         2. [Dynamic](#dynamic)
@@ -9,11 +8,11 @@
         1. [Auto-Regressive LM:AR](#auto-regressive-lmar)
         2. [Auto-Encoder LM:AE](#auto-encoder-lmae)
         3. [AR+AE](#arae)
-3. [Metric](#metric)
-4. [Fine tune](#fine-tune)
-    1. [Reference](#reference)
-    2. [Embedding Fine tune](#embedding-fine-tune)
-5. [Word2Vec](#word2vec)
+2. [Metric](#metric)
+    1. [wordsim353](#wordsim353)
+    2. [半监督](#半监督)
+    3. [Ref](#ref)
+3. [Word2Vec](#word2vec)
     1. [词向量基础](#词向量基础)
     2. [CBOW](#cbow)
         1. [Naïve implement](#naïve-implement)
@@ -25,28 +24,29 @@
         2. [optimized methods](#optimized-methods-1)
             1. [Hierarchical Softmax](#hierarchical-softmax-1)
             2. [Negative sampling](#negative-sampling)
-    4. [ref:](#ref)
-6. [Glove](#glove)
+    4. [FastText词向量与word2vec对比](#fasttext词向量与word2vec对比)
+    5. [ref:](#ref)
+4. [Glove](#glove)
     1. [Glove](#glove-1)
     2. [实现](#实现)
     3. [如何训练](#如何训练)
     4. [Glove和LSA以及Word2vec的比较](#glove和lsa以及word2vec的比较)
     5. [公式推导](#公式推导)
-7. [Cove](#cove)
-8. [ELMo](#elmo)
+5. [Cove](#cove)
+6. [ELMo](#elmo)
     1. [Tips](#tips)
     2. [Bidirectional language models（biLM）](#bidirectional-language-modelsbilm)
     3. [Framework](#framework)
     4. [Evaluation](#evaluation)
     5. [Analysis](#analysis)
     6. [Feature-based](#feature-based)
-9. [ULM-Fit](#ulm-fit)
-10. [GPT-2](#gpt-2)
+7. [ULM-Fit](#ulm-fit)
+8. [GPT-2](#gpt-2)
     1. [Tips](#tips-1)
     2. [Unsupervised-Learning](#unsupervised-learning)
     3. [Supervised-Learning](#supervised-learning)
     4. [Task specific input transformation](#task-specific-input-transformation)
-11. [BERT](#bert)
+9. [BERT](#bert)
     1. [Tips](#tips-2)
     2. [Motivation](#motivation)
     3. [Pretrain-Task 1 : Masked LM](#pretrain-task-1--masked-lm)
@@ -64,29 +64,27 @@
         2. [Input](#input)
         3. [Loss](#loss)
     12. [Use Bert for Downstream Task](#use-bert-for-downstream-task)
-12. [BERT-WWW](#bert-www)
-13. [ERNIE - 百度](#ernie---百度)
+10. [BERT-WWW](#bert-www)
+11. [ERNIE - 百度](#ernie---百度)
     1. [ERNIE - 清华/华为](#ernie---清华华为)
         1. [把英文字变成中文词](#把英文字变成中文词)
         2. [使用TransE 编码知识图谱](#使用transe-编码知识图谱)
-14. [MASS](#mass)
+12. [MASS](#mass)
     1. [Tips](#tips-3)
     2. [Framework](#framework-1)
     3. [Experiment](#experiment-1)
     4. [Advantage of MASS](#advantage-of-mass)
-    5. [Reference](#reference-1)
-15. [Uni-LM](#uni-lm)
-16. [XLNet](#xlnet)
-17. [Doc2Vec](#doc2vec)
-18. [Tools](#tools)
+    5. [Reference](#reference)
+13. [Uni-LM](#uni-lm)
+14. [XLNet](#xlnet)
+15. [Doc2Vec](#doc2vec)
+16. [Tools](#tools)
     1. [gensim](#gensim)
-19. [Reference](#reference-2)
+17. [Reference](#reference-1)
 
 <!-- /TOC -->
 
-# Summary of Embedding
-
-# Define
+# Category
 
 ## Static and Dynamic
 
@@ -126,77 +124,49 @@
 
 # Metric
 
-+ 如何评价embedding 的好坏
-  + https://baijiahao.baidu.com/s?id=1592247569685776088&wfr=spider&for=pc
-  + 当前绝大部分工作（比如以各种方式改进word embedding）都是依赖wordsim353等词汇相似性数据集进行相关性度量，并以之作为评价word embedding质量的标准。然而，这种基于similarity的评价方式对训练数据大小、领域、来源以及词表的选择非常敏感。而且数据集太小，往往并不能充分说明问题。
-  + Evaluation of Word Vector Representations by Subspace Alignment (Tsvetkov et al.)
-  + Evaluation methods for unsupervised word embeddings (Schnabel et al.)
+## wordsim353
++ 当前绝大部分工作（比如以各种方式改进word embedding）都是依赖wordsim353等词汇相似性数据集进行相关性度量，并以之作为评价word embedding质量的标准
++ 然而，这种基于similarity的评价方式对训练数据大小、领域、来源以及词表的选择非常敏感。而且数据集太小，往往并不能充分说明问题。
 
-+ 半监督
-  + seed + pattern
+## 半监督
++ seed + pattern
 
+## Ref
++ Evaluation of Word Vector Representations by Subspace Alignment (Tsvetkov et al.)
++ Evaluation methods for unsupervised word embeddings (Schnabel et al.)
 
-
-# Fine tune
-
-## Reference
-
-- http://nbviewer.jupyter.org/github/BVLC/caffe/blob/master/examples/02-fine-tuning.ipynb
-- https://blog.csdn.net/hnu2012/article/details/72179437
-
-## Embedding Fine tune
-
-- http://www.cnblogs.com/iloveai/p/word2vec.html
-  - 无监督或弱监督的预训练以word2vec和auto-encoder为代表。这一类模型的特点是，不需要大量的人工标记样本就可以得到质量还不错的embedding向量
-  - 不过因为缺少了任务导向，可能和我们要解决的问题还有一定的距离
-  - 因此，我们往往会在得到预训练的embedding向量后，用少量人工标注的样本去fine-tune整个模型
 
 # Word2Vec
 
-+ Distributed Representations of Sentences and Documents
-+ Efficient estimation of word representations in vector space
-+ [Distributed Representations of Words and Phrases and their Compositionality](https://arxiv.org/pdf/1310.4546.pdf)
-+ https://zhuanlan.zhihu.com/p/26306795
-+ FastText词向量与word2vec对比 
-  - FastText= word2vec中 cbow + h-softmax的灵活使用
-  - 灵活体现在两个方面： 
-    1. 模型的输出层：word2vec的输出层，对应的是每一个term，计算某term的概率最大；而fasttext的输出层对应的是 分类的label。不过不管输出层对应的是什么内容，起对应的vector都不会被保留和使用； 
-    2. 模型的输入层：word2vec的输出层，是 context window 内的term；而fasttext 对应的整个sentence的内容，包括term，也包括 n-gram的内容；
-  - 两者本质的不同，体现在 h-softmax的使用。 
-    - Wordvec的目的是得到词向量，该词向量 最终是在输入层得到，输出层对应的 h-softmax 也会生成一系列的向量，但最终都被抛弃，不会使用。 
-    - fasttext则充分利用了h-softmax的分类功能，遍历分类树的所有叶节点，找到概率最大的label（一个或者N个）
-  - http://nbviewer.jupyter.org/github/jayantj/gensim/blob/683720515165a332baed8a2a46b6711cefd2d739/docs/notebooks/Word2Vec_FastText_Comparison.ipynb#
-  - https://www.cnblogs.com/eniac1946/p/8818892.html 
- 
- word2vector 是将词向量进行表征，其实现的方式主要有两种，分别是CBOW（continue bag of words) 和 Skip-Gram两种模型。这两种模型在word2vector出现之前，采用的是DNN来训练词与词之间的关系，采用的方法一般是三层网络，输入层，隐藏层，和输出层。之后，这种方法在词汇字典量巨大的时候，实现方式以及计算都不现实，于是采用了hierarchical softmax 或者negative sampling模型进行优化求解。
++ word2vector 是将词向量进行表征，其实现的方式主要有两种，分别是CBOW（continue bag of words) 和 Skip-Gram两种模型。这两种模型在word2vector出现之前，采用的是DNN来训练词与词之间的关系，采用的方法一般是三层网络，输入层，隐藏层，和输出层。之后，这种方法在词汇字典量巨大的时候，实现方式以及计算都不现实，于是采用了hierarchical softmax 或者negative sampling模型进行优化求解。
 ![IMAGE](images/mindmap.jpg)
 
 ## 词向量基础
-用词向量来表示词并不是word2vec的首创，在很久之前就出现了。最早的词向量是很冗长的，它使用是词向量维度大小为整个词汇表的大小，对于每个具体的词汇表中的词，将对应的位置置为1。比如我们有下面的5个词组成的词汇表，词"Queen"的序号为2， 那么它的词向量就是(0,1,0,0,0)
-。同样的道理，词"Woman"的词向量就是(0,0,0,1,0)。这种词向量的编码方式我们一般叫做1-of-N representation或者one hot representation.
++ 用词向量来表示词并不是word2vec的首创，在很久之前就出现了。最早的词向量是很冗长的，它使用是词向量维度大小为整个词汇表的大小，对于每个具体的词汇表中的词，将对应的位置置为1。比如我们有下面的5个词组成的词汇表，词"Queen"的序号为2， 那么它的词向量就是(0,1,0,0,0)。同样的道理，词"Woman"的词向量就是(0,0,0,1,0)。这种词向量的编码方式我们一般叫做1-of-N representation或者one hot representation.
 ![IMAGE](https://images2015.cnblogs.com/blog/1042406/201707/1042406-20170713145606275-2100371803.png)
-one hot representation 的优势在于简单，但是其也有致命的问题，就是在动辄上万的词汇库中，one hot表示的方法需要的向量维度很大，而且对于一个字来说只有他的index位置为1其余位置为0，表达效率不高。而且字与字之间是独立的，不存在字与字之间的关系。
-
-如何将字的维度降低到指定的维度大小，并且获取有意义的信息表示，这就是word2vec所做的事情。
-比如下图我们将词汇表里的词用"Royalty","Masculinity", "Femininity"和"Age"4个维度来表示，King这个词对应的词向量可能是(0.99,0.99,0.05,0.7)。当然在实际情况中，我们并不能对词向量的每个维度做一个很好的解释
++ one hot representation 的优势在于简单，但是其也有致命的问题，就是在动辄上万的词汇库中，one hot表示的方法需要的向量维度很大，而且对于一个字来说只有他的index位置为1其余位置为0，表达效率不高。而且字与字之间是独立的，不存在字与字之间的关系。
++ 如何将字的维度降低到指定的维度大小，并且获取有意义的信息表示，这就是word2vec所做的事情。
++ 比如下图我们将词汇表里的词用"Royalty","Masculinity", "Femininity"和"Age"4个维度来表示，King这个词对应的词向量可能是(0.99,0.99,0.05,0.7)。当然在实际情况中，我们并不能对词向量的每个维度做一个很好的解释
 ![IMAGE](images/embd_vis.png)
-有了用Distributed Representation表示的较短的词向量，我们就可以较容易的分析词之间的关系了，比如我们将词的维度降维到2维，有一个有趣的研究表明，用下图的词向量表示我们的词时，我们可以发现：
++ 有了用Distributed Representation表示的较短的词向量，我们就可以较容易的分析词之间的关系了，比如我们将词的维度降维到2维，有一个有趣的研究表明，用下图的词向量表示我们的词时，我们可以发现：
 $\vec{Queen} = \vec{King} - \vec{Man} + \vec{Woman}$
 ![IMAGE](https://images2015.cnblogs.com/blog/1042406/201707/1042406-20170713151608181-1336632086.png)
 
 ## CBOW
-CBOW 模型的输入是一个字上下文的，指定窗口长度，根据上下文预测该字。
-比如下面这段话，我们上下文取值为4，特定词为`learning`，上下文对应的词共8个，上下各四个。这8个词作为我们的模型输入。CBOW使用的是词袋模型，这8个词都是平等的，我们不考虑关注的词之间的距离大小，只要是我们上下文之内的就行。
++ CBOW 模型的输入是一个字上下文的，指定窗口长度，根据上下文预测该字。
++ 比如下面这段话，我们上下文取值为4，特定词为`learning`，上下文对应的词共8个，上下各四个。这8个词作为我们的模型输入。CBOW使用的是词袋模型，这8个词都是平等的，我们不考虑关注的词之间的距离大小，只要是我们上下文之内的就行。
 ![IMAGE](https://images2015.cnblogs.com/blog/1042406/201707/1042406-20170713152436931-1817493891.png)
-CBOW模型的训练输入是某一个特征词的上下文相关的词对应的词向量，而输出就是这特定的一个词的词向量。
++ CBOW模型的训练输入是某一个特征词的上下文相关的词对应的词向量，而输出就是这特定的一个词的词向量。
+
 ### Naïve implement
-这样我们这个CBOW的例子里，我们的输入是8个词向量，输出是所有词的softmax概率（训练的目标是期望训练样本特定词对应的softmax概率最大），对应的CBOW神经网络模型**输入层有8个神经元（#TODO：check），输出层有词汇表大小V个神经元**。隐藏层的神经元个数我们可以自己指定。通过DNN的反向传播算法，我们可以求出DNN模型的参数，同时得到所有的词对应的词向量。这样当我们有新的需求，要求出某8个词对应的最可能的输出中心词时，我们可以通过一次DNN前向传播算法并通过softmax激活函数找到概率最大的词对应的神经元即可。
++ 这样我们这个CBOW的例子里，我们的输入是8个词向量，输出是所有词的softmax概率（训练的目标是期望训练样本特定词对应的softmax概率最大），对应的CBOW神经网络模型**输入层有8个神经元（#TODO：check），输出层有词汇表大小V个神经元**。隐藏层的神经元个数我们可以自己指定。通过DNN的反向传播算法，我们可以求出DNN模型的参数，同时得到所有的词对应的词向量。这样当我们有新的需求，要求出某8个词对应的最可能的输出中心词时，我们可以通过一次DNN前向传播算法并通过softmax激活函数找到概率最大的词对应的神经元即可。
 
 ![IMAGE](images/cbow.jpg)
 
-我们输入的词是特定词，输出是softmax概率前8的8个词，对应的SkipGram模型有1个神经元，输出层有词汇表个神经元大小，
++ 我们输入的词是特定词，输出是softmax概率前8的8个词，对应的SkipGram模型有1个神经元，输出层有词汇表个神经元大小，
+
 ### optimized methods
-word2vec为什么不用现成的DNN模型，要继续优化出新方法呢？最主要的问题是DNN模型的这个处理过程非常耗时。我们的词汇表一般在百万级别以上，这意味着我们DNN的输出层需要进行softmax计算各个词的输出概率的的计算量很大。有没有简化一点点的方法呢？
++ word2vec为什么不用现成的DNN模型，要继续优化出新方法呢？最主要的问题是DNN模型的这个处理过程非常耗时。我们的词汇表一般在百万级别以上，这意味着我们DNN的输出层需要进行softmax计算各个词的输出概率的的计算量很大。有没有简化一点点的方法呢？
 > word2vec基础之霍夫曼树
 　　　　word2vec也使用了CBOW与Skip-Gram来训练模型与得到词向量，但是并没有使用传统的DNN模型。最先优化使用的数据结构是用霍夫曼树来代替隐藏层和输出层的神经元，霍夫曼树的叶子节点起到输出层神经元的作用，叶子节点的个数即为词汇表的小大。 而内部节点则起到隐藏层神经元的作用。
 　　　　具体如何用霍夫曼树来进行CBOW和Skip-Gram的训练我们在下一节讲，这里我们先复习下霍夫曼树。
@@ -209,22 +179,30 @@ word2vec为什么不用现成的DNN模型，要继续优化出新方法呢？最
 　　　　4）重复步骤2）和3）直到森林里只有一棵树为止。
 　　　　下面我们用一个具体的例子来说明霍夫曼树建立的过程，我们有(a,b,c,d,e,f)共6个节点，节点的权值分布是(20,4,8,6,16,3)。
 　　　　首先是最小的b和f合并，得到的新树根节点权重是7.此时森林里5棵树，根节点权重分别是20,8,6,16,7。此时根节点权重最小的6,7合并，得到新子树，依次类推，最终得到下面的霍夫曼树。
+
 　　　　![IMAGE](https://img2018.cnblogs.com/blog/1042406/201812/1042406-20181205104643781-71258001.png)
+
 　　　　那么霍夫曼树有什么好处呢？一般得到霍夫曼树后我们会对叶子节点进行霍夫曼编码，由于权重高的叶子节点越靠近根节点，而权重低的叶子节点会远离根节点，这样我们的高权重节点编码值较短，而低权重值编码值较长。这保证的树的带权路径最短，也符合我们的信息论，即我们希望越常用的词拥有更短的编码。如何编码呢？一般对于一个霍夫曼树的节点（根节点除外），可以约定左子树编码为0，右子树编码为1.如上图，则可以得到c的编码是00。
 　　　　**在word2vec中，约定编码方式和上面的例子相反，即约定左子树编码为1，右子树编码为0，同时约定左子树的权重不小于右子树的权重。**
 
-在传统的DNN模型中，由于词汇表很大，softmax的计算量很大，要计算每个词的softmax的概率，再找出最大的值。
-word2vector对这个模型进行了改进。
+- 在传统的DNN模型中，由于词汇表很大，softmax的计算量很大，要计算每个词的softmax的概率，再找出最大的值。
+
 ![IMAGE](https://blog.aylien.com/wp-content/uploads/2016/10/cbow.png)
-- 首先对于输入层到隐藏层的映射，没有采用传统的神经网络的线性加权加激活函数，而是直接采用了简单的加和平均。
-比如输入的是三个4维词向量：$(1,2,3,4),(9,6,11,8),(5,10,7,12)$,那么我们word2vec映射后的词向量就是$(5,6,7,8)$。由于这里是从多个词向量变成了一个词向量。
-- 第二个改进就是隐藏层到输出层的softmax的计算量进行了改进，为了避免计算所有词的softmax的概率，word2vector采用了两种方式进行改进，分别为hierarchical softmax和negative sampling。降低了计算复杂度。
+
+- word2vector对这个模型进行了改进。
+  - 首先对于输入层到隐藏层的映射，没有采用传统的神经网络的线性加权加激活函数，而是直接采用了**简单的加和平均**。
+    - 比如输入的是三个4维词向量：$(1,2,3,4),(9,6,11,8),(5,10,7,12)$,那么我们word2vec映射后的词向量就是$(5,6,7,8)$。由于这里是从多个词向量变成了一个词向量。
+- 第二个改进就是**隐藏层到输出层的softmax的计算量**进行了改进，为了避免计算所有词的softmax的概率
+- word2vector采用了两种方式进行改进，分别为hierarchical softmax和negative sampling。降低了计算复杂度。
 
 
 #### Hierarchical Softmax
+
 ![IMAGE](https://miro.medium.com/max/600/0*hUAFJJOBG3D0PgKl.)
+
 - 在计算之前，先计算统计出一颗Huffman树
-我们通过将softmax的值的计算转化为huffman树的树形结构计算，如下图所示，我们可以沿着霍夫曼树从根节点一直走到我们的叶子节点的词$w_2$
+- 我们通过将softmax的值的计算转化为huffman树的树形结构计算，如下图所示，我们可以沿着霍夫曼树从根节点一直走到我们的叶子节点的词$w_2$
+
 ![IMAGE](https://images2017.cnblogs.com/blog/1042406/201707/1042406-20170727105752968-819608237.png)
  
   - 跟神经网络类似，根结点的词向量为contex的词投影（加和平均后）的词向量
@@ -412,12 +390,27 @@ b)如果梯度收敛，则结束梯度迭代，算法结束，否则回到步骤
     >$x_i = x_i + e$
 b)如果梯度收敛，则结束梯度迭代，算法结束，否则回到步骤a继续迭代。
 
+## FastText词向量与word2vec对比 
+  - FastText= word2vec中 cbow + h-softmax的灵活使用
+  - 灵活体现在两个方面： 
+    1. 模型的输出层：word2vec的输出层，对应的是每一个term，计算某term的概率最大；而fasttext的输出层对应的是 分类的label。不过不管输出层对应的是什么内容，起对应的vector都不会被保留和使用； 
+    2. 模型的输入层：word2vec的输出层，是 context window 内的term；而fasttext 对应的整个sentence的内容，包括term，也包括 n-gram的内容；
+  - 两者本质的不同，体现在 h-softmax的使用。 
+    - Wordvec的目的是得到词向量，该词向量 最终是在输入层得到，输出层对应的 h-softmax 也会生成一系列的向量，但最终都被抛弃，不会使用。 
+    - fasttext则充分利用了h-softmax的分类功能，遍历分类树的所有叶节点，找到概率最大的label（一个或者N个）
+  - http://nbviewer.jupyter.org/github/jayantj/gensim/blob/683720515165a332baed8a2a46b6711cefd2d739/docs/notebooks/Word2Vec_FastText_Comparison.ipynb#
+  - https://www.cnblogs.com/eniac1946/p/8818892.html 
 
 ## ref:
-https://blog.aylien.com/overview-word-embeddings-history-word2vec-cbow-glove/
-https://www.cnblogs.com/pinard/p/7160330.html
-https://www.cnblogs.com/pinard/p/7243513.html
-https://www.cnblogs.com/pinard/p/7249903.html
+
++ Distributed Representations of Sentences and Documents
++ Efficient estimation of word representations in vector space
++ [Distributed Representations of Words and Phrases and their Compositionality](https://arxiv.org/pdf/1310.4546.pdf)
++ https://zhuanlan.zhihu.com/p/26306795
++ https://blog.aylien.com/overview-word-embeddings-history-word2vec-cbow-glove/
++ https://www.cnblogs.com/pinard/p/7160330.html
++ https://www.cnblogs.com/pinard/p/7243513.html
++ https://www.cnblogs.com/pinard/p/7249903.html
 
 # Glove
 
