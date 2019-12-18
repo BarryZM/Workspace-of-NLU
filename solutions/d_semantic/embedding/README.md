@@ -522,7 +522,11 @@ f(x)=\left\{
 \end{aligned}
 \right.
 \end{equation}
-![IMAGE](quiver-image-url/0850340DCFCD774D14425196F2D09F83.jpg =469x296)
+
+<p align="center">
+  <img width="400" height="180" src="http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/54409df2a8cc506b7d0ef9a912db2f62.png">
+</p>
+
 这篇论文中的所有实验，$\alpha$的取值都是0.75，而x_{max}取值都是100。以上就是GloVe的实现细节，那么GloVe是如何训练的呢？
 
 
@@ -532,7 +536,11 @@ f(x)=\left\{
 - 训练方式采用的是梯度下降
 - 具体：采用AdaGrad的梯度下降算法，对矩阵$X$中的所有非零元素进行随机采样，learning rate=0.05，在vector size小于300的情况下迭代50次，其他的vector size迭代100次，直至收敛。最终学习得到的$w \tilde w$，因为$X$ 是对称的，所以理论上$w 和\tilde w$也是对称的，但是初始化参数不同，导致最终值不一致，所以采用$(w +\tilde w)$ 两者之和 作为最后输出结果，提高鲁棒性
 - 在训练了400亿个token组成的语料后，得到的实验结果如下图所示：
-![IMAGE](quiver-image-url/6666E056417FF47C8110D93B7884D081.jpg =1005x325)
+
+<p align="center">
+  <img width="400" height="180" src="http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/4f9f168447cbcd4d5ba3879aeee20875.png">
+</p>
+
 这个图一共采用了三个指标：语义准确度，语法准确度以及总体准确度。那么我们不难发现Vector Dimension在300时能达到最佳，而context Windows size大致在6到10之间。
 
 ## Glove和LSA以及Word2vec的比较
