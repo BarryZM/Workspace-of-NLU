@@ -162,8 +162,10 @@ $\vec{Queen} = \vec{King} - \vec{Man} + \vec{Woman}$
 
 ### Naïve implement
 + 这样我们这个CBOW的例子里，我们的输入是8个词向量，输出是所有词的softmax概率（训练的目标是期望训练样本特定词对应的softmax概率最大），对应的CBOW神经网络模型**输入层有8个神经元（#TODO：check），输出层有词汇表大小V个神经元**。隐藏层的神经元个数我们可以自己指定。通过DNN的反向传播算法，我们可以求出DNN模型的参数，同时得到所有的词对应的词向量。这样当我们有新的需求，要求出某8个词对应的最可能的输出中心词时，我们可以通过一次DNN前向传播算法并通过softmax激活函数找到概率最大的词对应的神经元即可。
+  <p align="center">
+  <img width="580" height="440" src="http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/438a3747ce374fdce473da67085112dd.png">
+</p>
 
-  ![cbow](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/438a3747ce374fdce473da67085112dd.png)
 
 
 ### optimized methods
@@ -182,6 +184,7 @@ $\vec{Queen} = \vec{King} - \vec{Man} + \vec{Woman}$
 　　 首先是最小的b和f合并，得到的新树根节点权重是7.此时森林里5棵树，根节点权重分别是20,8,6,16,7。此时根节点权重最小的6,7合并，得到新子树，依次类推，最终得到下面的霍夫曼树。
 
     ![huffman](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/740863966b769431c9553e07705c7b54.png)
+
     那么霍夫曼树有什么好处呢？一般得到霍夫曼树后我们会对叶子节点进行霍夫曼编码，由于权重高的叶子节点越靠近根节点，而权重低的叶子节点会远离根节点，这样我们的高权重节点编码值较短，而低权重值编码值较长。这保证的树的带权路径最短，也符合我们的信息论，即我们希望越常用的词拥有更短的编码。如何编码呢？一般对于一个霍夫曼树的节点（根节点除外），可以约定左子树编码为0，右子树编码为1.如上图，则可以得到c的编码是00。
 
     **在word2vec中，约定编码方式和上面的例子相反，即约定左子树编码为1，右子树编码为0，同时约定左子树的权重不小于右子树的权重。**
@@ -190,8 +193,10 @@ $\vec{Queen} = \vec{King} - \vec{Man} + \vec{Woman}$
 
 
 - word2vector对这个模型进行了改进。
+    <p align="center">
+    <img width="500" height="340" src="http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/895a8e965e06ce2e5e22e5352a2cc430.png">
+    </p>
 
-    ![opt_cbow](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/895a8e965e06ce2e5e22e5352a2cc430.png)
 
   - 首先对于输入层到隐藏层的映射，没有采用传统的神经网络的线性加权加激活函数，而是直接采用了**简单的加和平均**, 如上图。
     - 比如输入的是三个4维词向量：$(1,2,3,4),(9,6,11,8),(5,10,7,12)$,那么我们word2vec映射后的词向量就是$(5,6,7,8)$。由于这里是从多个词向量变成了一个词向量。
@@ -202,14 +207,14 @@ $\vec{Queen} = \vec{King} - \vec{Man} + \vec{Woman}$
 #### Hierarchical Softmax
 
 <p align="center">
-  <img width="360" height="270" src="https://miro.medium.com/max/600/0*hUAFJJOBG3D0PgKl.">
+  <img width="440" height="270" src="https://miro.medium.com/max/600/0*hUAFJJOBG3D0PgKl.">
 </p>
 
 - 在计算之前，先根据词频统计出一颗Huffman树
 - 我们通过将softmax的值的计算转化为huffman树的树形结构计算，如下图所示，我们可以沿着霍夫曼树从根节点一直走到我们的叶子节点的词$w_2$
 
 <p align="center">
-  <img width="380" height="300" src="https://images2017.cnblogs.com/blog/1042406/201707/1042406-20170727105752968-819608237.png">
+  <img width="440" height="300" src="https://images2017.cnblogs.com/blog/1042406/201707/1042406-20170727105752968-819608237.png">
 </p>
 
   - 跟神经网络类似，根结点的词向量为contex的词投影（加和平均后）的词向量
@@ -272,6 +277,7 @@ $\prod_{i=1}^{3}P_i=(1−\frac{1}{1+e^{−x^Tw_{θ_1}}})(1−\frac{1}{1+e^{−x^
       $x_i = x_i + \eta\sum^{l_w}_{j=2}(1-d^w_j-\sigma(x^T_w\theta^w_{j-1}))\theta^w_{j-1}\ \ \forall i = \ 1 \ to \ 2c$
 
     Note: $\eta$ 是learning rate
+    
   ```
   Input：基于CBOW的语料训练样本，词向量的维度大小M，CBOW的上下文大小2c 步长η
   Output：霍夫曼树的内部节点模型参数θ，**所有的词向量w**
@@ -280,18 +286,18 @@ $\prod_{i=1}^{3}P_i=(1−\frac{1}{1+e^{−x^Tw_{θ_1}}})(1−\frac{1}{1+e^{−x^
   3. updage all theta and emebedding w based on the gradient ascend, for all trainning sample $(context(w), w)$ do:
   ```
 
-     > a) $e = 0 , x_w = \sum_{i=1}^{2c}x_i$
+ > a) $e = 0 , x_w = \sum_{i=1}^{2c}x_i$
 
-      - b) `for j=2..l_w:`
+  - b) `for j=2..l_w:`
 
-        > $ g = 1−d^w_j−\sigma(x^T_w\theta^w_{j−1})$
-        > $ e = e+ g*\theta^w_{j-1}$
-        > $ \theta^w_{j-1} = \theta_{j-1}^w+\eta_\theta * g * x_w$
+    > $ g = 1−d^w_j−\sigma(x^T_w\theta^w_{j−1})$
+    > $ e = e+ g*\theta^w_{j-1}$
+    > $ \theta^w_{j-1} = \theta_{j-1}^w+\eta_\theta * g * x_w$
 
-      - c) `for all x_i in context(w), update x_i :`
-        > $x_i = x_i + e$
+  - c) `for all x_i in context(w), update x_i :`
+    > $x_i = x_i + e$
 
-      - d) 如果梯度收敛，则结束梯度迭代，否则回到步骤 **3)** 继续迭代。
+  - d) 如果梯度收敛，则结束梯度迭代，否则回到步骤 **3)** 继续迭代。
  ------
 
 #### Negative Sampling
@@ -308,12 +314,12 @@ $\prod_{i=1}^{3}P_i=(1−\frac{1}{1+e^{−x^Tw_{θ_1}}})(1−\frac{1}{1+e^{−x^
 
  - 和Hierarchical Softmax类似，我们采用随机梯度上升法，仅仅每次只用一个样本更新梯度，来进行迭代更新得到我们需要的$x_{w_i},θ^{w_i},i=0,1,..neg$, 这里我们需要求出$x_{w_0},θ^{w_i},i=0,1,..neg$的梯度。
   - $θ^{w_i}$:
+  ![theta_grad](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/001b2a6414f0ccb6a0870d94c039da4b.png)
 
-  ![theta_gradient](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/001b2a6414f0ccb6a0870d94c039da4b.png)
 
   - $x_{w_0}$:
 
-  ![x_gradient](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/19a718aa0a553766e410df7860c55bd1.png)
+  ![x_grad](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/19a718aa0a553766e410df7860c55bd1.png)
 
 - 如何采样负例
   负采样的原则采用的是根据 **词频** 进行采样，词频越高被采样出来的概率越高，词频越低，被采样出来的概率越低，符合文本的规律。word2vec采用的方式是将一段长度为1的线段，分为 $V(ocabulary size)$ 份，每个词对应的长度为:
@@ -340,18 +346,18 @@ $\prod_{i=1}^{3}P_i=(1−\frac{1}{1+e^{−x^Tw_{θ_1}}})(1−\frac{1}{1+e^{−x^
   3. updage all theta and emebedding w based on the gradient ascend, for  all trainning sample (context(w), w) do:
   ```
 
-     >a) $e = 0 , x_w = \frac{1}{2c}\sum_{i=0}^{2c}x_i$
+   >a) $e = 0 , x_w = \frac{1}{2c}\sum_{i=0}^{2c}x_i$
 
-    - b) `for i=0..neg:`
+  - b) `for i=0..neg:`
 
-        > $ g =\eta*(y_i−\sigma(x^T_{w}\theta^{w_i}))$
-        > $e = e+ g*\theta^{w_i}$
-        > $\theta^{w_i} = = \theta^{w_i}+g*x_{w}$
+      > $ g =\eta*(y_i−\sigma(x^T_{w}\theta^{w_i}))$
+      > $e = e+ g*\theta^{w_i}$
+      > $\theta^{w_i} = = \theta^{w_i}+g*x_{w}$
 
-    - c) `for all x_k in context(w) (2c in total), update x_k :`
-        > $x_k = x_k + e$
+  - c) `for all x_k in context(w) (2c in total), update x_k :`
+      > $x_k = x_k + e$
 
-    - d) 如果梯度收敛，则结束梯度迭代，否则回到步骤 **3)** 继续迭代。
+  - d) 如果梯度收敛，则结束梯度迭代，否则回到步骤 **3)** 继续迭代。
 
 ## Skip-Gram
 Skip gram 跟CBOW的思路相反，根据输入的特定词，确定对应的上下文词词向量作为输出。
