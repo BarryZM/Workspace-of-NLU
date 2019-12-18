@@ -277,7 +277,7 @@ $\prod_{i=1}^{3}P_i=(1−\frac{1}{1+e^{−x^Tw_{θ_1}}})(1−\frac{1}{1+e^{−x^
       $x_i = x_i + \eta\sum^{l_w}_{j=2}(1-d^w_j-\sigma(x^T_w\theta^w_{j-1}))\theta^w_{j-1}\ \ \forall i = \ 1 \ to \ 2c$
 
     Note: $\eta$ 是learning rate
-    
+
   ```
   Input：基于CBOW的语料训练样本，词向量的维度大小M，CBOW的上下文大小2c 步长η
   Output：霍夫曼树的内部节点模型参数θ，**所有的词向量w**
@@ -286,7 +286,7 @@ $\prod_{i=1}^{3}P_i=(1−\frac{1}{1+e^{−x^Tw_{θ_1}}})(1−\frac{1}{1+e^{−x^
   3. updage all theta and emebedding w based on the gradient ascend, for all trainning sample $(context(w), w)$ do:
   ```
 
- > a) $e = 0 , x_w = \sum_{i=1}^{2c}x_i$
+  - a) $e = 0 , x_w = \sum_{i=1}^{2c}x_i$
 
   - b) `for j=2..l_w:`
 
@@ -346,7 +346,7 @@ $\prod_{i=1}^{3}P_i=(1−\frac{1}{1+e^{−x^Tw_{θ_1}}})(1−\frac{1}{1+e^{−x^
   3. updage all theta and emebedding w based on the gradient ascend, for  all trainning sample (context(w), w) do:
   ```
 
-   >a) $e = 0 , x_w = \frac{1}{2c}\sum_{i=0}^{2c}x_i$
+  - a) $e = 0 , x_w = \frac{1}{2c}\sum_{i=0}^{2c}x_i$
 
   - b) `for i=0..neg:`
 
@@ -408,7 +408,7 @@ Skip gram 跟CBOW的思路相反，根据输入的特定词，确定对应的上
 
      - iii) $x_i = x_i + e$
 
-  - b)如果梯度收敛，则结束梯度迭代，算法结束，否则回到步骤 **a)** 继续迭代。
+  - b) 如果梯度收敛，则结束梯度迭代，算法结束，否则回到步骤 **a)** 继续迭代。
 
 #### Negative sampling
 有了上一节CBOW的基础和上一篇基于Hierarchical Softmax的Skip-Gram模型基础，我们也可以总结出基于Negative Sampling的Skip-Gram模型算法流程了。梯度迭代过程使用了随机梯度上升法：
@@ -455,6 +455,19 @@ Skip gram 跟CBOW的思路相反，根据输入的特定词，确定对应的上
   - 两者本质的不同，体现在 h-softmax的使用。
     - Wordvec的目的是得到词向量，该词向量 最终是在输入层得到，输出层对应的 h-softmax 也会生成一系列的向量，但最终都被抛弃，不会使用。
     - fasttext则充分利用了h-softmax的分类功能，遍历分类树的所有叶节点，找到概率最大的label（一个或者N个）
+  - fastText 可以用来做句子分类以及词向量，word2vec只能构造词向量
+  - word2vec 把单词（字）作为最小的单位（和GloVe一样），但是FastText是word2vec的拓展，fastText把字作为是ngram的集合，所以一个单词的词向量是其所有的ngram的向量的加和，这样子做一定程度减少了OOV的问题。例如：
+
+  > the word vector “apple” is a sum of the vectors of the n-grams:
+
+  > “<ap”, “app”, ”appl”, ”apple”, ”apple>”, “ppl”, “pple”, ”pple>”, “ple”, ”ple>”, ”le>”
+
+  > (assuming hyperparameters for smallest ngram[minn] is 3 and largest ngram[maxn] is 6).
+
+  - 采用ngram对中文字有意义吗？因为中文并不是由subword组成的。
+    这是有意义的，因为fastText的ngram组成是根据utf-8 encoding构成的，根具体的字的形式无关。
+  > Yes, the minn and maxn parameters can be used for Chinese text classification, as long as your data is encoded in utf-8. Indeed, fastText assumes that the data uses utf-8 to split words into character ngrams. For Chinese text classification, I would recommend to use smaller values for minn and maxn, such as 2 and 3.
+
   - http://nbviewer.jupyter.org/github/jayantj/gensim/blob/683720515165a332baed8a2a46b6711cefd2d739/docs/notebooks/Word2Vec_FastText_Comparison.ipynb#
   - https://www.cnblogs.com/eniac1946/p/8818892.html
 
