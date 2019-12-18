@@ -459,12 +459,11 @@ Skip gram 跟CBOW的思路相反，根据输入的特定词，确定对应的上
   - word2vec 把单词（字）作为最小的单位（和GloVe一样），但是FastText是word2vec的拓展，fastText把字作为是ngram的集合，所以一个单词的词向量是其所有的ngram的向量的加和，这样子做一定程度减少了OOV的问题。例如：
 
   > the word vector “apple” is a sum of the vectors of the n-grams:
-
   > “<ap”, “app”, ”appl”, ”apple”, ”apple>”, “ppl”, “pple”, ”pple>”, “ple”, ”ple>”, ”le>”
-
   > (assuming hyperparameters for smallest ngram[minn] is 3 and largest ngram[maxn] is 6).
 
   - 采用ngram对中文字有意义吗？因为中文并不是由subword组成的。
+
     这是有意义的，因为fastText的ngram组成是根据utf-8 encoding构成的，根具体的字的形式无关。
   > Yes, the minn and maxn parameters can be used for Chinese text classification, as long as your data is encoded in utf-8. Indeed, fastText assumes that the data uses utf-8 to split words into character ngrams. For Chinese text classification, I would recommend to use smaller values for minn and maxn, such as 2 and 3.
 
