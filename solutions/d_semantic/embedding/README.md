@@ -267,8 +267,9 @@ $\prod_{i=1}^{3}P_i=(1−\frac{1}{1+e^{−x^Tw_{θ_1}}})(1−\frac{1}{1+e^{−x^
   - 通过梯度上升更新$\theta^w_{j-1}$和$x_w$， 注意这边的$x_w$是多个向量加和，所以需要对每个向量进行各自的更新，我们做梯度更新完毕后会用梯度项直接更新原始的各个$x_i(i=1,2,,,,2c)$
 
       $\theta_{j-1}^w = \theta_{j-1}^w+\eta (1−d^w_j−\sigma(x^T_w\theta^w_{j−1}))x_w$  $\forall j=2 \ to \ l_w $
+
       对于
-      $x_i = x_i + \eta\sum^{l_w}_{j=2}(1-d^w_j-\sigma(x^T_w\theta^w_{j-1}))\theta^w_{j-1}$  $forall i = \ 1 \ to 2c$
+      $x_i = x_i + \eta\sum^{l_w}_{j=2}(1-d^w_j-\sigma(x^T_w\theta^w_{j-1}))\theta^w_{j-1}\ \ \forall i = \ 1 \ to \ 2c$
 
     Note: $\eta$ 是learning rate
   ```
@@ -276,134 +277,169 @@ $\prod_{i=1}^{3}P_i=(1−\frac{1}{1+e^{−x^Tw_{θ_1}}})(1−\frac{1}{1+e^{−x^
   Output：霍夫曼树的内部节点模型参数θ，**所有的词向量w**
   1. create huffman tree based on the vocabulary
   2. init all θ, and all embedding w
-  3. updage all theta adn emebedding w based on the gradient ascend
+  3. updage all theta and emebedding w based on the gradient ascend, for all trainning sample $(context(w), w)$ do:
   ```
 
-  `for all trainning sample (context(w), w) do:`
+     > a) $e = 0 , x_w = \sum_{i=1}^{2c}x_i$
 
-   > $e = 0 , x_w = \sum_{i=1}^{2c}x_i$
+      - b) `for j=2..l_w:`
 
-    - `for j=2..l_w:`
+        > $ g = 1−d^w_j−\sigma(x^T_w\theta^w_{j−1})$
+        > $ e = e+ g*\theta^w_{j-1}$
+        > $ \theta^w_{j-1} = \theta_{j-1}^w+\eta_\theta * g * x_w$
 
-      > $ g = 1−d^w_j−\sigma(x^T_w\theta^w_{j−1})$
-    $e = e+ g*\theta^w_{j-1}$
-    $\theta^w_{j-1} = = \theta_{j-1}^w+\eta_\theta*g*x_w$
+      - c) `for all x_i in context(w), update x_i :`
+        > $x_i = x_i + e$
 
-    - `for all x_i in context(w), update x_i :`
-      > $x_i = x_i + e$
-      d) 如果梯度收敛，则结束梯度迭代，否则回到步骤3继续迭代。
+      - d) 如果梯度收敛，则结束梯度迭代，否则回到步骤 **3)** 继续迭代。
  ------
 
 #### Negative Sampling
-采用hsoftmax在生僻字的情况下，仍然可能出现树的深度过深，导致softmax计算量过大的问题。如何解决这个问题，negative sampling在和h-softmax的类似，采用的是将多分类问题转化为多个2分类，至于多少个2分类，这个和negative sampling的样本个数有关。
-- negative sampling放弃了Huffman树的思想，采用了负采样。比如我们有一个训练样本，中心词是w,它周围上下文共有2c个词，记为context(w)。由于这个中心词w,的确和context(w)相关存在，因此它是一个真实的正例。通过Negative Sampling采样，我们得到neg个和w不同的中心词wi,i=1,2,..neg，这样context(w)和$w_i$就组成了neg个并不真实存在的负例。利用这一个正例和neg个负例，我们进行二元逻辑回归，得到负采样对应每个词$w_i$对应的模型参数$θ_i$，和每个词的词向量。
-- 如何通过一个正例和neg个负例进行logistic regression
+采用h-softmax在生僻字的情况下，仍然可能出现树的深度过深，导致softmax计算量过大的问题。如何解决这个问题，negative sampling在和h-softmax的类似，采用的是将多分类问题转化为多个2分类，至于多少个2分类，这个和negative sampling的样本个数有关。
+- negative sampling放弃了Huffman树的思想，采用了负采样。比如我们有一个训练样本，中心词是$w$, 它周围上下文共有2c个词，记为$context(w)$。在CBOW中，由于这个中心词$w$的确是$context(w)$相关的存在，因此它是一个真实的正例。通过Negative Sampling采样，我们得到neg个和$w$不为中心的词$wi$, $i=1,2,..neg$，这样$context(w)$和$w_i$就组成了neg个并不真实存在的负例。利用这一个正例和neg个负例，我们进行二元逻辑回归，得到负采样对应 **每个词$w_i$对应的模型参数$θ_i$** ，和 **每个词的词向量**。
+- 如何通过一个正例和neg个负例进行logistic regression？
   - 正例满足：$P(context(w_0), w_i) = \sigma(x_0^T\theta^{w_i}) \  y_i=1, i=0$
   - 负例满足：$P(context(w_0), w_i) = 1- \sigma(x_0^T\theta^{w_i}) \ y_i=0, i=1..neg$
-  - 期望最大化：$\Pi^{neg}_{i=0}P(context(w_0), w_i) =\Pi^{neg}_{i=0}  [\sigma(x_0^T\theta^{w_i})]^y_i[1- \sigma(x_0^T\theta^{w_i})]^{1-y_i} $
-   对数似然为：$log\Pi^{neg}_{i=0}P(context(w_0), w_i) =\sum^{neg}_{i=0}  y_i*log[\sigma(x_0^T\theta^{w_i})]+(1-y_i)*log[1- \sigma(x_0^T\theta^{w_i})] $
+  - 期望最大化：
+    $\Pi^{neg}_{i=0}P(context(w_0), w_i) =\Pi^{neg}_{i=0}  [\sigma(x_0^T\theta^{w_i})]^{y_i}[1- \sigma(x_0^T\theta^{w_i})]^{1-y_i} $
+
+   对数似然为：
+    $log\Pi^{neg}_{i=0}P(context(w_0), w_i) =\sum^{neg}_{i=0}  y_i*log[\sigma(x_0^T\theta^{w_i})]+(1-y_i) * log[1- \sigma(x_0^T\theta^{w_i})] $
+
  - 和Hierarchical Softmax类似，我们采用随机梯度上升法，仅仅每次只用一个样本更新梯度，来进行迭代更新得到我们需要的$x_{w_i},θ^{w_i},i=0,1,..neg$, 这里我们需要求出$x_{w_0},θ^{w_i},i=0,1,..neg$的梯度。
   - $θ^{w_i}$:
-  ![IMAGE](quiver-image-url/95D887BE46AC5DD376055CA49FCE5D30.jpg =582x78)
+
+  ![theta_gradient](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/001b2a6414f0ccb6a0870d94c039da4b.png)
+
   - $x_{w_0}$:
-  ![IMAGE](quiver-image-url/C83C84AB4F64858A850697D10B9E09C9.jpg =591x70)
+
+  ![x_gradient](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/19a718aa0a553766e410df7860c55bd1.png)
+
 - 如何采样负例
-  负采样的原则采用的是根据词频进行采样，词频越高被采样出来的概率越高，词频越低，被采样出来的概率越低，符合文本的规律。word2vec采用的方式是将一段长度为1的线段，分为V(ocabulary size)份，每个词对应的长度为:
+  负采样的原则采用的是根据 **词频** 进行采样，词频越高被采样出来的概率越高，词频越低，被采样出来的概率越低，符合文本的规律。word2vec采用的方式是将一段长度为1的线段，分为 $V(ocabulary size)$ 份，每个词对应的长度为:
 
     $len(w)=\frac{Count(w)}{\sum_{u\in V}Count(u)}$
-  在word2vec中，分子和分母都取了3/4次幂如下：
+
+  在word2vec中，分子和分母都取了 $\frac{3}{4}$ 次幂如下：
+
    $len(w)=\frac{Count(w)^{3/4}}{[\sum_{u\in V}Count(u)]^{3/4}}$
+
    在采样前，我们将这段长度为1的线段划分成M等份，这里M>>V，这样可以保证每个词对应的线段都会划分成对应的小块。而M份中的每一份都会落在某一个词对应的线段上。在采样的时候，我们只需要从M个位置中采样出neg个位置就行，此时采样到的每一个位置对应到的线段所属的词就是我们的负例词。
-   ![IMAGE](https://images2017.cnblogs.com/blog/1042406/201707/1042406-20170728152731711-1136354166.png)在word2vec中，M取值默认为 $10^8$
+
+   ![IMAGE](https://images2017.cnblogs.com/blog/1042406/201707/1042406-20170728152731711-1136354166.png)
+
+   在word2vec中，M取值默认为 $10^8$
 
 ----
 
   ```
   Input：基于CBOW的语料训练样本，词向量的维度大小M，CBOW的上下文大小2c 步长η，负采样的个数neg
-  Output：词汇表中每个词对应的参数θ，**所有的词向量$w$**
+  Output：**词汇表中每个词对应的参数θ** ，**所有的词向量$w$**
   1. init all θ, and all embedding w
   2. sample neg negtive words w_i, i =1,2,..neg
-  3. updage all theta adn emebedding w based on the gradient ascend
+  3. updage all theta and emebedding w based on the gradient ascend, for  all trainning sample (context(w), w) do:
   ```
 
-`for all trainning sample (context(w), w) do:`
+     >a) $e = 0 , x_w = \frac{1}{2c}\sum_{i=0}^{2c}x_i$
 
-   > $e = 0 , x_w = \frac{1}{2c}\sum_{i=0}^{2c}x_i$
+    - b) `for i=0..neg:`
 
-  - `for i=0..neg:`
+        > $ g =\eta*(y_i−\sigma(x^T_{w}\theta^{w_i}))$
+        > $e = e+ g*\theta^{w_i}$
+        > $\theta^{w_i} = = \theta^{w_i}+g*x_{w}$
 
-      > $ g =\eta*(y_i−\sigma(x^T_{w}\theta^{w_i}))$
-    $e = e+ g*\theta^{w_i}$
-    $\theta^{w_i} = = \theta^{w_i}+g*x_{w}$
+    - c) `for all x_k in context(w) (2c in total), update x_k :`
+        > $x_k = x_k + e$
 
-  - `for all x_k in context(w) (2c in total), update x_k :`
-      > $x_k = x_k + e$
-      d) 如果梯度收敛，则结束梯度迭代，否则回到步骤3继续迭代。
+    - d) 如果梯度收敛，则结束梯度迭代，否则回到步骤 **3)** 继续迭代。
+
 ## Skip-Gram
 Skip gram 跟CBOW的思路相反，根据输入的特定词，确定对应的上下文词词向量作为输出。
-![IMAGE](https://images2015.cnblogs.com/blog/1042406/201707/1042406-20170713152436931-1817493891.png)
+<p align="center">
+  <img width="600" height="180" src="https://images2015.cnblogs.com/blog/1042406/201707/1042406-20170713152436931-1817493891.png">
+</p>
+
 这个例子中，`learning`作为输入，而上下文8个词是我们的输出。
+
 ### Naïve implement
 我们输入是特定词，输出是softmax概率前8的8个词，对应的SkipGram神经网络模型，**输入层有1个神经元，输出层有词汇表个神经元。**[#TODO check??]，隐藏层个数由我们自己指定。通过DNN的反向传播算法，我们可以求出DNN模型的参数，同时得到所有的词对应的词向量。
-![IMAGE](images/skipgram.jpg)
+
+<p align="center">
+  <img width="600" height="480" src="http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/0a8d3eb8f484f84a9d2c67e75b90e34a.png">
+</p>
 
 ### optimized methods
 
 #### Hierarchical Softmax
-  - 首先我们先定义词向量的维度大小M，此时我们输入只有一个词，我们希望得到的输出context(w）2c个词概率最大。
+
+  - 首先我们先定义词向量的维度大小M，此时我们输入只有一个词，我们希望得到的输出$context(w)$ 2c个词概率最大。
   - 在此之前，我们需要先将词汇表构建成一颗huffman树
   - 从输入层到投影层，就直接是输入的词向量
-  - 通过梯度上升更新$\theta^w_{j-1}$和$x_w$， 注意这边的$x_w$周围有2c个词向量，此时我们希望$P(x_i|x_w, i=1,2,..2c$最大，此时我们注意到上下文是相互的，我们可以认为$P(x_w|x_i), i=1,2,..2c$也是最大的，对于那么是使用$P(x_i|x_w)$
-好还是$P(x_w|x_i)$好呢，word2vec使用了后者，这样做的好处就是在一个迭代窗口内，我们不是只更新xw一个词，而是xi,i=1,2...2c共2c个词。不同于CBOW对于输入进行更新，SkipGram对于输出进行了更新。
+  - 通过梯度上升更新$\theta^w_{j-1}$和$x_w$， 注意这边的$x_w$周围有2c个词向量，此时我们希望$P(x_i|x_w), \  i=1,2,..2c$最大，此时我们注意到上下文是相互的，我们可以认为$P(x_w|x_i), i=1,2,..2c$也是最大的，对于那么是使用$P(x_i|x_w)$
+好还是$P(x_w|x_i)$好呢，word2vec使用了后者，这样做的好处就是在一个迭代窗口内，我们不是只更新$x_w$一个词，而是 $xi, \ i=1,2...2c$ 共2c个词。**不同于CBOW对于输入进行更新，SkipGram对于输出进行了更新**。
 
   - $x_i(i=1,2,,,,2c)$
       $\theta_{j-1}^w = \theta_{j-1}^w+\eta (1−d^w_j−\sigma(x^T_w\theta^w_{j−1}))x_w \forall j=2 \ to \ l_w $
       $x_i = x_i + \eta\sum^{l_w}_{j=2}(1-d^w_j-\sigma(x^T_w\theta^w_{j-1}))\theta^w_{j-1} \forall i = \ 1 \ to 2c$
     Note: $\eta$ 是learning rate
+
+
   ```
-  Input：基于Skip-Gram的语料训练样本，词向量的维度大小M，Skip-Gram的上下文大小2c 步长η
-  Output：霍夫曼树的内部节点模型参数θ，**所有的词向量w**
-  1. create huffman tree based on the vocabulary
-  2. init all θ, and all embedding w
-  3. updage all theta and emebedding w based on the gradient ascend
+    Input：基于Skip-Gram的语料训练样本，词向量的维度大小M，Skip-Gram的上下文大小2c 步长η
+    Output：霍夫曼树的内部节点模型参数θ，**所有的词向量w**
+    1. create huffman tree based on the vocabulary
+    2. init all θ, and all embedding w
+    3. updage all theta and emebedding w based on the gradient ascend, for all trainning sample (w, context(w)) do:
   ```
 
+  - a) `for i = 1..2c`
+      >i) $e = 0 $
 
+     - ii) `for j=2..l_w:`
+         > $ g = 1−d^w_j−\sigma(x^T_w\theta^w_{j−1})$
+         > $e = e+ g*\theta^w_{j-1}$
+         > $\theta^w_{j-1} = = \theta_{j-1}^w+\eta_\theta*g*x_w$
 
-`for all trainning sample (w, context(w)) do:`
-- `for i = 1..2c`
-    > $e = 0 $
+     - iii) $x_i = x_i + e$
 
-   - `for j=2..l_w:`
-       > $ g = 1−d^w_j−\sigma(x^T_w\theta^w_{j−1})$
-    $e = e+ g*\theta^w_{j-1}$
-    $\theta^w_{j-1} = = \theta_{j-1}^w+\eta_\theta*g*x_w$
-
-       >$x_i = x_i + e$
-b)如果梯度收敛，则结束梯度迭代，算法结束，否则回到步骤a继续迭代。
+  - b)如果梯度收敛，则结束梯度迭代，算法结束，否则回到步骤 **a)** 继续迭代。
 
 #### Negative sampling
 有了上一节CBOW的基础和上一篇基于Hierarchical Softmax的Skip-Gram模型基础，我们也可以总结出基于Negative Sampling的Skip-Gram模型算法流程了。梯度迭代过程使用了随机梯度上升法：
+
   ```
   Input：基于Skip-Gram的语料训练样本，词向量的维度大小M，Skip-Gram的上下文大小2c 步长η, 负采样的个数为neg
   Output：词汇表中每个词对应的参数θ，**所有的词向量w**
   1. init all θ, and all embedding w
-  2. for all context(w_0, w_0), sample neg negative words w_i, i =1,2..neg
-  3. updage all theta and emebedding w based on the gradient ascend
+  2. for all training data (context(w_0), w_0), sample neg negative words $w_i$, $i =1,2..neg$
+  3. updage all theta and emebedding w based on the gradient ascend, for all trainning sample (w, context(w)) do:
   ```
 
+  - a)  `for i = 1..2c`
+      > i) $e = 0 $
 
-`for all trainning sample (w, context(w)) do:`
-- `for i = 1..2c`
-    > $e = 0 $
+     - ii) `for j=0..neg:`
+       > $ g =\eta*(y_i−\sigma(x^T_{w}\theta^{w_j}))$
+       > $e = e+ g*\theta^{w_j}$
+       > $\theta^{w_j} = = \theta^{w_j}+g*x_{w_i}$
 
-   - `for j=0..neg:`
-     > $ g =\eta*(y_i−\sigma(x^T_{w}\theta^{w_j}))$
-    $e = e+ g*\theta^{w_j}$
-    $\theta^{w_j} = = \theta^{w_j}+g*x_{w_i}$
+     - iii) $x_i = x_i + e$
+  - b) 如果梯度收敛，则结束梯度迭代，算法结束，否则回到步骤 **a)** 继续迭代。
 
-    >$x_i = x_i + e$
-b)如果梯度收敛，则结束梯度迭代，算法结束，否则回到步骤a继续迭代。
+#### source code
+- [Hierarchical Softmax](https://github.com/tmikolov/word2vec/blob/master/word2vec.c)
+
+  在源代码中，基于Hierarchical Softmax的CBOW模型算法在435-463行，基于Hierarchical Softmax的Skip-Gram的模型算法在495-519行。大家可以对着源代码再深入研究下算法。在源代码中，neule对应我们上面的$e$
+  , syn0对应我们的$x_w$, syn1对应我们的$θ^i_{j−1}$, layer1_size对应词向量的维度，window对应我们的$c$。
+
+  另外，vocab[word].code[d]指的是，当前单词word的，第d个编码，编码不含Root结点。vocab[word].point[d]指的是，当前单词word，第d个编码下，前置的结点。
+
+- [negative sampling code](https://github.com/tmikolov/word2vec/blob/master/word2vec.c)
+
+  在源代码中，基于Negative Sampling的CBOW模型算法在464-494行，基于Negative Sampling的Skip-Gram的模型算法在520-542行。大家可以对着源代码再深入研究下算法。
+  在源代码中，neule对应我们上面的$e$
+  , syn0对应我们的$x_w$, syn1neg对应我们的$θ^{w_i}$, layer1_size对应词向量的维度，window对应我们的$c$。negative对应我们的neg, table_size对应我们负采样中的划分数$M
+  $。另外，vocab[word].code[d]指的是，当前单词word的，第d个编码，编码不含Root结点。vocab[word].point[d]指的是，当前单词word，第d个编码下，前置的结点。这些和基于Hierarchical Softmax的是一样的。
 
 ## FastText词向量与word2vec对比
   - FastText= word2vec中 cbow + h-softmax的灵活使用
