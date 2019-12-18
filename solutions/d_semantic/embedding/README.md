@@ -514,14 +514,17 @@ L = \sum_{i,j =1}^{V} f(X_{ij})(w^T_i \tilde w_j +b_i +\tilde b_j -log(X_{ij})^2
     - 我们希望这个权重不要太大（overweighted），当到达一定程度之后应该不要在增加
     - 如果两个单词没有出现过，$X_{ij}=0$, 我们不希望他参与到loss function的计算之中，也就是$f(x)=0$
 
-\begin{equation}
+<!-- \begin{equation}
 f(x)=\left\{
 \begin{aligned}
 (x/x_{max})^\alpha &  & ifx <x_{max} \\
 1 &  & otherwise    \tag{$3$}
 \end{aligned}
 \right.
-\end{equation}
+\end{equation} -->
+<p align="center">
+  <img width="560" height="100" src="http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/b4b50ad2f6cd5e10613f0a8b9a5e36b3.png">
+</p>
 
 <p align="center">
   <img width="400" height="180" src="http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/54409df2a8cc506b7d0ef9a912db2f62.png">
@@ -554,7 +557,8 @@ f(x)=\left\{
 - $X_i$：单词$i$上下文的单词次数加和， $X_i = \sum^k {X_{ik}}$
 - $P_{ij} = P(j|i) = X_{ij}/X_i$: 单词$j$出现在单词$i$上下文的概率
 有了这些定义之后，我们来看一个表格：
-![IMAGE](quiver-image-url/BC88729C261BE9FD68B73FF6D5510757.jpg =700x148)
+
+![table_glove](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/9ba582cc1f59d952e71c7216d8f94d7f.png)
 
 最后一行：
 - $P(k|i)/P(k|j)$: 表示的是这两个概率的的比值，我们可以使用它来观察出两个单词i和j相对于k哪个更相关，
