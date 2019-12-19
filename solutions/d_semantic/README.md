@@ -1,30 +1,64 @@
 <!-- TOC -->
 
-- [Summary of Semantic Analysis](#summary-of-semantic-analysis)
-- [Target](#target)
-- [Datasets && Solutions && Metrics](#datasets--solutions--metrics)
-    - [word-level](#word-level)
-        - [Word Sense Disambiguation](#word-sense-disambiguation)
-            - [Dataset](#dataset)
-            - [solution](#solution)
-            - [Metric](#metric)
-        - [Word semantic represent](#word-semantic-represent)
-            - [Dataset](#dataset)
-            - [Solution](#solution)
-            - [Metric](#metric)
-    - [sentence-level](#sentence-level)
-        - [match/pair/inference/retrieval/rank](#matchpairinferenceretrievalrank)
-            - [Dataset](#dataset)
-            - [Solution](#solution)
-            - [Metric](#metric)
-        - [textual entailment(NLI)](#textual-entailmentnli)
-            - [Dataset](#dataset)
-        - [Semantic Role Labeling](#semantic-role-labeling)
-            - [Dataset](#dataset)
-    - [document-level](#document-level)
-- [Reference](#reference)
-    - [Links](#links)
-    - [Papers](#papers)
+1. [Summary of Semantic Analysis](#summary-of-semantic-analysis)
+2. [Target](#target)
+3. [Datasets && Solutions && Metrics](#datasets--solutions--metrics)
+    1. [word-level](#word-level)
+        1. [Word Sense Disambiguation](#word-sense-disambiguation)
+            1. [Dataset](#dataset)
+            2. [solution](#solution)
+                1. [Latent Semantic Indexing(隐含语义索引)](#latent-semantic-indexing隐含语义索引)
+                2. [Latent Semantic Analysis(隐含语义分析)](#latent-semantic-analysis隐含语义分析)
+            3. [Metric](#metric)
+        2. [Word semantic represent](#word-semantic-represent)
+            1. [Dataset](#dataset-1)
+                1. [Project Gutenberg](#project-gutenberg)
+                2. [Brown University Standard Corpus of Present-Day American English](#brown-university-standard-corpus-of-present-day-american-english)
+                3. [Google 1 Billion Word Corpus](#google-1-billion-word-corpus)
+                4. [Microsoft Research entence Completion Challenge dataset](#microsoft-research-entence-completion-challenge-dataset)
+            2. [Solution](#solution)
+                1. [One-Hot](#one-hot)
+                2. [Word2Vec](#word2vec)
+                3. [Glove](#glove)
+                4. [Tencent](#tencent)
+                5. [Cove](#cove)
+                6. [ELMo](#elmo)
+                7. [GPT2](#gpt2)
+                8. [BERT](#bert)
+                9. [MASS](#mass)
+                10. [UniLM](#unilm)
+                11. [XLM](#xlm)
+                12. [XLNET](#xlnet)
+                13. [ERINE](#erine)
+                14. [BERT-www](#bert-www)
+                15. [MT-DNN](#mt-dnn)
+            3. [Metric](#metric-1)
+    2. [sentence-level](#sentence-level)
+        1. [match/pair/inference/retrieval/rank](#matchpairinferenceretrievalrank)
+            1. [Dataset](#dataset-2)
+                1. [**LCQMC**](#lcqmc)
+            2. [Solution](#solution-1)
+                1. [最长公共子序列](#最长公共子序列)
+                2. [编辑距离](#编辑距离)
+                3. [Jaccard](#jaccard)
+                4. [word2vec+余弦相似度](#word2vec余弦相似度)
+                5. [DSSM(deep structured semantic models)](#dssmdeep-structured-semantic-models)
+                6. [lstm+topic](#lstmtopic)
+                7. [Deep-siamese-text-similarity](#deep-siamese-text-similarity)
+                8. [聚类](#聚类)
+            3. [Metric](#metric-2)
+        2. [textual entailment(NLI)](#textual-entailmentnli)
+            1. [Dataset](#dataset-3)
+                1. [XNLI](#xnli)
+        3. [Semantic Role Labeling](#semantic-role-labeling)
+            1. [Dataset](#dataset-4)
+                1. [Chinese Proposition Bank](#chinese-proposition-bank)
+                2. [FrameNet](#framenet)
+                3. [PropBank](#propbank)
+    3. [document-level](#document-level)
+4. [Reference](#reference)
+    1. [Links](#links)
+    2. [Papers](#papers)
 
 <!-- /TOC -->
 
@@ -42,8 +76,8 @@
 #### Dataset
 + pass
 #### solution
-+ Latent Semantic Indexing(隐含语义索引)
-+ Latent Semantic Analysis(隐含语义分析)
+##### Latent Semantic Indexing(隐含语义索引)
+##### Latent Semantic Analysis(隐含语义分析)
 
 #### Metric
 + pass
@@ -52,32 +86,80 @@
 
 #### Dataset 
 
-| Embedding                                                    | SOTA                                                         | Tips |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
-| [Project Gutenberg](https://www.gutenberg.org/)              |                                                              |      |
-| [Brown University Standard Corpus of Present-Day American English](https://en.wikipedia.org/wiki/Brown_Corpus) |            |      |
-| [Google 1 Billion Word Corpus](https://github.com/ciprian-chelba/1-billion-word-language-modeling-benchmark) |         |      |
-| [Microsoft Research entence Completion Challenge dataset]()  | A fast and simple algorithm for training neural probabilistic language models |      |
+##### Project Gutenberg
+(https://www.gutenberg.org/)
+##### Brown University Standard Corpus of Present-Day American English
++ https://en.wikipedia.org/wiki/Brown_Corpus
+#####  Google 1 Billion Word Corpus
++ https://github.com/ciprian-chelba/1-billion-word-language-modeling-benchmark
+##### Microsoft Research entence Completion Challenge dataset
++ A fast and simple algorithm for training neural probabilistic language models
 
 #### Solution 
 
-| Model                                                        | Tips                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| One-Hot                                                      | 一个数字代表一个字，one-hot 成向量                           |
-| Word2Vec [paper](https://arxiv.org/pdf/1310.4546.pdf)        | CBOW;Skip-gram;Negative-sampling;Hierachical softmax         |
-| Glove [paper](https://nlp.stanford.edu/pubs/glove.pdf)[website](https://nlp.stanford.edu/projects/glove/) | 词-词 共现矩阵进行分解                                       |
-| Tencent [paper](https://aclweb.org/anthology/N18-2028)[website](https://aclweb.org/anthology/N18-2028[]) | 支持中文; Directional Skip-Gram                              |
-| Cove                                                         |                                                              |
-| ELMo [paper](https://allennlp.org/elmo)[source-code](https://github.com/allenai/bilm-tf) | Multi-layer Bi-LM                                            |
-| GPT2 [blog](https://openai.com/blog/better-language-models/) [code](https://github.com/openai/gpt-2)[paper](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) | 使用单向 Transformer Decoder 代替 LSTM; 无监督预训练，有监督微调 |
-| BERT [paper](https://arxiv.org/abs/1810.04805)[code](https://github.com/google-research/bert) | 支持中文; 双向 Encoder; Masked LM; Next sentence predict     |
-| MASS [paper](https://arxiv.org/pdf/1905.02450.pdf)[code](https://github.com/microsoft/MASS) | Mask Length K;                                               |
-| UniLM [paper](https://arxiv.org/pdf/1905.03197.pdf)[code]()  | Multi-task learning; NLG                                     |
-| XLM [paper](https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1812.10464) |                                                              |
-| XLNET [paper](https://arxiv.org/abs/1906.08237)              | Transformer-XL                                               |
-| ERINE [paper]()[code](https://link.zhihu.com/?target=https%3A//github.com/PaddlePaddle/LARK/tree/develop/ERNIE) | 支持中文；将BERT 中的一个字改成一个中文词                    |
-| BERT-www [paper]()[code](https://github.com/ymcui/Chinese-BERT-wwm) | 支持中文；与BERT base 结构一致，使用更大量的中文预料训练     |
-| MT-DNN                                                       |                                                              |
+##### One-Hot 
++ 一个数字代表一个字，one-hot 成向量
+
+##### Word2Vec 
++ [paper](https://arxiv.org/pdf/1310.4546.pdf)
++ CBOW;Skip-gram;Negative-sampling;Hierachical softmax
+
+##### Glove 
++ [paper](https://nlp.stanford.edu/pubs/glove.pdf)
++ [website](https://nlp.stanford.edu/projects/glove/) 
++ 词-词 共现矩阵进行分解
+
+##### Tencent 
++ [paper](https://aclweb.org/anthology/N18-2028)
++ [website](https://aclweb.org/anthology/N18-2028[]) 
++ 支持中文; Directional Skip-Gram 
+
+##### Cove 
++ pass
+
+##### ELMo 
++ [paper](https://allennlp.org/elmo)
++ [source-code](https://github.com/allenai/bilm-tf) 
++ Multi-layer Bi-LM
+
+##### GPT2 
++ [blog](https://openai.com/blog/better-language-models/) 
++ [code](https://github.com/openai/gpt-2)
++ [paper](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) 
++ 使用单向 Transformer Decoder 代替 LSTM; 无监督预训练，有监督微调 |
+
+##### BERT 
++ [paper](https://arxiv.org/abs/1810.04805)
++ [code](https://github.com/google-research/bert) 
++ 支持中文; 双向 Encoder; Masked LM; Next sentence predict
+
+##### MASS 
++ [paper](https://arxiv.org/pdf/1905.02450.pdf)
++ [code](https://github.com/microsoft/MASS)
++ Mask Length K;
+
+##### UniLM 
++ [paper](https://arxiv.org/pdf/1905.03197.pdf)
++ [code]() 
++ Multi-task learning; NLG 
+
+##### XLM 
++ [paper](https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1812.10464)
+
+##### XLNET 
++ [paper](https://arxiv.org/abs/1906.08237)
++ Transformer-XL  
+
+##### ERINE 
++ [paper]()
++ [code](https://link.zhihu.com/?target=https%3A//github.com/PaddlePaddle/LARK/tree/develop/ERNIE)
++ 支持中文；将BERT 中的一个字改成一个中文词 
+
+##### BERT-www 
++ [paper]()[code](https://github.com/ymcui/Chinese-BERT-wwm) 
++ 支持中文；与BERT base 结构一致，使用更大量的中文预料训练
+
+##### MT-DNN 
 
 #### Metric 
 
@@ -98,45 +180,45 @@
 
 ### match/pair/inference/retrieval/rank
 #### Dataset
-| Similarity |                                                              |      |
-| ---------- | ------------------------------------------------------------ | ---- |
-| **LCQMC**  | LCQMC 是哈尔滨工业大学在自然语言处理国际顶会 COLING2018 构建的问题语义匹配数据集，其目标是判断两个问题的语义是否相同 |      |
-|            |                                                              |      |
+
+##### **LCQMC**  
++ LCQMC 是哈尔滨工业大学在自然语言处理国际顶会 COLING2018 构建的问题语义匹配数据集，其目标是判断两个问题的语义是否相同
+
 #### Solution
 
-| Short Text Similarity Methods                                | Tips |
-| ------------------------------------------------------------ | ---- |
-| 最长公共子序列                                               |      |
-| 编辑距离                                                     |      |
-| 相同单词个数/序列长度                                        |      |
-| word2vec+余弦相似度                                          |      |
-| Sentence2Vector link                                         |      |
-| DSSM(deep structured semantic models)(BOW/CNN/RNN) [link](https://www.cnblogs.com/qniguoym/p/7772561.html) |      |
-| lstm+topic [link](https://blog.csdn.net/qjzcy/article/details/52269382) |      |
-| Deep-siamese-text-similarity [paper](https://www.aclweb.org/anthology/W16-16#page=162)[code](https://github.com/dhwajraj/deep-siamese-text-similarity) |      |
-| 聚类                                                         |      |
-
+##### 最长公共子序列
+##### 编辑距离
+##### Jaccard
+##### word2vec+余弦相似度
+##### DSSM(deep structured semantic models)
++ (BOW/CNN/RNN) 
++ [link](https://www.cnblogs.com/qniguoym/p/7772561.html)
+##### lstm+topic 
++ [link](https://blog.csdn.net/qjzcy/article/details/52269382)
+##### Deep-siamese-text-similarity 
++ [paper](https://www.aclweb.org/anthology/W16-16#page=162)
++ [code](https://github.com/dhwajraj/deep-siamese-text-similarity)
+##### 聚类 
++ pass
 #### Metric
 + MAP，nDCG@20, P@20
 
 ### textual entailment(NLI)
 
 #### Dataset
-
-| Natural Language Inference Dataset | SOTA | Tips               |
-| ---------------------------------- | ---- | ------------------ |
-| XNLI                               |      | EMNLP2018:**FAIR** |
-|                                    |      |                    |
+#####  XNLI 
++ EMNLP2018:**FAIR**
 
 ### Semantic Role Labeling
 
 #### Dataset 
 
-| Semantic Role Labeling   | SOTA | Tips |
-| ------------------------ | ---- | ---- |
-| Chinese Proposition Bank |      | 中文 |
-| FrameNet                 |      | 英文 |
-| PropBank                 |      | 英文 |
+##### Chinese Proposition Bank 
++ 中文 
+##### FrameNet
++ 英文
+##### PropBank
++ 英文
 
 ## document-level
 
