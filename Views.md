@@ -1,6 +1,8 @@
 
 # Reference
 
++ 中文缩略词 https://github.com/zhangyics/Chinese-abbreviation-dataset
+
 ## Links
 
 + [Rasa NLU Chinese](https://github.com/crownpku/Rasa_NLU_Chi)

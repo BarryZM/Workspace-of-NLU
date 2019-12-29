@@ -1,19 +1,17 @@
 <!-- TOC -->
 
-- [Target](#target)
-- [Framework](#framework)
-  - [lexical](#lexical)
-  - [syntax](#syntax)
-  - [chapter](#chapter)
-  - [semantic](#semantic)
-  - [classification](#classification)
-  - [sentiment](#sentiment)
-  - [extraction](#extraction)
-  - [retrieval](#retrieval)
-  - [knowledge](#knowledge)
-- [Todo list](#todo-list)
-- [Contributions](#contributions)
-- [Licence](#licence)
+1. [Target](#target)
+2. [Todo list](#todo-list)
+3. [Framework](#framework)
+    1. [lexical](#lexical)
+    2. [syntax](#syntax)
+    3. [chapter](#chapter)
+    4. [semantic](#semantic)
+    5. [classification](#classification)
+    6. [sentiment](#sentiment)
+    7. [extraction](#extraction)
+    8. [retrieval](#retrieval)
+    9. [knowledge](#knowledge)
 
 <!-- /TOC -->
 
@@ -29,6 +27,9 @@
     + 多卡训练
     + 多任务学习
     + 通用模型融合
+    
+# Todo list
++ semantic/extraction/retrieval/knowledge 等方法有待进一步完善
     
 # Framework
 ## lexical
@@ -55,15 +56,3 @@
 
 ## knowledge
 + 整理知识库，知识图谱的相关方法和代码，主要包括知识库构建，检索，推理的方法和代码
-
-# Todo list
-+ semantic/extraction/retrieval/knowledge 等方法有待进一步完善
-
-# Contributions
-
-+ 欢迎浏览和交流代码， 可以提issue 或者 push request
-+ 邮箱 Apollo2Mars@gmail.com
-
-# Licence
-
-Apache License

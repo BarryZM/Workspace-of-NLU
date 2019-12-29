@@ -24,6 +24,7 @@
         2. [optimized methods](#optimized-methods-1)
             1. [Hierarchical Softmax](#hierarchical-softmax-1)
             2. [Negative sampling](#negative-sampling)
+            3. [source code](#source-code)
     4. [FastText词向量与word2vec对比](#fasttext词向量与word2vec对比)
     5. [ref:](#ref)
 4. [Glove](#glove)
@@ -78,9 +79,10 @@
 13. [Uni-LM](#uni-lm)
 14. [XLNet](#xlnet)
 15. [Doc2Vec](#doc2vec)
-16. [Tools](#tools)
+16. [知识蒸馏](#知识蒸馏)
+17. [Tools](#tools)
     1. [gensim](#gensim)
-17. [Reference](#reference-1)
+18. [Reference](#reference-1)
 
 <!-- /TOC -->
 
@@ -962,6 +964,11 @@ model = Doc2Vec(dm=1, size=100, window=5, negative=5, hs=0, min_count=2, workers
 + 该代码将同时训练word和sentence label的语义向量。如果我们只想训练label向量，可以传入参数train_words=False以固定词向量参数。更多参数的含义可以参见这里的API文档。
 
 + 注意，在目前版本的doc2vec实现中，每一个Sentence vector都是常驻内存的。因此，模型训练所需的内存大小同训练语料的大小正相关。
+
+# 知识蒸馏
++ https://arxiv.org/abs/1910.01108
++ https://arxiv.org/abs/1909.10351
++ https://arxiv.org/abs/1908.09355
 
 # Tools
 

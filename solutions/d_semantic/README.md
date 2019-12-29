@@ -1,16 +1,20 @@
 <!-- TOC -->
 
-1. [Summary of Semantic Analysis](#summary-of-semantic-analysis)
-2. [Target](#target)
-3. [Datasets && Solutions && Metrics](#datasets--solutions--metrics)
+1. [Target](#target)
+2. [Datasets && Solutions && Metrics](#datasets--solutions--metrics)
     1. [word-level](#word-level)
-        1. [Word Sense Disambiguation](#word-sense-disambiguation)
+        1. [synonym](#synonym)
+            1. [Hownet](#hownet)
+            2. [Wordnet](#wordnet)
+            3. [synonyms](#synonyms)
+        2. [antonym](#antonym)
+        3. [Word Sense Disambiguation](#word-sense-disambiguation)
             1. [Dataset](#dataset)
             2. [solution](#solution)
                 1. [Latent Semantic Indexing(隐含语义索引)](#latent-semantic-indexing隐含语义索引)
                 2. [Latent Semantic Analysis(隐含语义分析)](#latent-semantic-analysis隐含语义分析)
             3. [Metric](#metric)
-        2. [Word semantic represent](#word-semantic-represent)
+        4. [Word semantic represent](#word-semantic-represent)
             1. [Dataset](#dataset-1)
                 1. [Project Gutenberg](#project-gutenberg)
                 2. [Brown University Standard Corpus of Present-Day American English](#brown-university-standard-corpus-of-present-day-american-english)
@@ -30,7 +34,7 @@
                 11. [XLM](#xlm)
                 12. [XLNET](#xlnet)
                 13. [ERINE](#erine)
-                14. [BERT-www](#bert-www)
+                14. [BERT-wwm](#bert-wwm)
                 15. [MT-DNN](#mt-dnn)
             3. [Metric](#metric-1)
     2. [sentence-level](#sentence-level)
@@ -56,13 +60,11 @@
                 2. [FrameNet](#framenet)
                 3. [PropBank](#propbank)
     3. [document-level](#document-level)
-4. [Reference](#reference)
+3. [Reference](#reference)
     1. [Links](#links)
     2. [Papers](#papers)
 
 <!-- /TOC -->
-
-# Summary of Semantic Analysis
 
 # Target
 + collect semantic analysis algorithms
@@ -70,6 +72,18 @@
 # Datasets && Solutions && Metrics
 
 ## word-level
+
+### synonym
+#### Hownet
++ 中文最大的同义词库
++ https://zhuanlan.zhihu.com/p/32688983
+#### Wordnet
++ 英文最大的同义词库
+#### synonyms
++ pypthon 中的同义词工具
+
+### antonym
+
 
 ### Word Sense Disambiguation
 
@@ -155,7 +169,7 @@
 + [code](https://link.zhihu.com/?target=https%3A//github.com/PaddlePaddle/LARK/tree/develop/ERNIE)
 + 支持中文；将BERT 中的一个字改成一个中文词 
 
-##### BERT-www 
+##### BERT-wwm 
 + [paper]()[code](https://github.com/ymcui/Chinese-BERT-wwm) 
 + 支持中文；与BERT base 结构一致，使用更大量的中文预料训练
 
