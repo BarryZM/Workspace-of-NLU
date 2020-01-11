@@ -1,6 +1,9 @@
 
 # Reference
 
++ https://github.com/OYE93/Chinese-NLP-Corpus
+  + 国家语委数据
+
 + 中文缩略词 https://github.com/zhangyics/Chinese-abbreviation-dataset
 
 ## Links
