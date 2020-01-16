@@ -629,6 +629,112 @@ w^T_i\tilde w_k +b_i + b_k = logX_{ik} \tag{$1$}
 
 # ELMo
 
+[Deep contextualized word representations](https://arxiv.org/pdf/1802.05365.pdf)提出了ELMO(Embedding from Language Models), 提出了一个使用**无监督**的**双向**语言模型进行预训练，得到了一个context depenedent的词向量预训练模型，并且这个模型可以很容易地plug in 到现有的模型当中。
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/974eaa7c3e0f2cd5c2c4bc40ae2cee72.png)
+
+
+## model structure
+模型主要有两个对称的模型组成，一个是前向的网络，一个是反向的网络。
+每一个网络又由两部分组成，一个是embedding layer，一个是LSTM layer；模型结是参考[这个模型结构](http://proceedings.mlr.press/v37/jozefowicz15.pdf)
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/a59ea76090c1d5cbfb2ec32f8a1f44c4.png)
+- embedding layers
+  - 2048 X n-gram CNN filters
+  - 2 X highway layers
+  - 1 X projection
+
+- LSTM layers (x2)
+
+TODO：参考<https://github.com/allenai/bilm-tf>以及[这个模型结构](http://proceedings.mlr.press/v37/jozefowicz15.pdf)
+> we halved all embedding and hidden dimensions from the single best model CNN-BIG-LSTM in J´ozefowicz et al. (2016). The ﬁnal model uses L = 2 biLSTM layers with 4096 units and 512 dimension projections and a residual connection from the ﬁrst to second layer. The context insensitive type representation uses 2048 character n-gram convolutional ﬁlters followed by two highway layers (Srivastava et al., 2015) and a linear projection down to a 512 representation. As a result, the biLM provides three layers of representations for each input token, including those outside the training set due to the purely character input.
+
+## model training
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/0fa0a28782d7b4ee4c1f821206472e17.png)
+给定一个长度为N的序列 $t_1,t_2,...,t_N$, 对于每个token $t_k$，以及它的历史token序列$t_1, t_2, ..., t_{k-1}$ ：
+- 对于前向的LSTM LM
+\begin{equation}
+p_{FWD}(t_1, t_2, ..., t_N) = \prod ^N _{k=1} p(t_k | t_1, t_2,..., t_{k-1})
+\end{equation}
+- 对于后向的LSTM LM
+\begin{equation}
+p_{BWD}(t_1, t_2, ..., t_N) = \prod ^N _{k=1} p(t_k | t_{k+1}, t_{k+2},..., t_N)
+\end{equation}
+
+所以最后的loss可以写成：
+\begin{equation}
+loss = 0.5*\sum _{k=1} ^N - (log p_{FWD}(t_1, t_2, ..., t_N; \overrightarrow \theta _x ; \theta _{LSTM} ; \theta _s) + log p_{BWD}(t_1, t_2, ..., t_N; \theta_x; \overleftarrow \theta _{LSTM}; \theta _s))
+\end{equation}
+其中
+- $\theta _x$ 指的是token的表示embedding
+- $\theta _s$ 指的是softmax
+- $\overrightarrow \theta _x$ 或者$\overleftarrow \theta _x$指的是LSTM的模型
+
+code：https://github.com/allenai/bilm-tf/blob/master/bilm/training.py
+
+## model usage
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/a5455aec0f0b71735172f191d8657672.png)
+模型的使用的时候
+对于token $k$, 模型的输出embedding为
+\begin{equation}
+\begin{split}
+ELMo_k ^{task} &= \gamma ^{task} \sum _{j=0} ^{L} s_j ^{task} h_{k,j}^{LM} \\
+h_{k,j}^{LM} &= [\overrightarrow h_{k,j}^{LM};\overleftarrow h_{k,j}^{LM}], \ \  k=0,1,..L
+\end{split}
+\end{equation}
+其中k=0， 表示的embedding的输出。
+即表示的是每一层的输出concat起来之后再做加权平均，其中$s_j ^{task}$ 是softmax-normalized的weight。$\gamma ^{task}$ 指的是特定任务的scaler。
+
+## 分析
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/ca8e05433b1c350e7d39b04e2ea44315.png)
+对于
+- LSTM第一层：主要embed的是词的语法结构信息，主要是context-independent的信息，主要更适合做POS的任务。
+- LSTM第二层：主要embed的是句子的语义信息，主要是context-dependent的信息，可以用来做消歧义的任务。
+
+## Use Demo
+```Python
+import tensorflow as tf
+import tensorflow_hub as hub
+elmo = hub.Module("https://tfhub.dev/google/elmo/2", trainable=True)
+embeddings = elmo(
+    ["the cat ate apple"],
+    signature="default",
+    as_dict=True)["elmo"]
+embeddings_single_word = elmo(
+    ["apple"],
+    signature="default",
+    as_dict=True)["elmo"]
+with tf.Session() as sess:
+  sess.run(tf.global_variables_initializer())
+  print(embeddings)
+  print(sess.run(embeddings))
+  print(embeddings_single_word)
+  print(sess.run(embeddings_single_word))
+```
+```Python
+INFO:tensorflow:Saver not created because there are no variables in the graph to restore
+INFO:tensorflow:Saver not created because there are no variables in the graph to restore
+INFO:tensorflow:Saver not created because there are no variables in the graph to restore
+INFO:tensorflow:Saver not created because there are no variables in the graph to restore
+Tensor("module_11_apply_default/aggregation/mul_3:0", shape=(1, 4, 1024), dtype=float32)
+[[[ 0.30815446  0.266304    0.23561305 ... -0.5105163   0.32457852
+   -0.16020967]
+  [ 0.5142876  -0.13532336  0.11090391 ... -0.1335834   0.06437437
+    0.9357102 ]
+  [-0.24695906  0.34006292  0.22726282 ...  0.38001215  0.4503531
+    0.6617443 ]
+  [ 0.8029585  -0.22430336  0.28576007 ...  0.14826387  0.46911317
+    0.6117439 ]]]
+Tensor("module_11_apply_default_1/aggregation/mul_3:0", shape=(1, ?, 1024), dtype=float32)
+[[[ 0.75570786 -0.2999097   0.7435455  ...  0.14826366  0.46911308
+    0.61174375]]]
+```
+
+## ref
+<https://arxiv.org/pdf/1804.07461.pdf>！！！ elmo使用
+<https://allennlp.org/tutorials>
+<https://github.com/yuanxiaosc/ELMo>
+<https://github.com/allenai/bilm-tf>
+https://tfhub.dev/google/elmo/3 !!!!
 ## Tips
 
 - Allen Institute / Washington University / NAACL 2018
@@ -680,9 +786,78 @@ w^T_i\tilde w_k +b_i + b_k = logX_{ik} \tag{$1$}
 # ULM-Fit
 
 + http://nlp.fast.ai/classification/2018/05/15/introducting-ulmfit.html
+# GPT-1
+[GPT-1](https://s3-us-west-2.amazonaws.com/openai-assets/research-covers/language-unsupervised/language_understanding_paper.pdf)又称为openAI transformer，使用的是transformer的decoder的结构（不包含encoder和decoder的attention部分），用的是auto-regressive的LM objective。
+
+GPT最大的共享是，提出了pretraining和finetuning的下游统一框架，将预训练和finetune的结构进行了统一，解决了之前两者分离的使用的不确定性，例如elmo。使用transformer结构解决了LSTM的不能捕获远距离信息的缺点。但是其的主要缺点是不能使用双向的信息。
+
+## Unsupervised pretraining
+模型使用的是auto-regressive LM obejctive
+\begin{equation}
+\begin{split}
+h_0 &= UW_e + W_p  \\
+h_l &= transformer(h_{l-1}) \ \ \forall i\in [1,n]\\
+P(u) &= softmax(h_n W_e^T) \\
+L_1(U) &= -\sum_i log P (u_i | u{i-k},...,u_{i-1};\Theta)
+\end{split}
+\tag{$1$}
+\end{equation}
+- k 是contex的窗口size
+- n 是transformer layer的个数
+- $h_n$ 是context下的hidden 输出
+- $W_e$ 是embedding matrix
+- $W_p$ 是position matrix
+- $U = {u_1, u_2, u_3, u_4, ..., u_m}$ 是输入的sequence
+
+# supervised finetuning
+
+对于输入的序列$x_1, x_2, ..., x_m$, 以及label $y$, 输入先喂到预训练的模型中得到最后一层的输出$h_n ^m$，在连接全连接层with parameters $W_y$， 去预测y：
+> The inputs are passed through our pre-trained model to obtain the ﬁnal transformer block’s activation $h_l^m$, which is then fed into an added linear output layer with parameters W_yto predict y:
+
+\begin{equation}
+\begin{split}
+P(y|x_1,...,x_m) &= softmax(h_l^m W_y) \\
+L_2(C) &= \sum_{(x,y)} log P(y|x_1,...,x_m)
+\end{split}
+\tag{$2$}
+\end{equation}
+
+ $h_l^m$ 是最后一个token作为clf_token, see [code](https://github.com/huggingface/pytorch-openai-transformer-lm/blob/bfd8e0989c684b79b800a49f8d9b74e559298ec2/train.py)
+```Python
+encoder['_start_'] = len(encoder)
+encoder['_delimiter_'] = len(encoder)
+encoder['_classify_'] = len(encoder)
+clf_token = encoder['_classify_'] <----最后一个token
+```
+
+在finetuning的时候，在特定任务的loss的基础上，还加入了LM的loss作为auxiliary loss，使得模型得到更好的结果
+```Python
+clf_logits, clf_losses, lm_losses = model(*xs, train=True, reuse=do_reuse)
+          if lm_coef > 0:
+              train_loss = tf.reduce_mean(clf_losses) + lm_coef*tf.reduce_mean(lm_losses)
+          else:
+              train_loss = tf.reduce_mean(clf_losses)
+```
+对于不同任务有不同的任务构造方式：
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/2ea51119f69c10822e320e2e85f5f5bf.png)
+
+所有输入都增加`(<s> <e>)`tokens
+- classification
+- entailment
+- similarity：因为是Text1和Text2的顺序无关，所以两个方向的，文本之间通过$分割，最后的dense层通过的是两个transform 儿输出的和作为输入。
+- multiple choice：bert 没有这种（[ref to](https://github.com/huggingface/transformers/pull/96)，但是构造和这个一样。Context=document+query； Text2=answer</s>
+具体的输入形式：`[z;q$a_k]`,其中$为分隔符， 三个输出再经过soft Max。[RACE]data set
+
+## Ablation Studies
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/98d3495c7d994dcc07c14d420c088310.png)
+- transformer 比LSTM 好
+- aux LM loss对NLI以及QQP效果有帮助，（2sentences）
+
 
 # GPT-2
+在GPT-1刚发布不久之后，马上被BERT 霸榜了，openAI 于是紧接着发布了[GPT-2]((https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf))，意在无监督数据的情况下，实现zero-shot任务表现最好。
 
+模型结构等都没有什么区别，主要的改进就是数据量足够大，模型足够大。能够达到很好的NLG效果。see tutorial：http://jalammar.github.io/illustrated-gpt2/
 ## Tips
 
 + https://www.cnblogs.com/robert-dlut/p/9824346.html
