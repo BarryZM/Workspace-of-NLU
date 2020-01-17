@@ -65,7 +65,7 @@
         2. [Input](#input)
         3. [Loss](#loss)
     12. [Use Bert for Downstream Task](#use-bert-for-downstream-task)
-10. [BERT-WWW](#bert-www)
+10. [BERT-WWM](#bert-wwm)
 11. [ERNIE - 百度](#ernie---百度)
     1. [ERNIE - 清华/华为](#ernie---清华华为)
         1. [把英文字变成中文词](#把英文字变成中文词)
@@ -1026,8 +1026,8 @@ clf_logits, clf_losses, lm_losses = model(*xs, train=True, reuse=do_reuse)
 - Single Sentence Tagging Task
 
 
-# BERT-WWW
-+ https://www.jiqizhixin.com/articles/2019-06-21-01
+·
+
 
 
 # ERNIE - 百度
