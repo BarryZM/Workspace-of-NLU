@@ -1649,6 +1649,84 @@ SBO：对于span的问题很有用例如 extractive question answering
 [SpanBERT zhihu](https://zhuanlan.zhihu.com/p/75893972)
 [SpanBERT: Improving Pre-training by Representing and Predicting Spans](https://arxiv.org/pdf/1907.10529.pdf)
 
+# RoBERTa
+论文原文：[Roberta](https://arxiv.org/pdf/1907.11692.pdf)
+
+[项目主页中文](https://github.com/brightmart/roberta_zh), 作者表示，在本项目中，没有实现 dynamic mask。
+[英文项目主页](https://github.com/pytorch/fairseq)
+
+从模型上来说，RoBERTa基本没有什么太大创新，主要是在BERT基础上做了几点调整：
+1）训练时间更长，batch size更大，训练数据更多；
+2）移除了next predict loss；
+3）训练序列更长；
+4）动态调整Masking机制。
+5) Byte level BPE
+RoBERTa is trained with dynamic masking (Section 4.1), FULL - SENTENCES without NSP loss (Section 4.2), large mini-batches (Section 4.3) and a larger byte-level BPE (Section 4.4).
+
+
+## 更多训练数据/更大的batch size/训练更长时间
+- 原本bert：BOOKCORPUS (Zhu et al., 2015) plus English W IKIPEDIA.(16G original)
+  + add CC-NEWS(76G)
+  + add OPEN WEB TEXT(38G)
+  + add STORIES(31G)
+
+- 更大的batch size
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/26b1fe81820b38e2633bfc96200188c0.png)
+- 更长的训练时间
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/fe481510d79be5632e8ce742ca4dec9a.png)
+
+### Dynamic Masking
+- static masking: 原本的BERT采用的是static mask的方式，就是在`create pretraining data`中，先对数据进行提前的mask，为了充分利用数据，定义了`dupe_factor`，这样可以将训练数据复制`dupe_factor`份，然后同一条数据可以有不同的mask。注意这些数据不是全部都喂给同一个epoch，是不同的epoch，例如`dupe_factor=10`， `epoch=40`， 则每种mask的方式在训练中会被使用4次。
+  > The original BERT implementation performed masking once during data preprocessing, resulting in a single static mask. To avoid using the same mask for each training instance in every epoch, training data was duplicated 10 times so that each sequence is masked in 10 different ways over the 40 epochs of training. Thus, each training sequence was seen with the same mask four times during training.
+- dynamic masking: 每一次将训练example喂给模型的时候，才进行随机mask。
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/dbf433fe8fbca51b79cb500dafd20b23.png)
+
+
+## No NSP and Input Format
+NSP: 0.5:从同一篇文章中连续的两个segment。0.5:不同的文章中的segment
+- Segment+NSP：bert style
+- Sentence pair+NSP：使用两个连续的句子+NSP。用更大的batch size
+- Full-sentences：如果输入的最大长度为512，那么就是尽量选择512长度的连续句子。如果跨document了，就在中间加上一个特殊分隔符。无NSP。实验使用了这个，因为能够固定batch size的大小。
+- Doc-sentences：和full-sentences一样，但是不跨document。无NSP。最优。
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/763c1ccf113e15665b1cdee0fbd643b9.png)
+
+## Text Encoding
+BERT原型使用的是 character-level BPE vocabulary of size 30K, RoBERTa使用了GPT2的 BPE 实现，使用的是byte而不是unicode characters作为subword的单位。
+> learn a subword vocabulary of a modest size (50K units) that can still encode any input text without introducing any “unknown” tokens.
+
+zh 实现没有dynamic masking
+```Python
+    instances = []
+    raw_text_list_list=get_raw_instance(document, max_seq_length) # document即一整段话，包含多个句子。每个句子叫做segment.
+    for j, raw_text_list in enumerate(raw_text_list_list): # 得到适合长度的segment
+        ####################################################################################################################
+        raw_text_list = get_new_segment(raw_text_list) # 结合分词的中文的whole mask设置即在需要的地方加上“##”
+        # 1、设置token, segment_ids
+        tokens = []
+        segment_ids = []
+        tokens.append("[CLS]")
+        segment_ids.append(0)
+        for token in raw_text_list:
+            tokens.append(token)
+            segment_ids.append(0)
+        tokens.append("[SEP]")
+        segment_ids.append(0)
+        ################################################################################################################
+        # 2、调用原有的方法
+        (tokens, masked_lm_positions,
+         masked_lm_labels) = create_masked_lm_predictions(
+            tokens, masked_lm_prob, max_predictions_per_seq, vocab_words, rng)
+```
+
+## ref
+[RoBERTa 模型调用](https://mp.weixin.qq.com/s/K2zLEbWzDGtyOj7yceRdFQ)
+[模型调用](https://mp.weixin.qq.com/s/v5wijUi9WgcQlr6Xwc-Pvw)
+[知乎解释](https://zhuanlan.zhihu.com/p/75987226)
+
+
+
+
+
 # Reference
 
 + [transformer model TF 2.0 ](https://cloud.tencent.com/developer/news/417202)
