@@ -65,7 +65,7 @@
         2. [Input](#input)
         3. [Loss](#loss)
     12. [Use Bert for Downstream Task](#use-bert-for-downstream-task)
-10. [BERT-WWW](#bert-www)
+10. [BERT-WWM](#bert-wwm)
 11. [ERNIE - 百度](#ernie---百度)
     1. [ERNIE - 清华/华为](#ernie---清华华为)
         1. [把英文字变成中文词](#把英文字变成中文词)
@@ -1026,8 +1026,8 @@ clf_logits, clf_losses, lm_losses = model(*xs, train=True, reuse=do_reuse)
 - Single Sentence Tagging Task
 
 
-# BERT-WWW
-+ https://www.jiqizhixin.com/articles/2019-06-21-01
+·
+
 
 
 # ERNIE - 百度
@@ -1035,8 +1035,349 @@ clf_logits, clf_losses, lm_losses = model(*xs, train=True, reuse=do_reuse)
 - https://zhuanlan.zhihu.com/p/76757794
 - https://cloud.tencent.com/developer/article/1495731
 
-## ERNIE - 清华/华为
+# Ernie 1.0
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/f08f9ca48196c3b9bd23279ee6f219c2.png)
 
+[ERNIE: Enhanced Representation through Knowledge Integration](https://arxiv.org/pdf/1904.09223) 是百度在2019年4月的时候，基于BERT模型，做的进一步的优化，在中文的NLP任务上得到了state-of-the-art的结果。它主要的改进是在mask的机制上做了改进，它的mask不是基本的word piece的mask，而是在pretrainning阶段增加了外部的知识，由三种level的mask组成，分别是basic-level masking（word piece）+ phrase level masking（WWM style） + entity level masking。在这个基础上，借助百度在中文的社区的强大能力，中文的ernie还是用了各种异质(Heterogeneous)的数据集。此外为了适应多轮的贴吧数据，所有ERNIE引入了DLM (Dialogue Language Model) task。
+
+百度的论文看着写得不错，也很简单，而且改进的思路是后来各种改进模型的基础。例如说Masking方式的改进，让BERT出现了WWM的版本，对应的中文版本（[Pre-Training with Whole Word Masking for Chinese BERT](https://arxiv.org/pdf/1906.08101)），以及 [facebook的SpanBERT](https://arxiv.org/pdf/1907.10529)等都是主要基于masking方式的改进。
+
+但是不足的是，因为baidu ernie1.0只是针对中文的优化，导致比较少收到国外学者的关注，另外百度使用的是自家的paddle paddle机器学习框架，与业界主流tensorflow或者pytorch不同，导致受关注点比较少。
+
+## Knowlege Masking
+intuition:
+模型在预测未知词的时候，没有考虑到外部知识。但是如果我们在mask的时候，加入了外部的知识，模型可以获得更可靠的语言表示。
+>例如：
+哈利波特是J.K.罗琳写的小说。
+单独预测 `哈[MASK]波特` 或者 `J.K.[MASK]琳` 对于模型都很简单，但是模型不能学到`哈利波特`和`J.K. 罗琳`的关系。如果把`哈利波特`直接MASK掉的话，那模型可以根据作者，就预测到小说这个实体，实现了知识的学习。
+
+需要注意的是这些知识的学习是在训练中隐性地学习，而不是直接将外部知识的embedding加入到模型结构中（[ERNIE-TsingHua](https://arxiv.org/pdf/1905.07129.pdf)的做法），模型在训练中学习到了更长的语义联系，例如说实体类别，实体关系等，这些都使得模型可以学习到更好的语言表达。
+
+首先我们先看看模型的MASK的策略和BERT的区别。
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/d06bf008c89f4d80d5f2f1125011e798.png)
+
+ERNIE的mask的策略是通过三个阶段学习的，在第一个阶段，采用的是BERT的模式，用的是basic-level masking，然后在加入词组的mask(phrase-level masking), 然后在加入实体级别entity-level的mask。
+如下图
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/04fa80065afaf21dcd464514a45c8ee2.png)
+
+- basic level masking
+在预训练中，第一阶段是先采用基本层级的masking就是随机mask掉中文中的一个字。
+
+- phrase level masking
+第二阶段是采用词组级别的masking。我们mask掉句子中一部分词组，然后让模型预测这些词组，在这个阶段，词组的信息就被encoding到word embedding中了。
+
+- entity level masking
+在第三阶段， 命名实体，例如说 人命，机构名，商品名等，在这个阶段被mask掉，模型在训练完成后，也就学习到了这些实体的信息。
+
+不同mask的效果
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/15edb52ec5bfb11009bd44958a2993fa.png)
+## Heterogeneous Corpus Pre-training
+训练集包括了
+- Chinese Wikepedia
+- Baidu Baike
+- Baidu news
+- Baidu Tieba
+注意模型进行了繁简体的转化，以及是uncased
+
+## DLM (Dialogue Language Model) task
+对话的数据对语义表示很重要，因为对于相同回答的提问一般都是具有类似语义的，ERNIE修改了BERT的输入形式，使之能够使用多轮对话的形式，采用的是三个句子的组合`[CLS]S1[SEP]S2[SEP]S3[SEP]` 的格式。这种组合可以表示多轮对话，例如QRQ，QRR，QQR。Q：提问，R：回答。为了表示dialog的属性，句子添加了dialog embedding组合，这个和segment embedding很类似。
+- DLM还增加了任务来判断这个多轮对话是真的还是假的
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/8a80c9b4901bb7a2c1a203196e3079ae.png)
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/3753a88ecda2db42f3cbdad3c4da53ad.png)
+
+## NSP+MLM
+在贴吧中多轮对话数据外都采用的是普通的NSP+MLM预训练任务。
+NSP任务还是有的，但是论文中没写，但是git repo中写了用了。
+
+最终模型效果对比bert
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/aec47b7b605317ce824a2ea18dac3249.png)
+
+# Ernie 2.0
+
+[ERNIE 2.0: A Continual Pre-Training Framework for Language Understanding](https://arxiv.org/pdf/1907.12412.pdf) 百度ERNIE2.0 的出现直接刷榜了GLUE Benchmark。
+Inituition：就像是我们学习一个新语言的时候，我们需要很多之前的知识，在这些知识的基础上，我们可以获取对其他的任务的学习有迁移学习的效果。我们的语言模型如果增加多个任务的话，是不是可以获得更好的效果？事实上，经发现，ernie1.0 +了DLM任务以及其他的模型，例如Albert 加了sentence order prediction（SOP）任务之后或者[SpanBERT: Improving Pre-training by Representing and Predicting Spans](https://arxiv.org/pdf/1907.10529.pdf)在加上了SBO目标之后 ，模型效果得到了进一步的优化，同时[MT-DNN](https://arxiv.org/pdf/1901.11504.pdf)也证明了，在预训练的阶段中加入直接使用多个GLUE下游任务（有监督）进行多任务学习，可以得到state-of-the-art的效果。
+
+于是科学家们就在想那一直加task岂不是更强？百度不满足于堆叠任务，而是提出了一个持续学习的框架，利用这个框架，模型可以持续添加任务但又不降低之前任务的精度，从而能够更好更有效地获得词法lexical，句法syntactic，语义semantic上的表达。![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/148c40ecfd718b1f753186410aa1c7f0.png)
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/4791cfda890c3e8d844ecbe3dd11aa31.png)
+百度的框架提出，主要是在ERNIE1.0的基础上，利用了大量的数据，以及先验知识，然后提出了多个任务，用来做预训练，最后根据特定任务finetune。框架的提出是针对life-long learning的，即终生学习，因为我们的任务叠加，不是一次性进行的（Multi-task learning），而是持续学习(Continual Pre-training)，所以必须避免模型在学了新的任务之后，忘记旧的任务，即在旧的任务上loss变高，相反的，模型的表现应该是因为学习了的之前的知识，所以能够更好更快的学习到现有的任务。为了实现这个目的，百度提出了一个包含pretraining 和fine-tuning的持续学习框架。
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/deec6ee303e995bdd46f09867bab421b.png)
+
+### Continual Pre-training
+- 任务的构建
+  百度把语言模型的任务归类为三大类，模型可以持续学习新的任务。
+  - 字层级的任务(word-aware pretraining task)
+  - 句结构层级的任务(structure-aware pretraining task)
+  - 语义层级的任务(semantic-aware pretraining task)
+
+- 持续的多任务学习
+  对于持续的多任务学习，主要需要攻克两个难点：
+  - 如何保证模型不忘记之前的任务？
+  ![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/3d5ab4a3d25b88a520fadc01a0d1a1ea.png)
+
+常规的持续学习框架采用的是一个任务接一个任务的训练，这样子导致的后果就是模型在最新的任务上得到了好的效果但是在之前的任务上获得很惨的效果(knowledge retention)。
+  - 模型如何能够有效地训练？
+    为了解决上面的问题，有人propose新的方案，我们每次有新的任务进来，我们都从头开始训练一个新的模型不就好了。
+
+    ![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/6e035b5b76452f25e9d7efbbcbb06180.png)
+
+    虽然这种方案可以解决之前任务被忘记的问题，但是这也带来了效率的问题，我们每次都要从头新训练一个模型，这样子导致效率很低。
+  - 百度提出的方案sequential multi-task learning
+  ![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/0bdd6c9710699355edc63626059ae4fe.png)
+    聪明的你肯定就会想到，为什么我们要从头开始训练一个模型，我们复用之前学到的模型的参数作为初始化，然后在训练不就行了？是的，但是这样子似乎训练的效率还是不高，因为我们还是要每一轮中都要同时训练多个任务，百度的解决方案是，框架自动在训练的过程中为每个任务安排训练N轮。
+    - 初始化 optimized initialization
+      每次有新任务过来，持续学习的框架使用的之前学习到的模型参数作为初始化，然后将新的任务和旧的任务一起训练。
+    - 训练任务安排 task allocating
+      对于多个任务，框架将自动的为每个任务在模型训练的不同阶段安排N个训练轮次，这样保证了有效率地学习到多任务。如何高效的训练，每个task 都分配有N个训练iteration。
+      >One left problem is how to make it trained more efﬁciently. We solve this problem by allocating each task N training iterations. Our framework needs to automatically assign these N iterations for each task to different stages of training. In this way, we can guarantee the efﬁciency of our method without forgetting the previously trained knowledge
+      ![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/1efd827ec53db2d1a645cc490b9ac6d8.png)
+
+  - 部分任务的语义信息建模适合递进式
+  - 比如ernie1.0 突破完形填空
+  - ernie2.0 突破选择题，句子排序题等
+  - 不断递进更新，就好像是前面的任务都是打基础，有点boosting的意味
+  - 顺序学习容易导致遗忘模式（这个可以复习一下李宏毅的视频），所以只适合学习任务之间比较紧密的任务，就好像你今天学了JAVA，明天学了Spring框架，但是如果后天让你学习有机化学，就前后不能够联系起来，之前的知识就忘得快
+  - 适合递进式的语音建模任务：1。 MLM， word -> whole word -> name entity
+
+### Continual Fine-tuning
+在模型预训练完成之后，可以根据特定任务进行finetuning，这个和BERT一样。
+
+## ERNIE2.0 Model
+为了验证框架的有效性，ERNIE2.0 用了多种任务，训练了新的ERNIE2.0模型，然后成功刷榜NLU任务的benchmark，GLUE（截止2020.01.04）。百度开源了ERNIE2.0英文版，但是截至目前为止，还没有公开中文版的模型。
+
+
+### model structure
+模型的结构和BERT一致，但是在预训练的阶段，除了正常的position embedding，segment embdding，token embedding还增加了**task embedding**。用来区别训练的任务, 对于N个任务，task的id就是从0～N-1，每个id都会被映射到不同的embedding上。模型的输入就是：
+\begin{equation}
+Input = segment\ embedding +token\ embedding+ position\ embedding+ task\ embedding
+\end{equation}
+
+但是对于ﬁne-tuning阶段，ernie 使用任意值作为初始化都可以。
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/27cfc779572dcfe4fcee4994eaeb209a.png)
+
+### Pre-training Tasks
+ERNIE模型堆叠了大量的预训练目标。就好像我们学习英语的时候，我们的卷子上面，有多种不同的题型。
+- 词法层级的任务(word-aware pretraining task)：获取词法知识。
+  + knowledge masking(1.0)
+    ERNIE1.0的任务
+  + 大小写预测（Capitalization Prediction Task）
+    模型预测一个字不是不是大小写，这个对特定的任务例如NER比较有用。（但是对于中文的话，这个任务比较没有用处，可能可以改为预测某个词是不是缩写）
+  + 词频关系（Token-Document Relation Prediction Task）
+    预测一个词是不是会多次出现在文章中，或者说这个词是不是关键词。
+
+- 语法层级的任务(structure-aware pretraining task) ：获取句法的知识
+  + 句子排序(Sentence Reordering Task)
+    把一篇文章随机分为i = 1到m份，对于每种分法都有$i!$种组合，所以总共有$\sum _{i=1}^{i=m} i!$种组合，让模型去预测这篇文章是第几种，就是一个多分类的问题。这个问题就能够让模型学到句子之间的顺序关系。就有点类似于Albert的SOP任务的升级版。
+  + 句子距离预测(Sentence Distance Task)
+    一个三分类的问题：
+    - 0: 代表两个句子相邻
+    - 1: 代表两个句子在同个文章但不相邻
+    - 2: 代表两个句子在不同的文章中
+
+- 语义层级的任务(semantic-aware pretraining task) ：获取语义关系的知识
+  + 篇章句间关系任务(Discourse Relation Task)
+    判断句子的语义关系例如logical relationship( is a, has a, contract etc.)
+  + 信息检索关系任务(IR Relevance Task)
+    一个三分类的问题，预测query和网页标题的关系
+    - 0: 代表了提问和标题强相关（出现在搜索的界面且用户点击了）
+    - 1: 代表了提问和标题弱相关（出现在搜索的界面但用户没点击）
+    - 2: 代表了提问和标题不相关（未出现在搜索的界面）
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/0ed6e592b98e383d718fe01a57b19494.png)
+
+### network output
+- Token level loss：给每个token一个label
+- Sentence level loss： 例如句子重排任务，判断[CLS]的输出是那一类别
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/240dc371138a5e2ea554eb3213ac46cd.png)
+
+
+## 使用
+- 场景：性能不敏感的场景：直接使用
+度小满的风控召回排序提升25%
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/fae5e340d05cf86f9f326349e8c03515.png)
+度小满的风控识别上：训练完的ernie上直接进行微调，直接预测有没有风险对应的结果，传统的缺点：需要海量的数据，而这些数据也很难抓取到的，抓取这些特征之后呢还要进行复杂的文本特征提取，比如说挖掘短信中银行的催收信息，对数据要求的量很高，对数据人工的特征的挖掘也很高。这两项呢造成了大量的成本，如今只需ernie微调一下，当时直接在召回的排序上得到25%的优化。这种场景的特点是什么？对于用户的实时性的需求不是很强，不需要用户输入一个字段就返回结果。只要一天把所有数据得到，跑完，得到结果就可以了，统一的分析就可以了，适合少数据的分析场景。
+
+
+- 场景：性能敏感场景优化：模型蒸馏，例如搜索问答Query识别和QP匹配
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/021faa7068ba33d02cb92c811e9dcc8a.png)
+另外的一个场景需要非常高的性能优势的，采用的解决方案就是模型蒸馏，是搜索问答query识别和qp匹配，输入一个问题，得到答案，本质是文本匹配，实际是输入问题，把数据库中大量的候选答案进行匹配计算得分，把得分最高的返回。但是百度每天很多用户，很快的响应速度，数据量大，要求响应速度还快，这时候要求不仅模型特别准，而且还要特别快，怎么解决就是模型蒸馏，
+   - phrase 1: 判断问题是否可能有答案（文本分类），过滤完是可能有答案的，再与数据库中进行匹配，因为大部分输入框的不一定是个问题，这样过滤掉一部分，排除掉一部分后，在做匹配就能得到很大的提升，提升还是不够
+  第一部分其实是文本分类，通过小规模的标注特征数据进行微调，得到一个好的模型，同时日志上是有很多没有标注的数据，用ernie对这些数据进行很好的标注，用一个更好的模型去标注数据，用这些标注数据训练相对简单的模型，就实现了蒸馏，ernie处理速度慢，但是可以用题海战术的方式训练简单的模型。具体步骤：
+   一个很优秀的老师，学一点东西就能够带学生了，但是学生模型不够聪明，海量的题海战术就可以学很好。
+      1. Fine-tune：使用少量的人工标注的数据用ERNIE训练
+      2. label propagation：使用Ernie标注海量的挖掘数据，得到带标注的训练数据
+      3. train：使用这些数据下去训练一个简单的模型或者采用模型蒸馏的方式，参考TinyBERT。
+   - phrase 2: 有答案与答案库进行各种各样的匹配（文本匹配）同理，下面问题匹配也是，右边也是query和答案，然后经过embedding，加权求和，全连接，最后计算他们之间的预选相似度，可以是余弦相似度。召回提升7%
+
+
+- 场景：百度视频离线推荐
+推荐场景：是可以提前计算好，保存好的，可变的比较少，视频本身就是存好的，变化量不会很大，更新也不会特别频繁，离线把相似度计算好，保存起来就可以，两两计算之间的相似度计算量是非常大的，
+那么怎么减少计算量呢？使用了一个技术叫离线向量化，离线把视频和视频的相似度算好，然后存入数据库
+  N个视频俩俩计算 $O(N^2)$ 100万？
+   - 采用了离线向量化（双塔模型）
+   用户看的视频经过一个ERNIE 得到一个向量
+   候选集通过另外一个ERNIE（共享权重），得到一个向量，计算相似度
+   O(N)计算，之后再俩俩计算cos
+
+## 使用
+
+- clone https://github.com/PaddlePaddle/ERNIE
+- pip install -r requirements.txt
+- cd models
+
+  `wget --no-check-certificate https://baidu-nlp.bj.bcebos.com/ERNIE_stable-1.0.1.tar.gz`
+- cd ..
+ download traindata
+`wget --no-check-certificate https://ernie.bj.bcebos.com/task_data_zh.tgz`
+
+- run.sh
+```Shell
+  home=YOUR_ERNIE_PATH
+  export TASK_DATA_PATH=$home/glue_data_processed/
+  export MODEL_PATH=$home/model/
+
+  export TASK_DATA_PATH=/Users/huangdongxiao2/CodeRepos/SesameSt/ERNIE/ernie/task_data/
+  export MODEL_PATH=/Users/huangdongxiao2/CodeRepos/SesameSt/ERNIE/ernie/ERNIE_stable-1.0.1/
+
+  sh script/zh_task/ernie_base/run_ChnSentiCorp.sh
+```
+
+
+structure-aware tasks and semantic-aware tasks
+
+反思：- 没有 Ablation Studies，不能确定堆叠task能不能提升，有可能像是NSP这样的任务，其实是起反作用的
+还有就是持续学习的方法是不是有更优的解？毕竟这样子当任务达到很多的时候，内存数据需要很大，Elastic Weight Consolidation方式？
+
+## ref
+- [ERNIE: Enhanced Representation through Knowledge Integration](https://arxiv.org/pdf/1904.09223)
+- [ERNIE 2.0: A Continual Pre-Training Framework for Language Understanding](https://arxiv.org/pdf/1907.12412.pdf)
+- [baidu offical video](http://abcxueyuan.cloud.baidu.com/#/play_video?id=15076&courseId=15076&mediaId=mda-jjegqih8ij5385z4&videoId=2866&sectionId=15081&showCoursePurchaseStatus=false&type=免费课程) 非常有用
+- [Life long learning](https://www.youtube.com/watch?v=8uo3kJ509hA)
+- [【NLP】深度剖析知识增强语义表示模型：ERNIE](https://mp.weixin.qq.com/s/Jt-ge-2aqHZSxWYKnfX_zg)
+
+
+# ERNIE - 清华/华为
+[ERNIE: Enhanced Language Representation with Informative Entities](https://www.aclweb.org/anthology/P19-1139.pdf) 提出了将知识显性地加入到BERT中。值得注意的是，百度也出了名为ERNIE的模型，且影响力更大，但是百度的知识是通过MASK的方式隐性的加入的。
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/cb2c0bae11b10540bf2edff4b9890be1.png)
+
+清华ERNIE的模型通过更改模型结构，将知识和语言语义信息融合，增强了语义的表示，在知识驱动的任务中取得了显著的成功。这个模型的结构给我的感觉是和华为的ZEN很类似，但是目前看效果是没有华为的ZEN好，ZEN采用的是将N-gram而不是Entity加入到模型中，以及融合的时候也有区别。
+
+那么我们如何将文本信息中的知识提取出来，然后再将这些知识和BERT的上下文语义embedding进行结合，这就是本文主要需要解决的问题。
+key point：
+- 首先提取输入文本的named entity，经过构造KG，然后通过TransE的方式将named entity进行embedding，经过Knowledge Encoder of ERNIE，得到的结果和 Text Encoder of Ernie进行align，再经过信息融合，得到两种输出，Token output以及Entity output。
+- 目标函数有MLM，NSP以及针对Kg制定的mask entity prediction
+
+## Model Architecture
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/92fe3389a2e32167358a98374c6cecad.png)
+模型主要有两种Encoder组成，分别是T-Encoder以及K-Encoder。
+其中T-Encoder主要是进行输入文本的encoder，提取的是词法以及语义的信息。共N层。
+而K-Encoder主要进行的是知识entity的embedding以及知识融合。共M层
+
+输入文本 ${w_1, ..., w_n}$ (均为subword level）, entity embedding ${e_1, ..., e_m}$, 其中m往往小于n。
+
+其中entity embedding使用的是transE embedding，即构建（H，R，T）, 模型得到对应的relation embedding以及entity embedding。
+- TransE
+  > ![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/525bc484f96c1f336aa904a9184b11c1.png)
+  TransE
+  Title：Translating Embeddings for Modeling Multi-relational Data（2013）
+  This is the first work of the translation model series. The basic idea of this model is making the sum of the head vector and relation vector as close as possible with the tail vector. Here we use L1 or L2 norm to measure how much they are close.
+
+  >The loss function is the max-margin with negative sampling.
+  $L(y, y’) = max(0, margin -y + y’)$
+  y is the score of a positive sample, and y' is the score of a negtive sample. Minimizing this loss function score. It is enough that the difference between the two scores is as large as margin (we set this value, usually is 1).
+  Because we use distance to represent the score, so we add a minus to the equation, the loss function for knowledge representation is: $L(h,r,t) = max( 0, d_{pos} - d_{neg} +margin)$
+
+  > And d is: $||h+r-t||$
+
+  > This is the L1 or L2 norm. As for how to get the negative sample is replacing the head entity or tail entity with a random entity in the triple.
+  See the code:
+  ![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/955b4d96a24b2b4da122b0ed9adea0ab.png)
+
+  > Using embedding_lookupget the vector of the head, relation, tail, and calculate the distance between (head, relation) and tail.
+  But this model only can take care with one-to-one relation, not suitable for one-to-many/many-to-one relation, for example, there is two knowledge, (skytree, location, tokyo) and (gundam, location, tokyo). After training, the 'sky tree' entity vector will be very close with 'gundam' entity vector. But they do not have such similarity in real.
+
+模型主要的作用:
+\begin{equation}
+{\omega _1, ..., \omega_n} = T-Encoder({w_1, ..., w_n}) \tag1
+\end{equation}
+\begin{equation}
+\{\omega _1 ^o, ..., \omega_n ^o\}, \{e_1^o, ..., e_m^o\}= K-Encoder(\{\omega _1, ..., \omega_n\}, \{e_1, ..., e_m\}) \tag2
+\end{equation}
+
+## Structured Knowledge Encoding（Knowledge Encoder）
+对于一句话的输入，例如
+> bob dylan wrote Blowin' in the wind
+
+首先提取出模型中的的entities，`bob dylan` 和 `Blowin' in the wind`作为entities
+
+注意这边的进行了token embedding以及entity embedding的multi-head self-attentions（MH-ATTs）。
+
+\begin{equation}
+\begin{split}
+\{\tilde w_1^{(i)}, . . . , \tilde w_n^{(i)}\} = MH-ATT(\{w_1^{(i−1)}, . . . , w_n^{(i−1)}\}), \\
+\{\tilde e_1^{(i)}, . . . , \tilde e_n^{(i)}\} = MH-ATT(\{e_1^{(i−1)}, . . . , e_n^{(i−1)}\})
+\end{split}
+\tag3
+\end{equation}
+
+在这之后第i个aggregator采用了information fusion layer将两个信息进行了融合，这边不是采用简单的向量相加得到一个向量，而是先combine后divide的方式，分别得到新的token embedding以及entity embedding。（2层的dense）
+
+\begin{equation}
+\begin{split}
+h_j &= \sigma (\tilde W_t^{(i)} \tilde \omega _j ^{(i)} + \tilde W_e^{(i)} \tilde e _k ^{(i)} + \tilde b^{(i)}) \\
+\omega _j {(i)} &= \sigma(W_t ^{(i)} h_j + b _t ^{(i)},\\
+e_k ^{(i)} &= \sigma( W_e ^{(i)} h_j + b_e ^{(i)}
+\end{split}
+\tag4
+\end{equation}
+
+其中$e_k = f(w_j)$, 指的是一个token $w_j$ 和它aligned的entity $e_k$，这边的aignment函数是指的是entity的首个token进行align。
+
+对于没有对应的entity的token，information infusion layer的输出就是两层的dense，跟正常一样。
+
+\begin{equation}
+\begin{split}
+h_j &= \sigma (\tilde W_t^{(i)} \tilde \omega _j ^{(i)} + \tilde b^{(i)}) \\
+\omega _j {(i)} &= \sigma(W_t ^{(i)} h_j + b _t ^{(i)}
+\end{split}
+\tag5
+\end{equation}
+
+
+## Pretraining for Injecting Knowledge
+为了更好的训练模型，ERNIE提出了一种denoising entity auto-encoder（dEA），主要的做法是随机mask一些token-entity alignments 然后要模型根据aligned tokens $w_i$去预测entities $e_k$。
+
+\begin{equation}
+\begin{split}
+p(e_j|w_i) = \frac {exp(linear(w_i^o)· e_j))} {\sum _{k=1} ^m exp(linear(w_i^o)·e_k)}
+\end{split}
+\tag7
+\end{equation}
+
+考虑到有可能存在错误的token-entity alignmnent，具体操作
+- 5%的时间，对于一个token-entity alignmnent，随机替换entity，让模型预测正确的entity
+- 15%的时间，随机mask掉 token-entity alignmnents，让模型去正确预测token-entity alignment。
+- 剩下的时间，token-entity alignmnents不变，让模型将知识进行融合。
+
+## Fine-tuning for Specific Tasks
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/becc5d77c2a9b96563cbd73596fe808d.png)
+对于普通的分类任务，采用的仍然是[CLS]作为输出
+对于knowledge driven的任务，比如说
+- relation classification
+增加[ENT] token
+- entity typing
+增加[HD][TL] token
+
+## 限制
+依赖于NER提取的准确度
+模型复杂度过高
 - https://zhuanlan.zhihu.com/p/69941989
 
 ### 把英文字变成中文词
@@ -1094,12 +1435,212 @@ clf_logits, clf_losses, lm_losses = model(*xs, train=True, reuse=do_reuse)
 
 
 
-# Uni-LM
+# UniLM
+[Uniﬁed Language Model Pre-training for Natural Language Understanding and Generation](https://arxiv.org/pdf/1905.03197.pdf)
+
+本文提出了采用BERT的模型，使用三种特殊的Mask的预训练目标，从而使得模型可以用于NLG，同时在NLU任务获得和BERT一样的效果。
+模型使用了三种语言模型的任务：
+- unidirectional prediction
+- bidirectional prediction
+- seuqnece-to-sequence prediction
+
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/2a9759231d687d84837323bb10a42d32.png)
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/9656e64fac234093e645304953c95cdf.png)
+
+## Unidirectional LM
+$x_1x_2\ [MASK]\ x_4$ 对于MASK的预测，只能使用token1和token2以及自己位置能够被使用，使用的就是一个对角矩阵的。同理从右到左的LM也类似。
+
+## Bidirectional LM
+对于双向的LM，只对padding进行mask。
+
+## Seq2Seq LM
+在训练的时候，一个序列由`[SOS]S_1[EOS]S_2[EOS]`组成，其中S1是source segments，S2是target segments。随机mask两个segment其中的词，其中如果masked是source segment的词的话，则它可以attend to 所有的source segment的tokens，如果masked的是target segment，则模型只能attend to 所有的source tokens 以及target segment 中当前词（包含）和该词左边的所有tokens。这样的话，模型可以隐形地学习到一个双向的encoder和单向decoder。（类似transformer）
+
+
+## 实现细节
+- Span mask
+- 总的loss 是三种LM的loss之和
+- 我们在一个训练的batch中，1/3的时间训练bidirection LM，1/3的时间训练sequence-to-sequence LM objective， 1/6的时间训练left-to-right 和 1/6的时间训练 right-to-left LM
+
+## Finetune
+- 对于NLU的任务，就和BERT一样进行finetune。
+- 对于NLG的任务，S1:source segment， S2: target segment， 则输入为“[SOS] S1 [EOS] S2 [EOS]”. 我们和预训练的时候一样也是随机mask一些span，目标是在给定的context下最大化我们的mask的token的概率。值得注意的是[EOS], which marks the end of the target sequence,也是可以被masked，因为这样可以让模型学习到什么时候生成[EOS]这样可以标志文本生成的结束。
+  - abstractive summarization
+  - question generation
+  - generative question answering
+  - dialog response generation)
+  使用了label smooth和 beam search
+
+
+很不错的论文，但是没有ablation studies， 也有很多需要改进的方向，但是已经很不错了，我对NLG认识不多，但是学到了不少，里面很多引用我都需要学习一下（TODO）
+代码： [repo](<https://github.com/microsoft/unilm>)
+
+
+
 
 ![](../../../../Desktop/PPT/Uni-LM.jpg)
 
-# XLNet
+# XLNET
+[XLNET](https://arxiv.org/pdf/1906.08237.pdf) 采用的是transformer-XL的encoder，采用了的是auto regressive的语言模型，而为了加上双向的信息，采用了输入序列的permutation，但是如果再输入的时候就做permutation，那占用的空间非常大，所以采用了特殊的two-stream self-attention来模拟permutation的作用。
 
+论文感觉不简单，需要多读几遍才能彻底理解。
+## 改进思路
+- 首先 auto regressive是指的是模型预测下一个词的语言模型。
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/bbaf62600286dc8617201d2a09e718bc.png)
+  其主要的优点在于：
+    - 可以用来生成句子做NLG任务
+    - 考虑到了邻近词间的相关性
+    - 无监督
+
+  但是其的缺点也很明显：
+    - 单向
+    - 离得近未必有关系
+
+
+- BERT采用的是Auto Encoding的方式，主要采用的预测Masked words，用的是没有被masked的hidden output来预测masked 词
+  ![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/115ed223ae33585fa5cab43338dff19f.png)
+  其主要的优点在于：
+    - 双向，pretraining+finetuning
+
+  缺点：
+    - 预训练和fine-tuning之间mask具有discrepancy，fine-tune 阶段没有[MASK]
+    - BERT假设的是MASK词之间是独立的，比如[NEW YOR IS A CITY], mask 之后是[MASK MASK IS A CITY], 两个MASK词之间没有关系。（但是这个不能算是缺点，因为证明这样效果也不错）
+
+- 改进思路：
+  - bert 基础上+改进使之能够生成（UniLM）
+  - LM基础+改进(XLNET)
+    - [NADE](http://proceedings.mlr.press/v15/larochelle11a/larochelle11a.pdf)(双向能力)
+    - TRANSFORMER XL
+
+最后模型具备了具备生成能力，拥有了双向的信息，同时又可以进行pretraining+fintuning，且两阶段之间没有mismatch。
+
+## LM怎么考虑到上下文（左右）
+
+联合概率
+- bayese network(有依赖关系）
+$P(w_1 w_2 w_3 w_4 w_5) =  P(w_1)P(w_2|w_1)P(w_3|w_1)P(w_4|w_2 w_3)P(w_5|w_4)$
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/e47a255bde5e108bcd04e5939598b2f8.png)
+- HMM（我不知道依赖关系，我靠的是假设）
+$P(w_1 w_2 w_3 w_4 w_5) =  P(w_1)P(w_2|w_1)P(w_3|w_1 w_2)P(w_4|w_1 w_2 w_3)P(w_5|w_1 w_2 w_3 w_4)$
+$P(w_1 w_2 w_3 w_4 w_5) = P(w_2 w_1 w_3 w_4 w_5) = P(w_2)P(w_1|w_2)P(w_3|w_2 w_1)P(w_4|w_2 w_1 w_3)P(w_5|w_2 w_1 w_3 w_4)$
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/27f25099b9aab55e3c787b7f724f84ce.png)
+这五个变量，可以有permutation的表示，这五个变量是没有关系的
+思路是来自于 [NADE](http://proceedings.mlr.press/v15/larochelle11a/larochelle11a.pdf)的文章
+
+
+当permutation 考虑完，相当于考虑到了单词的上下文。
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/fa704e8d083bc17bccd33f98f0558143.png)
+（4!=24个不同的独立语言模型）
+最大期望 Expectation， 每个语言模型的权重如果是uniform的分布的话是 $\frac 1{n!}$
+\begin{equation}
+max\ _{\theta} \ E_{z∼Z_T}[ \sum _{t=1} ^{T} log p_θ(x_{z_t}| x_{z<t})]
+\end{equation}
+对于两个token的序列，有两种情况，分别是$w_1 w_2$（1），$w_2 w_1$（2）
+对于同一个训练的example，后面的是不会看到前面的，即（1）中$w_2$ 看不到$w_1$, 即（2）中$w_1$ 看不到$w_2$
+但是在这个模型中，不同的训练example间，是可能看到之前的token的，例如在整个训练过程中$w_1$互相看到了$w_2$。这个是无所谓的，这就好像是BERT中，同一条训练数据，mask不同的值。
+
+最大的目标是考虑了所有n!种可能$Z_T$，找到一组模型的参数使得所有的序列的auto regression期望最大。
+即：
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/a543969047d3fd5dbb79fa7e63dcb245.png)
+但是这种方式的计算量非常大，特别是对于N很大的序列，我们可以采取的是采样以及对于每一种permutation（i.e. LM） 都是对于有的位置信息量很足有的信息量进行预测：
+- 抽样 permutation （对于permutation的组合）
+- predict last few tokens instead of all （对于一个组合中的序列）
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/5569e673f9c0a813f9856233d37610b0.png)
+
+可以改进：
+1. 采样的优化
+  如何选择最好的permutation？
+2. expecation的优化，目前采用的是union的期望。
+
+## TransformerXL
+- ADD Memory
+- Relative Position Encoding
+具体参照TransformerXL的笔记。
+
+## 2-stream self-attention
+
+### Naive implementation
+在实现的时候，直接使用softmax进行next token prediction$p_\theta(X_{z_t} |x_{z<t})$ 其中
+$z_t$: 代表的是要预测的位置
+$x_{z<t}$: 代表的是当前要预测的位置之前的信息
+\begin{equation}
+p_\theta(X_{z_t} |x_{z<t}) = \frac {exp(e(x)^T h_{\theta} (x_{z<t}) } { \sum _{x'} exp(e(x')^T h_{\theta} (x_{z<t}) }
+\end{equation}
+在这种naive的实现中，并没有考虑到要预测的token的位置信息$z_t$, 所以对于导致不同位置的预测结果一样。
+例如：
+序列的2个permutation：
+1，2，4，3
+1，2，3，4
+我们要根据1，2预测下一个值
+分别得到：
+
+\begin{equation}
+\begin{split}
+（1） = p_\theta(X_{z_4} |x_{z<4}) = \frac {exp(e(x)^T h_{\theta} (x_{z<4}) } { \sum _{x^{\prime} } exp(e(x^{\prime} )^T h_{\theta} (x_{z<4}) }\\
+（2） = p_\theta(X_{z_3} |x_{z<3}) = \frac {exp(e(x)^T h_{\theta} (x_{z<3}) } { \sum _{x^{\prime} } exp(e(x^{\prime} )^T h_{\theta} (x_{z<3}) }
+\end{split}
+\end{equation}
+
+但是（1）= (2)，但是这两个token的位置并不相同。所以这种会导致问题构造的失败。
+
+
+### 2-stream include position info
+
+XLNET为了解决这个问题，将 $h_{\theta} (x_{z<t}) $ 引申为 $g_{\theta} (x_{z<t}, z_t) $，加入了位置信息。为此改变了模型结构。
+\begin{equation}
+p_\theta(X_{z_t} |x_{z<t}) = \frac {exp(e(x)^T g_{\theta} (x_{z<t}, z_t) } { \sum _{x^{\prime} } exp(e(x^{\prime} )^T g_{\theta} (x_{z<t}, z_t) }
+\end{equation}
+
+其中$g_{\theta} (x_{z<t}, z_t) $的作用是，利用$z_t$的位置信息，结合内容信息$x_{z<t}$ 预测下个词。
+
+我们并不是直接将输入进行permutation之后再传入模型的，而是将正常顺序的输入传入模型。但是我们希望进行模型的并行计算，同时模拟出permutation的效果，即能够产生不同的mask，并且我们需要模型的预测是根据当前位置以及之前的输入得到的。
+
+所以我们需要的是self-attention进行并行计算，对于permutation的模拟，采用的是attention的mask矩阵，但是我们如何模拟attend to position但是不attend to 它的context呢，XLNET采用的是2-stream self-attention，即将输入分为$h_i^l$ 和$g_i^l$， $h_i^l$关注的是context的值，$g_i^l$关注的是query的值
+
+- context stream 就和普通的self-attention一样编码的是内容信息，但是是基于lookahead的mask 策略，即只能看到自己以及之前位置的内容信息。
+- query stream 编码的是位置信息，可以看到自己的**位置**信息，还有**之前的内容信息**但是不能看到自己的内容信息。
+
+对于顺序为3 —> 2 —>  4 —> 1来说，它的attention masks是以下的情况，这边mask对应的都是content的embedding。就拿位置为2的token来说，它的content stream只能看到3以及2的content embedding，（即第二行的2，3为填充），而对于query stream来说，它只能根据之前的content embedding即3位置上的content作出判断（G_2只有第三个位置有填充）。当然它还可以看到自己当前的位置作为依据，但是这个matrix是指的是content embedding的mask，即为涂上的$h_k$。
+  ![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/e16b8a17c884c9809ba08bf74393bfe3.png)
+
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/fb01e156520c561ae8a9df19546cb4bc.png)
+\begin{equation}
+g_{z_t} ^m = Attention(Q=g_{z_t} ^{m-1}, KV = h_{z<t}^{m-1};\theta) \ (query\ stream: 使用了z_t但是不能看到x_{z_t}\\
+h_{z_t} ^m = Attention(Q=h_{z_t} ^{m-1}, KV = h_{z \leq t}^{m-1};\theta) \ (content\ stream: 使用了z_t和x_{z_t})
+\end{equation}
+
+但是$g_{z_t} ^m$ 可以获得$g_{z_t} ^{m-1}$ 的信息，并且最后的输出是根据$g_{z_t} ^m$预测的。
+
+注意，这边的采用的是partial prediction：
+即不预测所有的token，而是只预测这些permutation sequence的最后几个tokens，因为这样子能保证这些tokens获得的前面的信息足够多。
+
+## 实现细节
+- 双向输入
+> Since the recurrence mechanism is introduced, we use a bidirectional data input pipeline where each of the forward and backward directions takes half of the batch size.
+
+- span prediction
+- 去掉NSP
+- 更多数据
+http://fancyerii.github.io/2019/06/30/xlnet-theory/#two-stream-self-attention-for-target-aware-representations
+
+
+http://fancyerii.github.io/2019/06/30/xlnet-theory/
+这个code好难啊我现在还看不太懂
+目前只看到了生成Pretraining的数据这一部分（第一部分）
+
+## Ablation studies
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/d17f342dbf2abf6ba3af5fd84a738ae8.png)
+
+但是最后RoBERTa发现其实BERT还是比XLNET强，但是XLNET的里面的很多思想都是被其他使用的例如no NSP，例如Span prediction，总的来说这是一个超棒的paper。
+
+# Ref
++ https://www.bilibili.com/video/av73657563?p=2
++ https://arxiv.org/pdf/1906.08237.pdf
++ https://blog.csdn.net/u012526436/article/details/93196139
++ http://www.emventures.cn/blog/recurrent-ai-cmu-xlnet-18-nlp
 + https://indexfziq.github.io/2019/06/21/XLNet/
 + https://blog.csdn.net/weixin_37947156/article/details/93035607
 
@@ -1157,6 +1698,440 @@ model = Doc2Vec(dm=1, size=100, window=5, negative=5, hs=0, min_count=2, workers
 + Demo: Loads the newly created glove_model.txt into gensim API.
 + model=gensim.models.Word2Vec.load_word2vec_format(' vectors.txt',binary=False) #GloVe Model
 
+# SpanBERT
+[SpanBERT: Improving Pre-training by Representing and Predicting Spans](https://arxiv.org/pdf/1907.10529.pdf)
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/349ef38270b757cf7c6ba5d42cb58630.png)
+- 没有segment embedding，只有一个长的句子，类似RoBERTa
+- Span Masking
+- MLM+SBO
+
+意义：提出了为什么没用NSP更好的假设，因为序列更长了。以及提出了使用更好的task能带来明显的优化效果
+## Span Masking
+
+文章中使用的随机采样，采用的span的长度采用的是集合概率分布，长度的期望计算使用到了（等比数列求和，以及等比数列和的差等，具体可以参考知乎）
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/27f8c30006751679044747ee75bf469b.png)
+
+mask的采用的是span为单位的。
+
+不同的MASK方式
+- Word piece
+- Whole Word Masking（BERT-WWM， ERNIE1.0）
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/9cd5ce46ba99939e3d6b43729ab2d2ba.png)
+- Named Entity Masking（ERNIE1.0）
+- Phrase Masking（ERNIE1.0）
+- random Span
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/cf780e2456617cef11bcab47df7a2d2d.png)
+
+实验证明 random Span的效果要好于其他不同的span的策略。但是单独的验证并不能够证明好于几种策略的组合（ERNIE1.0 style）。而且ERNIE1.0只有中文模型。但是这个确实是一个非常厉害的结论。
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/d8008383ea6c5a14649ed8dd71dc5323.png)
+
+## W/O NSP W/ Span Boundary Objective(SBO)
+### SBO
+Span Boundary Objective 使用的是被masked 的span 的左右边界的字（未masked的）以及被mask的字的position，来预测当前被mask的词。
+
+- $x_i$: 在span中的每一个 token 表示
+- $y_i$: 在span中的每一个 token 用来预测 $x_i$的输出
+- $x_{s-1}$: 代表了span的开始的前一个token的表示
+- $x_{e+1}$: 代表了span的结束的后一个token的表示
+- $ p_i$: 代表了$x_i$的位置
+
+  $y_i = f(x_{s-1}, x_{e+1}, p_i)$
+其中$f(·)$是一个两层的feed-foreward的神经网络 with Gelu 和layer normalization
+\begin{equation}
+h = LayerNorm(GeLU(W_1[x_{s-1};x_{e+1};p_i]))\\
+f(·) = LayerNorm(GeLU(W_2h)
+\end{equation}
+
+
+Loss：
+\begin{equation}
+Loss = L_{MLM} + L_{SBO}
+\end{equation}
+
+SBO：对于span的问题很有用例如 extractive question answering
+
+### Single-Sentence training
+为什么选择Single sentence而不是原本的两个sentence？
+- 训练的长度更大
+- 随机选择其他文本的输入进来作为训练增加了噪声
+- Albert给出了原因，是因为NSP太简单了，只学会了top 的信息，没学会句子之间顺序SOP的信息。
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/37d51aa8fc56b92d80065002d00fbcd6.png)
+
+## ref
+[SpanBERT zhihu](https://zhuanlan.zhihu.com/p/75893972)
+[SpanBERT: Improving Pre-training by Representing and Predicting Spans](https://arxiv.org/pdf/1907.10529.pdf)
+
+# RoBERTa
+论文原文：[Roberta](https://arxiv.org/pdf/1907.11692.pdf)
+
+[项目主页中文](https://github.com/brightmart/roberta_zh), 作者表示，在本项目中，没有实现 dynamic mask。
+[英文项目主页](https://github.com/pytorch/fairseq)
+
+从模型上来说，RoBERTa基本没有什么太大创新，主要是在BERT基础上做了几点调整：
+1）训练时间更长，batch size更大，训练数据更多；
+2）移除了next predict loss；
+3）训练序列更长；
+4）动态调整Masking机制。
+5) Byte level BPE
+RoBERTa is trained with dynamic masking (Section 4.1), FULL - SENTENCES without NSP loss (Section 4.2), large mini-batches (Section 4.3) and a larger byte-level BPE (Section 4.4).
+
+
+## 更多训练数据/更大的batch size/训练更长时间
+- 原本bert：BOOKCORPUS (Zhu et al., 2015) plus English W IKIPEDIA.(16G original)
+  + add CC-NEWS(76G)
+  + add OPEN WEB TEXT(38G)
+  + add STORIES(31G)
+
+- 更大的batch size
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/26b1fe81820b38e2633bfc96200188c0.png)
+- 更长的训练时间
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/fe481510d79be5632e8ce742ca4dec9a.png)
+
+### Dynamic Masking
+- static masking: 原本的BERT采用的是static mask的方式，就是在`create pretraining data`中，先对数据进行提前的mask，为了充分利用数据，定义了`dupe_factor`，这样可以将训练数据复制`dupe_factor`份，然后同一条数据可以有不同的mask。注意这些数据不是全部都喂给同一个epoch，是不同的epoch，例如`dupe_factor=10`， `epoch=40`， 则每种mask的方式在训练中会被使用4次。
+  > The original BERT implementation performed masking once during data preprocessing, resulting in a single static mask. To avoid using the same mask for each training instance in every epoch, training data was duplicated 10 times so that each sequence is masked in 10 different ways over the 40 epochs of training. Thus, each training sequence was seen with the same mask four times during training.
+- dynamic masking: 每一次将训练example喂给模型的时候，才进行随机mask。
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/dbf433fe8fbca51b79cb500dafd20b23.png)
+
+
+## No NSP and Input Format
+NSP: 0.5:从同一篇文章中连续的两个segment。0.5:不同的文章中的segment
+- Segment+NSP：bert style
+- Sentence pair+NSP：使用两个连续的句子+NSP。用更大的batch size
+- Full-sentences：如果输入的最大长度为512，那么就是尽量选择512长度的连续句子。如果跨document了，就在中间加上一个特殊分隔符。无NSP。实验使用了这个，因为能够固定batch size的大小。
+- Doc-sentences：和full-sentences一样，但是不跨document。无NSP。最优。
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/763c1ccf113e15665b1cdee0fbd643b9.png)
+
+## Text Encoding
+BERT原型使用的是 character-level BPE vocabulary of size 30K, RoBERTa使用了GPT2的 BPE 实现，使用的是byte而不是unicode characters作为subword的单位。
+> learn a subword vocabulary of a modest size (50K units) that can still encode any input text without introducing any “unknown” tokens.
+
+zh 实现没有dynamic masking
+```Python
+    instances = []
+    raw_text_list_list=get_raw_instance(document, max_seq_length) # document即一整段话，包含多个句子。每个句子叫做segment.
+    for j, raw_text_list in enumerate(raw_text_list_list): # 得到适合长度的segment
+        ####################################################################################################################
+        raw_text_list = get_new_segment(raw_text_list) # 结合分词的中文的whole mask设置即在需要的地方加上“##”
+        # 1、设置token, segment_ids
+        tokens = []
+        segment_ids = []
+        tokens.append("[CLS]")
+        segment_ids.append(0)
+        for token in raw_text_list:
+            tokens.append(token)
+            segment_ids.append(0)
+        tokens.append("[SEP]")
+        segment_ids.append(0)
+        ################################################################################################################
+        # 2、调用原有的方法
+        (tokens, masked_lm_positions,
+         masked_lm_labels) = create_masked_lm_predictions(
+            tokens, masked_lm_prob, max_predictions_per_seq, vocab_words, rng)
+```
+
+## ref
+[RoBERTa 模型调用](https://mp.weixin.qq.com/s/K2zLEbWzDGtyOj7yceRdFQ)
+[模型调用](https://mp.weixin.qq.com/s/v5wijUi9WgcQlr6Xwc-Pvw)
+[知乎解释](https://zhuanlan.zhihu.com/p/75987226)
+
+# structBERT
+[StructBERT: Incorporating Language Structures into Pre-training for Deep Language Understanding](https://arxiv.org/pdf/1908.04577)
+StructBERT是阿里在BERT改进上面的一个实践，模型取得了很好的效果，仅次于ERNIE 2.0, 因为ERNIE2.0 采用的改进思路基本相同，都是在pretraining的时候，增加预训练的obejctives。
+
+首先我们先看看一个下面英文和中文的两句话：
+`i tinhk yuo undresatnd this sentneces.`
+
+`研表究明，汉字序顺并不定一影阅响读。比如当你看完这句话后，才发这现里的字全是都乱的`
+
+注意：上面的两个句子都是乱序的！
+
+这个就是structBERT的改进思路的来源。对于一个人来说，字的或者character的顺序不应该是影响模型效果的因素，一个好的LM 模型，需要懂得自己纠错！
+
+此外模型还在NSP的基础上，结合ALBERT的SOP，采用了三分类的方式，预测句子间的顺序。
+
+这两个目标的加入，将句子内的结构word-level ordering，以及句子间sentence-level ordering的结构加入了BERT模型中，使得模型效果得到提升。
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/df581b944aa1909d3134e3ff7dbdbdc6.png)
+
+## Word Structural Objective
+输入的句子首先先按照BERT一样mask15%，（80%MASK，10%UNMASK，10%random replacement）。
+
+\begin{equation}
+argmax_\theta \sum logP(pos_1 = t1, pos_2 = t_2, ..., pos_K= t_K | t_1, t_2, ..., t_K)
+\end{equation}
+
+给定subsequence of length K， 希望的结果是把sequence 恢复成正确顺序的likelihood最大。
+- Larger K，模型必须要学会reconstruct 更多的干扰数据，任务比较难，但是噪声多
+- Smaller K，模型必须要学会reconstruct 较少的干扰数据，可能这个任务就比较简单
+
+论文中使用的是K=3，这个任务对单个句子的任务效果比较好。
+## Sentence Structural Objective
+一个句子pair $(S_1, S_2)$，执行三种任务
+- 1/3的时候：$(S_1, S_2)$是上下句，分类为1
+- 1/3的时候：$(S_2, S_1)$是上下句反序，分类为2
+- 1/3的时候：$(S_1, S_{random})$是不同文档的句子，分类为3
+这个任务对句子对的任务效果好。
+
+## Ablation Studies
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/eb2271cd115c90cfcbd071404176410b.png)
+前三个任务 single-sentence： 主要需要 word structure objective
+后三个任务 sentence-pair ：主要需要 sentence structure objective
+
+# NEZHA
+[NEZHA](https://arxiv.org/pdf/1909.00204.pdf) 就是一个针对中文预训练模型的一个整合报告。它首次将函数型的相对位置编码加入了模型中。其实文章中的实作经验就是多篇论文的整合，模型得到了不错的效果，目前应该是仅次于[ZEN](https://arxiv.org/abs/1911.00720)和[ERNIE 2.0: A Continual Pre-Training Framework for Language Understanding](https://arxiv.org/pdf/1907.12412.pdf) 百度ERNIE2.0。
+
+文章的意义主要在于，他提供了多个训练的技巧。
+
+## Functional Relative Position Encoding
+- [Self-Attention with Relative Position Representations](https://arxiv.org/pdf/1803.02155.pdf)提出了相对位置排序，但是这个是基于parametric的方式。（PRPE）
+  >文章中引入了两个位置相关的向量，量：$a _ { i j } ^ { V } , a _ { i j } ^ { K } \in \mathbb { R } ^ { d _ { z } }$，之所以采用$d_a$维向量的表示形式，主要是为了套用原来self-attention的计算公式， 因为$xW$的维度是这个。$a _ { i j } ^ { V } , a _ { i j } ^ { K }$ 是在所有的attention layer中共享的。
+
+  > 在引入了这两个相对位置信息向量之后：
+  \begin{aligned}
+  e _ { i j } &= \frac { \left( x _ { i } W ^ { Q } \right) \left( x _ { j } W ^ { K } + a ^ { K } _ {i j } \right) ^ { T } } { \sqrt { d _ { z } } } \\
+  \alpha _ { i j } &= \frac { \exp e _ { i j } } { \sum _ { k = 1 } ^ { n } \exp e _ { i k } } \\
+  z _ { i } &= \sum _ { j = 1 } ^ { n } \alpha _ { i j } \left( x _ { j } W ^ { V } + a _ {i j} ^ { V } \right)\\ \tag{$1$}
+  \end{aligned}
+
+- [Attention Is All You Need](https://arxiv.org/pdf/1706.03762) 提出的方式是Functional Absolute Position Encoding（FAPE）。文章没对比，但是这个在BERT中证明和PAPE效果差不多。
+  > 这边的函数使用的是正弦位置编码：
+  \begin{equation}
+  PE(pos, k)=\left\{
+  \begin{aligned}
+  sin(\frac {pos}{10000^{\frac {k}{d_{model}}}}) &  & if \ k 是偶数 \ k>=0 \\
+  cos(\frac {pos}{10000^{\frac {k-1}{d_{model}}}}) &  & if \ k 是奇数 \ k>=1
+  \end{aligned}
+  \right.
+  \end{equation}
+
+  > - $d_{model}$指的是模型输出的embedding size, 每个attention的hidden size（ie. total hidden size/ number of head)
+  > - pos 代表是字在序列中的位置
+  > - $k$代表的是position embedding 之后的第$k$维，即$[pe_0,...,pe_k,.. pe_n]$
+    这个公式比较具有迷惑性，特别是论文中的写法，结合例子就比较好理解了，如pos=3,d(model)=128,那么3对应的位置向量如下：
+    $[sin(\frac 3{10000^{\frac {0}{128}}}), cos(\frac 3{10000^{\frac {0}{128}}}), sin(\frac 3{10000^{\frac {2}{128}}}), cos(\frac 3{10000^{\frac {2}{128}}}), sin(\frac 3{10000^{\frac {4}{128}}}), cos(\frac 3{10000^{\frac {4}{128}}})...]$
+    ![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/1aae8e9924d01206a740726bd88b1b01.png)
+
+- [BERT（**B**idirectional **E**ncoder **R**epresentations from **T**ransformers）](https://arxiv.org/pdf/1810.04805.pdf) 使用的是Parametric Absolute Position Encoding的方式。（PAPE）
+即直接将[1,2,3...Max_leng] 经过position embedding lookup得到embedding。
+
+- 本文采用的是Funcional Relative Position Encoding（FRPE）
+  \begin{equation}
+  a_{ij}(j-i, k)=\left\{
+  \begin{aligned}
+  sin(\frac {j-i}{10000^{\frac {i}{d_{model}}}}) &  & if \ i 是偶数 \ i>=0 \\
+  cos(\frac {j-i}{10000^{\frac {i-1}{d_{model}}}}) &  & if \ i 是奇数 \ i>=1
+  \end{aligned}
+  \right.
+  \end{equation}
+
+  - $d_{model}$指的是模型输出的embedding size, 每个attention的hidden size（ie. total hidden size/ number of head)
+  - j-i 代表是需要attend的字在序列中的相对位置
+  - $k$代表的是position embedding 之后的第$k$维结合例子就比较好理解了，如果一句话是`我喜欢吃苹果`，其中如果是`我`（i=0）对于`吃`(j=3)做attention，则相对位置的表示为j-i=3,d(model)=128,那么3对应的位置向量如下：
+    $[sin(\frac 3{10000^{\frac {0}{128}}}), cos(\frac 3{10000^{\frac {0}{128}}}), sin(\frac 3{10000^{\frac {2}{128}}}), cos(\frac 3{10000^{\frac {2}{128}}}), sin(\frac 3{10000^{\frac {4}{128}}}), cos(\frac 3{10000^{\frac {4}{128}}})...]$
+
+  在引入了这两个相对位置信息向量之后：$a_{ij}^V$ 和 $a_{ij}^K$ 都是从上面式子中来的，（这不就是一样吗？具体细节看看code，j-i有没有clip？）
+  \begin{aligned}
+  e _ { i j } &= \frac { \left( x _ { i } W ^ { Q } \right) \left( x _ { j } W ^ { K } + a ^ { K } _ {i j } \right) ^ { T } } { \sqrt { d _ { z } } } \\
+  \alpha _ { i j } &= \frac { \exp e _ { i j } } { \sum _ { k = 1 } ^ { n } \exp e _ { i k } } \\
+  z _ { i } &= \sum _ { j = 1 } ^ { n } \alpha _ { i j } \left( x _ { j } W ^ { V } + a _ {i j} ^ { V } \right)\\ \tag{$1$}
+  \end{aligned}
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/fb301cf2f1bfe658a67f6eb9e84a59ec.png)
+
+## Implemenntation
+- More Data
+  - Chinese Wikipedia
+  - Baidu Baike
+  - Chinese News. 爬虫
+- LAMB optimizer
+- Whole word masking
+- Mixed Precision Training
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/f0a0aaba35814efd9d1c3ae09471d48a.png)
+
+
+# ZEN
+[ZEN](https://arxiv.org/abs/1911.00720) 提出一个基于中文BERT模型的强化，它的创新点在于不改变原本bert模型的做法之下，增加了ngram的强化，从而得到了几乎媲美ERNIE2.0的效果，可以说这个是一个非常大的强化了。具[repo](https://github.com/sinovation/ZEN)体见
+
+## Why ZEN
+- 像ERNIE的mask的方式只能依赖于已有的词，句的信息。
+- 以前的mask的方式，在pre-training 和 fine-tuning阶段存在mismatch，即fine-tuning阶段没有保存词，句的信息，但是ZEN的词句的信息在finetuning阶段也保存了
+- 错误的NER或者mask会影响encoder的效果。
+
+此外，发现在利用N-gram enhancement，可以在数据量很少的情况下，得到更好的结果，从此证明了这个策略的有效性。
+
+## What is ZEN
+ZEN 主要分为两个步骤，一个是N-gram Extraction，一个是N-gram Integration（包括 N-gram encoding和N-gram representation）
+
+虽然模型使用了N-gram的信息，但是模型的输出还是跟原本BERT一样是character level的encoding。
+
+### N-gram Extraction
+- Lexicon：在训练之前，需要先进行Ngram extraction，这就是把语料库里所有的N-gram提取出来，所谓的N-gram就是词组。然后设置阈值，按照频次倒序排序，去掉频次低于阈值的N-gram。注意这边的N-gram，可以是包含关系，例如里面同时存在，`港澳`和`粤港澳`。对于这个Lexicon，不考虑单个词的N-gram。
+
+- N-gram Matching Matrix：然后对于每一条输入的训练数据，长度为$k_c$，共匹配到了$k_n$个N-gram，我们创一个N-gram Matching Matrix 形状为$k_c*k_n$的$M$矩阵，矩阵中的元素为：
+
+  \begin{equation}
+  m_{i,j}=\left\{
+  \begin{aligned}
+  1 &  & if\ c_i \in n_j\\
+  0 &  & otherwise    
+  \end{aligned}
+  \right.
+  \end{equation}
+
+  其中： $c_i$: 第$i$个 character， $n_j$：第$j$个N-gram
+  例如输入是： 粤港澳大湾区城市竞争力强....和交通一体化
+  我们提取出来的N-gram有{一体化...，港澳，粤港澳大湾区}
+  M：
+  ![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/4c8cd28373fb58328de265da64e2c48d.png)
+
+### Encoding N-gram
+对于N-gram的encoding，模型使用的是transformer的encoding，只是因为我们的N-gram的顺序并不需要考虑，所以模型没有使用position encoding。
+TODO：这边论文并没有讲清楚它的输入，
+- 是不是需要segment encoding？
+- 怎么做embedding，是将ngram matching matrix做映射吗（映射到的embedding的dim肯定是hidden size的长度）还是是提取出了ngram但是还是照样用embedding lookup，只是这边词的顺序不一致
+- 这个layer的size是和character encoder一样吗？
+都没有讲清楚，需要看以下源码。
+
+这个 N-gram encoder的作用是，判断目前的Ngram和其他的Ngram的关联性。所以其Q，K，V分别为
+- Q：当前要query的N-gram的embedding，formally，j-th n-gram in layer l by $µ_j^{(l)}$
+- K：所有的N-gram的embedding 的stack结果, formally, $U^{(l)} = [µ_0^{(l)};µ_1^{(l)};...;µ_{k_n}^{(l)}]$ 其中$k_n$是ngram的个数
+- V：所有的N-gram的embedding 的stack结果即$U^{(l)}$
+$\mu_j^{(l)} = MhA(Q=\mu _j^{(l)}, K=V=U^{(l)}) $
+
+ MhA 是 multi-head attention
+
+### Representing N-grams in Pre-training
+模型在对ngram进行encoding之后，如何进行结合的？这个要就是直接进行vector的相加。
+\begin{equation}
+v_i^{(l)*} = v_i^{(l)} + \sum _k u_{i,k}^{(l)}
+\end{equation}
+
+其中
+- $v_i^{(l)}$ 代表的是character encoder的第l层输出的第i个character的hidden output。
+- $u_{i,k}^{(l)}$ 代表的是N-gram。 encoder，在包含第i个character的第k个N-gram在第l层输出的hidden output。例如上面图中的`澳`，与之相关的Ngram有两个分别是`港澳`和`粤港澳大湾区`
+如果一个字没有存在在任何一个N-gram中，则$v_i^{(l)*} = v_i^{(l)} $保持不变
+
+  \begin{equation}
+  v^{(l)*} = V^{(l)} + M * U^{(l)}
+  \end{equation}
+  这边的$M$是我们的N-gram Matching Matrix。
+需要注意的是，如果这个词在character encoder 被mask之后，那么就不将N-gram encoding进行相加。
+
+### Performance
+- 效果
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/20eecec0afd5c0619c24fd2477714003.png)
+效果达到了和ERNIE的媲美，而且主要是它使用character encoder是最原始的，所以大有可为。
+  - P：用BERT预训练初始化，R：随机初始化。可以看出初始化很重要
+  - ZEN在token level的任务上：NER，POS和Chinese word segmentation (CWS), 任务上有更大的提升空间。
+  - B：base， L：large
+
+- 收敛速度
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/42dff6109726fcfbb58d052a5a5fc823.png)
+Albert也很快收敛
+- 可视化
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/ddf12ba58a15d71b4e267101725f54e7.png)
+通过热度图，还通过实验分析了两个案例，将n-gram encoder的注意力机制可视化出来。
+
+通过热度图可以清晰地看到，注意力会更多的关注在有效的n-gram。比如“波士顿”的权重明显高于“士顿”。对于有划分歧义的句子，n-gram encoder可以正确的关注到“速度”而不是“高速”。
+
+更加有趣的是，在不同层次的encoder关注的n-gram也不同。更高层的encoder对于“提高速度”和“波士顿咨询”这样更长的有效n-gram分配了更多的权重。
+
+这表明，结合n-gram的方法的预训练，不仅仅提供给文本编码器更强大的文本表征能力，甚至还间接产生了一种文本分析的有效方法。这个案例分析暗示我们，或许将来可以用类似地方法提供无指导的文本抽取和挖掘
+
+- 小数据集
+
+除了以上实验，该研究还探究了模型在小数据集上的潜力。
+
+考虑到目前的预训练模型使用了大型的训练语料，但是对于很多特殊的领域，大型数据集很难获取。
+
+因此本文抽出1/10的中文维基百科语料，来模拟了一种语料有限的场景，目的是探究ZEN在小数据集上的潜力。
+
+实验结果如下图所示，在全部七个任务上，ZEN都明显优于BERT。这表明ZEN在数据有限的场景下，具有更大的潜力。
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/fad4848b4c888e352f5d09932cd21c6d.png)
+
+
+# MT-DNN
+[Multi-Task Deep Neural Networks for Natural Language Understanding](https://arxiv.org/pdf/1901.11504.pdf)采用的思想运用多任务学习（Multi-tasks Learning MTL）的机制来进行模型的训练。不同于普通的BERT以及改进，都是在fine-tuning阶段才进行特定任务的学习，但是这篇论文认为应该在pre-training的时候就加入这些NLU的任务，pretraining的任务和MTL的任务应该是互补的，这样子可以得到更好的效果。
+
+但是为什么要叫MT-DNN呢，因为这篇文章是在[原本的模型](http://cs.jhu.edu/~kevinduh/papers/liu15multitask.pdf)基础上改进的，这个模型采用的是使用两层的DNN作为shared layers，但是在这个论文中，使用的了BERT的模型输入和输出作为共享层。
+
+模型取得了SOTA的效果，这也给了百度的ERNIE2.0提供了很大的启发，例如加入更多的任务作为预训练的objectives，以及如何有效地共同训练模型：每一轮中，mini-batch用来训练特定的任务，最后近乎是同时训练多任务的目标。
+
+文中提出的两个句子的相关性的任务，可以使用pair wise 的rank做，能够得到更好的效果。
+[repo](https://github.com/namisan/mt-dnn)
+
+## 为什么要MT-DNN
+现在的NLU任务中，主要有两种方法，一种是language model pretraining一种的multi-task learning，但是两者并不是单独独立的，需要把两者结合。
+- **multi-task learning**  
+  - 因为我们单一任务的数据是有限的，multi-task 提供了更多的有标签的训练数据
+  - multi-task learning 起了一个regularization的作用，模型不会在特定任务上overfitting。使得学习到的模型更普遍适用
+- **language model pretraining**
+  - 语言模型的预训练提供了模型一个普遍适用的语言表示 using unlabeled data
+- 更容易进行domain adaption，需要的数据更少
+
+
+## Multi-Tasks
+- Pretraining tasks：
+和bert一样作为预训练
+  - Mask Language Modeling
+  - Next Sentence Prediction
+
+- single sentence classification
+- pairwise text classification
+- text similarity
+- relevance ranking
+
+## MT-DNN model
+
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/05219749ab65c7e531f2a02effbc9658.png)
+- 输入层lexicon encoder：X=[CLS]+SENTENCE1+[SEP]+【SENTENCE2+[SEP]】和BERT一致，由word+segment+position encoding 组成，其结果表示为$l_1$
+- 中间层Transformer encoder：中间层使用的是transformer的encoder，将输入进行编码，得到每个token对应一个embedding vector，其结果表示为$l_2$
+- 任务层：
+  - **single sentence classification**：使用的是[CLS] 的$l_2$输出作为分类层的输入，经过softmax，之后使用cross entropy作为loss。
+  - **text similarity**：使用的是[CLS] 的$l_2$输出作为回归层的输入，直接输出，之后使用MSE作为loss。
+  - **pairwise text classification**：模型不直接使用[CLS]，而是使用了Stochastic answer network（SAN）模型的输出层作为最后分类层。
+    > TODO：[Stochastic Answer Networks for Machine Reading Comprehension](https://arxiv.org/pdf/1712.03556.pdf)
+    ![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/9167b38ebc64e5750469abe79829c46b.png)
+
+    SAN的效果，可以看到，下面的这些Pairwise text classification 任务，使用ST-DNN（和bert相比仅是模型结构+SAN），的效果比BERT好。
+    ![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/fbe44b1a0a964ac14fcf7044ab64830f.png)
+
+  - **relevance ranking**：两个句子相关性任务，拿QNLI这个数据集举例，虽然QNLI设计为2分类，但是这边使用的是rank的方式来训练，并且发现效果能够提升非常多。
+
+    模型使用的是[CLS]的$l_2$输出$x$作为（Q,A）pair的context 输出，然后经过计算相关度$Rel(Q, A) $
+    \begin{equation}
+          Rel(Q, A) = g(W_{QNLI}^⊤ · x)
+    \end{equation}
+    其中$g(·)$为激活函数。
+    对于$Q$的所有candidates $A$, 都计算一个相关度。
+    我们有1个正样本$A^+$，|A|-1 个负样本$A^-$。我们希望所有正样本的似然概率最大
+    \begin{equation}
+    \begin{split}
+          \prod_{(Q,A^+)} P_r(A^+|Q) =&  
+          -\sum _{Q,A^+} P_r(A^+|Q) \\
+          其中P_r(A^+|Q) &= \frac {e^{\gamma Rel(Q,A^+)}} {\sum _{A' \in A} e^{\gamma Rel(Q,A)}}
+    \end{split}
+    \end{equation}
+    $\gamma =1$ 在这个模型中
+    下面的这些QNLI的任务，使用ST-DNN（和bert相比仅是模型结构+SAN），和BERT相比，仅是将任务进行了重新的formalation了，效果得到了极大的提升。
+    ![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/fbe44b1a0a964ac14fcf7044ab64830f.png)
+
+- 训练和使用
+  和BERT一样，有两阶段，一阶段是pretraining 一阶段是finetuning。
+  - 在pretraining阶段
+    - 先用：MLM以及NSP进行lexicon encoder和Transformer encoder的初始化。
+    - 然后在进行四个任务的Multi-task learning，轮流训练
+  ![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/f844e1d1e5c9b4d928d714f0dd67b4f0.png)
+  - fine-tuning阶段和BERT一致。
+
+## ref
+[https://github.com/namisan/mt-dnn/blob/master/tutorials/Run\_Your\_Own\_Task\_in\_MT-DNN.ipynb](https://github.com/namisan/mt-dnn/blob/master/tutorials/Run_Your_Own_Task_in_MT-DNN.ipynb)
+https://arxiv.org/pdf/1901.11504.pdf
+https://fyubang.com/2019/05/23/mt-dnn/
 
 
 # Reference
