@@ -1723,7 +1723,48 @@ zh 实现没有dynamic masking
 [模型调用](https://mp.weixin.qq.com/s/v5wijUi9WgcQlr6Xwc-Pvw)
 [知乎解释](https://zhuanlan.zhihu.com/p/75987226)
 
+# structBERT
+[StructBERT: Incorporating Language Structures into Pre-training for Deep Language Understanding](https://arxiv.org/pdf/1908.04577)
+StructBERT是阿里在BERT改进上面的一个实践，模型取得了很好的效果，仅次于ERNIE 2.0, 因为ERNIE2.0 采用的改进思路基本相同，都是在pretraining的时候，增加预训练的obejctives。
 
+首先我们先看看一个下面英文和中文的两句话：
+`i tinhk yuo undresatnd this sentneces.`
+
+`研表究明，汉字序顺并不定一影阅响读。比如当你看完这句话后，才发这现里的字全是都乱的`
+
+注意：上面的两个句子都是乱序的！
+
+这个就是structBERT的改进思路的来源。对于一个人来说，字的或者character的顺序不应该是影响模型效果的因素，一个好的LM 模型，需要懂得自己纠错！
+
+此外模型还在NSP的基础上，结合ALBERT的SOP，采用了三分类的方式，预测句子间的顺序。
+
+这两个目标的加入，将句子内的结构word-level ordering，以及句子间sentence-level ordering的结构加入了BERT模型中，使得模型效果得到提升。
+
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/df581b944aa1909d3134e3ff7dbdbdc6.png)
+
+## Word Structural Objective
+输入的句子首先先按照BERT一样mask15%，（80%MASK，10%UNMASK，10%random replacement）。
+
+\begin{equation}
+argmax_\theta \sum logP(pos_1 = t1, pos_2 = t_2, ..., pos_K= t_K | t_1, t_2, ..., t_K)
+\end{equation}
+
+给定subsequence of length K， 希望的结果是把sequence 恢复成正确顺序的likelihood最大。
+- Larger K，模型必须要学会reconstruct 更多的干扰数据，任务比较难，但是噪声多
+- Smaller K，模型必须要学会reconstruct 较少的干扰数据，可能这个任务就比较简单
+
+论文中使用的是K=3，这个任务对单个句子的任务效果比较好。
+## Sentence Structural Objective
+一个句子pair $(S_1, S_2)$，执行三种任务
+- 1/3的时候：$(S_1, S_2)$是上下句，分类为1
+- 1/3的时候：$(S_2, S_1)$是上下句反序，分类为2
+- 1/3的时候：$(S_1, S_{random})$是不同文档的句子，分类为3
+这个任务对句子对的任务效果好。
+
+## Ablation Studies
+![](http://blog-picture-bed.oss-cn-beijing.aliyuncs.com/eb2271cd115c90cfcbd071404176410b.png)
+前三个任务 single-sentence： 主要需要 word structure objective
+后三个任务 sentence-pair ：主要需要 sentence structure objective
 
 
 
