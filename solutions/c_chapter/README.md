@@ -9,6 +9,9 @@
 ### 依存树结构分析
 
 ## 指代消解
++ https://www.cnblogs.com/peng8098/p/nlp_12.html
++ https://blog.csdn.net/sparkexpert/article/details/79868335
+
 中文的指代主要有以下三种典型的形式【1】： 
 1．人称代词(Pronoun) 
 【李明】怕高妈妈一人呆在家里寂寞，【他】便将家里的电视搬了过来。 
@@ -46,3 +49,6 @@
 
 # Tools
 + https://github.com/huggingface/neuralcoref
++ standford 指代消解
++ neuralcoref
+    + 
