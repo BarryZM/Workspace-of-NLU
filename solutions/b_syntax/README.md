@@ -118,6 +118,17 @@
 # Problems
 + 需要提及的是，句法分析目前的性能是防碍其实际应用的一个关键因素，尤其是在open-domain上。目前在英文WSJ上的parsing性能最高能够做到94%，但是一旦跨领域，性能甚至跌到80%以下，是达不到实际应用标准的。而中文上parsing性能则更低。
 
+
+# 中文句子类型
++ 陈述句
++ 感叹句
++ 祈使句
++ 疑问句
++ 特殊句
+
++ https://blog.csdn.net/asialee_bird/article/details/102707902
+
+
 # Reference
 ## Links
 + 统计自然语言处理 第8章
