@@ -1,3 +1,10 @@
+*.bin
+serving/
+.vscode/
+GitToc/
+*.pkl
+*.xlsx
+*.png
 __MACOSX/
 resust*/
 result*

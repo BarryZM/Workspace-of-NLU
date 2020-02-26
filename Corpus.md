@@ -1,4 +1,4 @@
-### 3. 图像字幕（Image Captioning）
+###  图像字幕（Image Captioning）
 
 图像字幕是为给定图像生成文字描述的任务。
 
