@@ -1,23 +1,24 @@
 <!-- TOC -->
 
-1. [Target](#target)
-2. [Framework](#framework)
-    1. [lexical](#lexical)
-    2. [syntax](#syntax)
-    3. [chapter](#chapter)
-    4. [semantic](#semantic)
-    5. [classification](#classification)
-    6. [sentiment](#sentiment)
-    7. [extraction](#extraction)
-    8. [retrieval](#retrieval)
-    9. [knowledge](#knowledge)
-3. [Todo list](#todo-list)
-4. [Contributions](#contributions)
-5. [Licence](#licence)
+- [Target](#target)
+- [Framework](#framework)
+    - [lexical](#lexical)
+    - [syntax](#syntax)
+    - [chapter](#chapter)
+    - [semantic](#semantic)
+    - [classification](#classification)
+    - [sentiment](#sentiment)
+    - [extraction](#extraction)
+    - [retrieval](#retrieval)
+    - [knowledge](#knowledge)
+    - [Others](#others)
+- [Todo list](#todo-list)
+- [Contributions](#contributions)
+- [Licence](#licence)
 
 <!-- /TOC -->
 
-![.jpg-2019-11-21-14-37-49](https://blog-picture-bed.oss-cn-beijing.aliyuncs.com/blog/upload/.jpg-2019-11-21-14-37-49)
+
 
 # Target
 
@@ -52,6 +53,9 @@
 
 ## knowledge
 + 整理知识库，知识图谱的相关方法和代码，主要包括知识库构建，检索，推理的方法和代码
+
+## Others
++ 反讽识别 https://zhuanlan.zhihu.com/p/55212330
 
 # Todo list
 + semantic/extraction/retrieval/knowledge 等方法有待进一步完善
