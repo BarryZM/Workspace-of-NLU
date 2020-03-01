@@ -1,23 +1,29 @@
 <!-- TOC -->
 
 - [Target](#target)
-- [Framework](#framework)
-    - [lexical](#lexical)
-    - [syntax](#syntax)
-    - [chapter](#chapter)
-    - [semantic](#semantic)
-    - [classification](#classification)
-    - [sentiment](#sentiment)
-    - [extraction](#extraction)
-    - [retrieval](#retrieval)
-    - [knowledge](#knowledge)
-    - [Others](#others)
-- [Todo list](#todo-list)
+- [Dataset && Solution && Metric](#dataset--solution--metric)
+    - [Part I : Lexical Analysis](#part-i--lexical-analysis)
+        - [Seg](#seg)
+        - [POS](#pos)
+    - [Part II : Syntactic Analysis](#part-ii--syntactic-analysis)
+        - [句法结构](#句法结构)
+        - [依存句法](#依存句法)
+    - [Part III : Semantic Analysis](#part-iii--semantic-analysis)
+    - [Part IV : Classification && Sentiment Analysis](#part-iv--classification--sentiment-analysis)
+        - [Classification](#classification)
+        - [Sentiment Analysis](#sentiment-analysis)
+    - [Parr V : Summarization](#parr-v--summarization)
+    - [Part VI : Retrieval](#part-vi--retrieval)
+    - [Part VII : Information Retrieval](#part-vii--information-retrieval)
+        - [Named Entity Recognition](#named-entity-recognition)
+        - [Relation Extraction](#relation-extraction)
+        - [Event Detection](#event-detection)
+- [Milestone](#milestone)
+- [Usages](#usages)
 - [Contributions](#contributions)
 - [Licence](#licence)
 
 <!-- /TOC -->
-
 
 
 # Target
@@ -28,38 +34,59 @@
     + Framework for multi-dataset and multi-card
     + Framework for model ensemble
     
-# Framework
-## lexical
-+ 整理分词，词性标注，命名实体识别等方法和代码
-## syntax
-+ 整理句法结构分析和依存句法分分析的方法和代码
-## chapter
-+ 整理结构分析和指代消解的方法和代码
++ function for this README.md
+    + Dataset
+    + Solution
+    + Metric
 
-## semantic
-+ 整理 语义表示（embdding）, 语义相似度（similarity）, 稀疏表示, 自然语言推导(NLI)等相关方法和代码
+# Dataset && Solution && Metric
 
-## classification
-+ 整理文本分类相关方法和代码
+## Part I : Lexical Analysis
 
-## sentiment 
-+ 整理文本分类和细粒度文本分类的相关方法和代码
+### Seg
 
-## extraction
-+ 整理信息抽取的相关方法和代码，主要包括 实体识别，关系抽取，事件发现
+### POS
 
-## retrieval
-+ 整理信息检索的相关方法和代码，主要包括 Ranking 
 
-## knowledge
-+ 整理知识库，知识图谱的相关方法和代码，主要包括知识库构建，检索，推理的方法和代码
+## Part II : Syntactic Analysis
 
-## Others
-+ 反讽识别 https://zhuanlan.zhihu.com/p/55212330
+### 句法结构
 
-# Todo list
-+ semantic/extraction/retrieval/knowledge 等方法有待进一步完善
+### 依存句法
 
+
+## Part III : Semantic Analysis
+
+
+## Part IV : Classification && Sentiment Analysis
+
+### Classification
+
+### Sentiment Analysis
+
+
+## Parr V : Summarization
+
+
+## Part VI : Retrieval
+
+## Part VII : Information Retrieval
+
+### Named Entity Recognition
+
+### Relation Extraction
+
+### Event Detection 
+
+
+# Milestone
+
++ 2019/10/08 : multi-card gnu training
+
+# Usages
+
++ Service 
++ Will be used for other module
 
 # Contributions
 
@@ -70,3 +97,5 @@ You can raise an issue or submit a pull request, whichever is more convenient fo
 # Licence
 
 Apache License
+
+
