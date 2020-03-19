@@ -9,3 +9,7 @@
 # 逻辑推理
 + 充分必要条件
 + 分类
+
+# inference
+
+# entialment
