@@ -13,6 +13,7 @@
 # Doing list
 + represent 
 + retrieval
++ service
 
 # Todo list
 + extraction
