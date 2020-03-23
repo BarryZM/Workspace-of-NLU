@@ -57,6 +57,7 @@ def elastic_search_by_qa(input_text):
 """
 Method 2 : Semantic Search based on Embedding Vector
 sentence represent by bert-as-service
+used in short-short text similarity
 """
 
 def text_encode(input_text):
@@ -93,9 +94,25 @@ def eculd(encode_list, encode_item, text_list):
     sorted_zipped = np.asarray(sorted(zipped, reverse=False, key=lambda x: (x[0], x[1])))
     return sorted_zipped[:bc_document_size][:, 1]
 
+"""
+Method 3 : Semantic Search based on Topic Model and Embedding Vector
+short text represent by bert-as-service
+long text represent by topic model (LDA/LSI)
+used in short-short text similarity
+"""
+
+
+"""
+Method 4: Semantic Search based on Topic Model
+long text represent by topic model(LDA/LSI)
+used in long-long text similarity
+"""
+
+
 if __name__ == "__main__":
-    sentence_list = ['乔丹打球厉害吗', '姚明是谁', '火箭队的主场在哪里', '怎么了', '吃了没']
     query = '你喜欢打篮球吗'
+    sentence_list = ['乔丹打球厉害吗', '姚明是谁', '火箭队的主场在哪里', '怎么了', '吃了没']
+    paragraph_list = ['', '']
 
     """
     Method 1 test
