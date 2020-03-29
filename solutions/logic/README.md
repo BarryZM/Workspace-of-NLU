@@ -13,3 +13,9 @@
 # inference
 
 # entialment
+
+### 2.2.2. textual entailment(NLI)
+
+#### 2.2.2.1. Dataset
+##### 2.2.2.1.1. XNLI 
++ EMNLP2018:**FAIR**
