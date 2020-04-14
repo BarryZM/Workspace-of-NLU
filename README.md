@@ -9,14 +9,3 @@
     + 多卡训练
     + 多任务学习
     + 通用模型融合
-
-# Doing list
-+ represent 
-+ retrieval
-+ service
-
-# Todo list
-+ extraction
-+ knowledge
-
-
