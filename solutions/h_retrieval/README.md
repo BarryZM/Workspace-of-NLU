@@ -1,11 +1,17 @@
+# Summary of Retrieval
 
-# literal
+## Target
++ 梳理文本召回相关方法
++ 构建通用文本召回模块
+
+
+## literal
 +  字面相似度
 
-# semantic
+## semantic
 + 语义形似度
 
-# statics
+## statics
 + 共现相关
 + PMI
 + DSSM
