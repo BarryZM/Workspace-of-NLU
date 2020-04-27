@@ -51,3 +51,9 @@ def lda_sim(s1,s2):
 
 if __name__ == "__main__":
     train_model()
+    doc_1 = '北京的路上又开始堵了'
+    doc_2 = '上海的路况还不错啊'
+    doc_3 = '吃吃吃，胖死拉到'
+    print(lda_sim(doc_1, doc_2))
+    print(lda_sim(doc_2, doc_3))
+    print(lda_sim(doc_1, doc_3))
