@@ -6,7 +6,7 @@ import numpy as np
 import jieba
 import pickle
 
-def _get_dict():
+def get_dict():
     train = []
     fp = codecs.open('/export/home/sunhongchao1/Workspace-of-NLU/corpus/clf/THUCnews/test.txt', 'r', encoding='utf8') # 文本文件，输入需要提取主题的文档
     stopwords = codecs.open('/export/home/sunhongchao1/Workspace-of-NLU/resources/stopwords.txt', 'r', encoding='utf8').readlines() # 取出停用词
@@ -17,12 +17,14 @@ def _get_dict():
     dictionary = Dictionary(train)
     print('get dict done')
 
-    pickle.dump(dictionary, 'dictionary.pkl', 'wb')
-    pickle.dump(train, 'train.pkl', 'wb')
+    with open('dictionary.pkl', 'wb') as f:
+        pickle.dump(dictionary, f)
+    with open('train.pkl', 'wb') as f:
+        pickle.dump(train, f)
 
 def train_model():
-    dictionary=pickle.load('dictionary.pkl', 'rb')
-    train=pickle.load('train.pkl', 'rb')
+    dictionary=pickle.load(codecs.open('dictionary.pkl'))
+    train=pickle.load(codecs.open('train.pkl'))
     corpus = [ dictionary.doc2bow(text) for text in train ]
     lda = LdaModel(corpus=corpus, id2word=dictionary, num_topics=100)
     #模型的保存/ 加载
@@ -31,7 +33,7 @@ def train_model():
 def lda_sim(s1,s2):
     lda = models.ldamodel.LdaModel.load('test_lda.model')
     test_doc = list(jieba.cut(s1))  # 新文档进行分词
-    dictionary = pickle.load('dictionary.pkl', 'rb')
+    dictionary = pickle.load(codecs.open('dictionary.pkl'))
     doc_bow = dictionary.doc2bow(test_doc)  # 文档转换成bow
     doc_lda = lda[doc_bow]  # 得到新文档的主题分布
     # 输出新文档的主题分布
@@ -54,6 +56,7 @@ def lda_sim(s1,s2):
     return sim
 
 if __name__ == "__main__":
+    get_dict()
     train_model()
     doc_1 = '北京的路上又开始堵了'
     doc_2 = '上海的路况还不错啊'
