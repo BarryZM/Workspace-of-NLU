@@ -4,6 +4,7 @@ from gensim.corpora import Dictionary
 from gensim import corpora, models
 import numpy as np
 import jieba
+import pickle
 
 def _get_dict():
     train = []
@@ -15,10 +16,13 @@ def _get_dict():
 
     dictionary = Dictionary(train)
     print('get dict done')
-    return dictionary,train
+
+    pickle.dump(dictionary, 'dictionary.pkl', 'wb')
+    pickle.dump(train, 'train.pkl', 'wb')
+
 def train_model():
-    dictionary=_get_dict()[0]
-    train=_get_dict()[1]
+    dictionary=pickle.load('dictionary.pkl', 'rb')
+    train=pickle.load('train.pkl', 'rb')
     corpus = [ dictionary.doc2bow(text) for text in train ]
     lda = LdaModel(corpus=corpus, id2word=dictionary, num_topics=100)
     #模型的保存/ 加载
@@ -27,21 +31,21 @@ def train_model():
 def lda_sim(s1,s2):
     lda = models.ldamodel.LdaModel.load('test_lda.model')
     test_doc = list(jieba.cut(s1))  # 新文档进行分词
-    dictionary=_get_dict()[0]
+    dictionary = pickle.load('dictionary.pkl', 'rb')
     doc_bow = dictionary.doc2bow(test_doc)  # 文档转换成bow
     doc_lda = lda[doc_bow]  # 得到新文档的主题分布
     # 输出新文档的主题分布
-    # print(doc_lda)
+    print(doc_lda)
     list_doc1 = [i[1] for i in doc_lda]
-    # print('list_doc1',list_doc1)
+    print('list_doc1',list_doc1)
 
     test_doc2 = list(jieba.cut(s2))  # 新文档进行分词
     doc_bow2 = dictionary.doc2bow(test_doc2)  # 文档转换成bow
     doc_lda2 = lda[doc_bow2]  # 得到新文档的主题分布
     # 输出新文档的主题分布
-    # print(doc_lda)
+    print(doc_lda)
     list_doc2 = [i[1] for i in doc_lda2]
-    # print('list_doc2',list_doc2)
+    print('list_doc2',list_doc2)
     try:
         sim = np.dot(list_doc1, list_doc2) / (np.linalg.norm(list_doc1) * np.linalg.norm(list_doc2))
     except ValueError:
